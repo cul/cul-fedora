@@ -1,6 +1,6 @@
 production:
-    url: http://127.0.0.1:8983/solr
+    url: http://testcat.cul.columbia.edu:8983/solr/blacklight
 development:
-    url: http://127.0.0.1:8983/solr
+    url: http://testcat.cul.columbia.edu:8983/solr/blacklight
 test:
-    url: http://127.0.0.1:8983/solr
+    url: http://testcat.cul.columbia.edu:8983/solr/blacklight
