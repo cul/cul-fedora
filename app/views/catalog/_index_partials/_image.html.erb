@@ -1,0 +1,22 @@
+<%#  partial to display solr document fields in catalog index view  for Image format -%>
+<div><% if document["object_display"]%>
+<% thumb = document["object_display"].first + "/ldpd:sdef.Image/getThumbnail" -%>
+<img src="<%= thumb -%>" />
+<% end -%>
+<dl class="defList" style="float:right">
+  <% index_field_names.each do |solr_fname| -%>
+    <% if document[solr_fname] %>
+      <% if document[solr_fname].is_a?(Array) %>
+        <dt><%= index_field_labels[solr_fname]%></dt><dd>
+        <% document[solr_fname].each do |val| %>
+          <%= h val %><%= "<br/>" unless val == document[solr_fname].last %>
+        <% end %>
+        </dd>
+      <% else %>
+        <dt><%= index_field_labels[solr_fname]%></dt>
+        <dd><%= h document[solr_fname] %></dd>
+      <% end -%>
+    <% end -%>
+  <% end -%>
+</dl>
+</div>

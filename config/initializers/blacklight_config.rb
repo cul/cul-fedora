@@ -71,20 +71,22 @@ Blacklight.configure(:shared) do |config|
     :field_names => [
       "format",
       "pub_date",
-      "subject_topic_facet",
       "language_facet",
       "lc_1letter_facet",
+      "name_corporate_facet",
       "subject_geo_facet",
-      "subject_era_facet"
+      "subject_era_facet",
+      "subject_topic_facet"
     ],
     :labels => {
       "format"              => "Format",
       "pub_date"            => "Publication Year",
-      "subject_topic_facet" => "Topic",
       "language_facet"      => "Language",
       "lc_1letter_facet"    => "Call Number",
+      "name_corporate_facet" => "Corporate Name",
       "subject_era_facet"   => "Era",
-      "subject_geo_facet"   => "Region"
+      "subject_geo_facet"   => "Region",
+      "subject_topic_facet"   => "Topic"
     }
   }
 
@@ -93,22 +95,26 @@ Blacklight.configure(:shared) do |config|
   config[:index_fields] = {
     :field_names => [
       "title_display",
+      "subtitle_display",
       "title_vern_display",
       "author_display",
       "author_vern_display",
       "format",
       "language_facet",
+      "object_display",
       "published_display",
       "published_vern_display",
       "lc_callnum_display"
     ],
     :labels => {
       "title_display"           => "Title:",
+      "subtitle_display"           => "Subtitle:",
       "title_vern_display"      => "Title:",
       "author_display"          => "Author:",
       "author_vern_display"     => "Author:",
       "format"                  => "Format:",
       "language_facet"          => "Language:",
+      "object_display"       => "In Fedora:",
       "published_display"       => "Published:",
       "published_vern_display"  => "Published:",
       "lc_callnum_display"      => "Call number:"
@@ -130,6 +136,7 @@ Blacklight.configure(:shared) do |config|
       "url_suppl_display",
       "material_type_display",
       "language_facet",
+      "object_display",
       "published_display",
       "published_vern_display",
       "lc_callnum_display",
@@ -147,6 +154,7 @@ Blacklight.configure(:shared) do |config|
       "url_suppl_display"       => "More Information:",
       "material_type_display"   => "Physical description:",
       "language_facet"          => "Language:",
+      "object_display"       => "In Fedora:",
       "published_display"       => "Published:",
       "published_vern_display"  => "Published:",
       "lc_callnum_display"      => "Call number:",
