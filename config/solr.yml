@@ -1,6 +1,6 @@
 production:
-    url: http://testcat.cul.columbia.edu:8983/solr/blacklight
+    url: http://testcat.cul.columbia.edu:8983/solr-1.4/blacklight
 development:
-    url: http://testcat.cul.columbia.edu:8983/solr/blacklight
+    url: http://testcat.cul.columbia.edu:8983/solr-1.5/blacklight
 test:
-    url: http://testcat.cul.columbia.edu:8983/solr/blacklight
+    url: http://testcat.cul.columbia.edu:8983/solr-1.5/blacklight

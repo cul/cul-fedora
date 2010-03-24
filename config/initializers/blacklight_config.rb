@@ -34,7 +34,7 @@ Blacklight.configure(:shared) do |config|
         "lc_alpha_facet",
         "lc_b4cutter_facet",
         "language_facet",
-        "pub_date",
+        "date_created_h",
         "subject_era_facet",
         "subject_geo_facet",
         "subject_topic_facet"]
@@ -70,7 +70,7 @@ Blacklight.configure(:shared) do |config|
   config[:facet] = {
     :field_names => [
       "format",
-      "pub_date",
+      "date_created_h",
       "language_facet",
       "lc_1letter_facet",
       "name_corporate_facet",
@@ -80,7 +80,7 @@ Blacklight.configure(:shared) do |config|
     ],
     :labels => {
       "format"              => "Format",
-      "pub_date"            => "Publication Year",
+      "date_created_h"            => "Date Created",
       "language_facet"      => "Language",
       "lc_1letter_facet"    => "Call Number",
       "name_corporate_facet" => "Corporate Name",

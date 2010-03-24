@@ -38,6 +38,7 @@ namespace :solr do
                   else
                      puts "#{update_uri} received: #{update_res.response.code}"
                      puts "#{update_uri} msg: #{update_res.response.message}"
+                     puts "\t#{source_uri}"
                   end
                rescue Exception => e
                   puts "#{update_uri} threw error #{e.message}"
