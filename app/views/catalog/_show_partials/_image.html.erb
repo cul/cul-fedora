@@ -1,0 +1,69 @@
+<%# default partial to display solr document fields in catalog show view -%>
+<div>
+<table class="defList" style="float:left;width:75%">
+  <caption>Descriptive Information</caption>
+  <% document_show_fields.each do |solr_fname| -%>
+    <% if document[solr_fname] %>
+      <tr>
+        <th><%= document_show_field_labels[solr_fname]%></th>
+      <% if document[solr_fname].is_a?(Array) %>
+        <td>
+        <% document[solr_fname].each do |val| %>
+          <%= val %><%= "<br/>" unless val == document[solr_fname].last %>
+        <% end %>
+        </td>
+      <% else %>
+        <td><%= document[solr_fname] %></td>
+      <% end -%>
+      </tr>
+    <% end -%>
+  <% end -%>
+  </tr>
+</table>
+<% if document["object_display"]%>
+<% thumb = document["object_display"].first + "/ldpd:sdef.Image/getThumbnail" -%>
+<div style="">
+ <img src="<%= thumb -%>" />
+</div>
+<% end -%>
+</div>
+
+<% if document["object_display"]%>
+
+<table id="imageMembers">
+<caption>Available Image Versions</caption>
+<tr><th>MIME Type</th><th>Dimensions</th><th>File Size</th><th>Link</th></tr>
+</table>
+<script type="text/javascript">
+var j_url = "<%=document["object_display"].first -%>/ldpd:sdef.Aggregator/listMembers?max=&format=json&start=&callback=?";
+var row_create = function (i, item){
+    var dim = item.imageWidth + " x " + item.imageHeight;
+    var size = (item.fileSize % 1024 ) + " Kb";
+    var i_url = "<%=document["object_display"].first -%>";
+    i_url = i_url.substring(0,i_url.lastIndexOf(':'));
+    i_url = i_url + item.member.substring(item.member.lastIndexOf(':'));
+    var row = $("<tr></tr>");
+    // do cell appends
+    var t1 = $("<td></td>");
+    t1.text(item.type);
+    t1.appendTo(row);
+    t1 = $("<td></td>");
+    t1.text(dim);
+    t1.appendTo(row);
+    t1 = $("<td></td>");
+    t1.text(size);
+    t1.appendTo(row);
+    t1 = $("<td></td>");
+    var a_link = $("<a />").attr("href",i_url+"/CONTENT");
+    a_link.text("[DOWNLOAD]");
+    a_link.appendTo(t1);
+    t1.appendTo(row);
+    row.appendTo("#imageMembers");
+}
+var members = function (data){
+  $.each(data.results, row_create );
+}
+$.getJSON(j_url, members );
+</script>
+<% end -%>
+
