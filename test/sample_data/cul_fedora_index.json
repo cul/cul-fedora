@@ -1,4 +1,11 @@
 [ 
+"http://repository2.cul.columbia.edu:8080/fedora/get/demo:2002/ldpd:sdef.Core/getIndex/",
+"http://repository2.cul.columbia.edu:8080/fedora/get/demo:2003/ldpd:sdef.Core/getIndex/",
+"http://repository2.cul.columbia.edu:8080/fedora/get/demo:2004/ldpd:sdef.Core/getIndex/",
+"http://repository2.cul.columbia.edu:8080/fedora/get/demo:2005/ldpd:sdef.Core/getIndex/",
+"http://repository2.cul.columbia.edu:8080/fedora/get/demo:2006/ldpd:sdef.Core/getIndex/",
+"http://repository2.cul.columbia.edu:8080/fedora/get/demo:2007/ldpd:sdef.Core/getIndex/",
+"http://repository2.cul.columbia.edu:8080/fedora/get/demo:2008/ldpd:sdef.Core/getIndex/",
 "http://repository2.cul.columbia.edu:8080/fedora/get/ldpd:110/ldpd:sdef.Core/getIndex/",
 "http://repository2.cul.columbia.edu:8080/fedora/get/ldpd:109/ldpd:sdef.Core/getIndex/",
 "http://repository2.cul.columbia.edu:8080/fedora/get/ldpd:295/ldpd:sdef.Core/getIndex/",

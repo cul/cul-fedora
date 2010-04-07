@@ -58,6 +58,9 @@ module Blacklight::Solr::Hfacets
   def self.subfacets(subfacet_values)
     # a hfacet item has a label, a count, and a value. It may have subfacets.
     items = Array.new()
+    if (! subfacet_values )
+      return items
+    end
     items.push(Subfacet.new())
     (0...subfacet_values.size).step(2) do |i|
        name = subfacet_values[i]
