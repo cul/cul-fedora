@@ -4,17 +4,32 @@ namespace :solr do
    namespace :fedora do
 # for each collection, the task needs to fetch the unlimited count, and then work through the pages
 # for development, we should probably just hard-code a sheet of data urls
+     desc "load the fedora configuration"
+     task :configure => :environment do
+       env = ENV['RAILS_ENV'] ? ENV['RAILS_ENV'] : 'development'
+       yaml = YAML::load(File.open("config/fedora.yml"))[env]
+       ENV['RI_URL'] ||= yaml['riurl'] 
+       ENV['RI_QUERY'] ||= yaml['riquery'] 
+     end
+
      desc "index objects from a CUL fedora repository"
-     task :index => :environment do
-       urls_to_scan = if ENV['URL_LIST']
+     task :index => :configure do
+       urls_to_scan = case
+       when ENV['URL_LIST']
          url = ENV['URL_LIST']
          uri = URI.parse(url) # where is url assigned?
          Net::HTTP.start(uri.host, uri.port) { |http| http.get(uri.path).body }
+       when ENV['COLLECTION_PID']
+         query = "format=json&amp;lang=itql&amp;query=" + URI.escape(sprintf(ENV['RI_QUERY'],ENV['COLLECTION_PID']))
+         fedora_uri = URI.parse(ENV['RI_URL'])
+         members = Net::HTTP.start(fedora_uri.host, fedora_uri.port) { |http| http.get(fedora_uri.path + '/risearch',query).body }
+         members = JSON::parse(members)
+         url_array = members.collect {|member| fedora_uri.merge('/get/' + member.member + '/ldpd:sdep.Core/getIndex')['URL']}
        else
          File.read(File.join(RAILS_ROOT,"test","sample_data","cul_fedora_index.json"))
        end
 
-       url_array = JSON::parse(urls_to_scan)
+       url_array ||= JSON::parse(urls_to_scan)
        puts "#{url_array.size} URLs to scan."
 
        successes = 0
