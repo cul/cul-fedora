@@ -1,0 +1,6 @@
+production:
+    url: https://repository.cul.columbia.edu:8443/fedora
+development:
+    url: https://repository.cul.columbia.edu:8443/fedora
+test:
+    url: https://repository.cul.columbia.edu:8443/fedora
