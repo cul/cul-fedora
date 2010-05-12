@@ -71,7 +71,7 @@ Blacklight.configure(:shared) do |config|
   config[:facet] = {
     :field_names => [
       "collection_h",
-      "format",
+      "format_h",
       "descriptor",
       "date_created_h",
       "language_facet",
@@ -83,7 +83,7 @@ Blacklight.configure(:shared) do |config|
     ],
     :labels => {
       "collection_h"              => "Collection",
-      "format"              => "Format",
+      "format_h"              => "Format",
       "descriptor"              => "Data Source",
       "date_created_h"            => "Date Created",
       "language_facet"      => "Language",
