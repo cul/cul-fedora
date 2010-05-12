@@ -28,7 +28,8 @@ Blacklight.configure(:shared) do |config|
     :qt=>:search,
     :per_page => 10,
     :facets => {:fields=>
-      ["format",
+      ["collection_h",
+        "format",
         "language_facet",
         "lc_1letter_facet",
         "lc_alpha_facet",
@@ -69,6 +70,7 @@ Blacklight.configure(:shared) do |config|
   #   The ordering of the field names is the order of the display 
   config[:facet] = {
     :field_names => [
+      "collection_h",
       "format",
       "date_created_h",
       "language_facet",
@@ -79,6 +81,7 @@ Blacklight.configure(:shared) do |config|
       "subject_topic_facet"
     ],
     :labels => {
+      "collection_h"              => "Collection",
       "format"              => "Format",
       "date_created_h"            => "Date Created",
       "language_facet"      => "Language",
