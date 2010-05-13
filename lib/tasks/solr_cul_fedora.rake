@@ -33,6 +33,10 @@ namespace :solr do
          risearch.finish
          members = JSON::parse(members.body)['results']
          url_array = members.collect {|member| fedora_uri.merge('/fedora/get/' + member['member'].split('/')[1] + '/ldpd:sdef.Core/getIndex').to_s}
+       when ENV['PID']
+         pid = ENV['PID']
+         fedora_uri = URI.parse(ENV['RI_URL'])
+         url_array = [ fedora_uri.merge('/fedora/get/' + pid + '/ldpd:sdef.Core/getIndex').to_s]
        when ENV['SAMPLE_DATA']
          File.read(File.join(RAILS_ROOT,"test","sample_data","cul_fedora_index.json"))
        else
