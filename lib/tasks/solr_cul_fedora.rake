@@ -1,4 +1,26 @@
+require 'nokogiri'
 
+class Gatekeeper
+  attr_reader :allowed
+  def initialize(arg1)
+    @allowed = arg1.collect { |pid|
+      Regexp.new('\b' + pid + '[\b\/]')
+    }
+  end
+  def accept?(filedata)
+    result = false
+    if (allowed.length == 0)
+      p "Warning: No allowable collection regex's"
+    end
+    doc = Nokogiri::XML::Document.parse(filedata,'utf-8')
+    doc.xpath('//xmlns:field[@name="internal_h"]').each do |element|
+      allowed.each do |pid|
+        result |= (pid =~ element.content)
+      end
+    end
+    result
+  end
+end
 namespace :solr do
  namespace :cul do
    namespace :fedora do
@@ -10,6 +32,7 @@ namespace :solr do
        yaml = YAML::load(File.open("config/fedora.yml"))[env]
        ENV['RI_URL'] ||= yaml['riurl'] 
        ENV['RI_QUERY'] ||= yaml['riquery'] 
+       ALLOWED = Gatekeeper.new(yaml['collections'].split(';'))
      end
 
      desc "index objects from a CUL fedora repository"
@@ -62,7 +85,7 @@ namespace :solr do
            source.start
            res =  source.get(source_uri.path)
            source.finish
-           if res.response.code == "200"
+           if res.response.code == "200" && ALLOWED.accept?(res.body)
              Net::HTTP.start(update_uri.host, update_uri.port) do |http|
                hdrs = {'Content-Type'=>'text/xml','Content-Length'=>res.body.length.to_s}
                begin
@@ -80,7 +103,11 @@ namespace :solr do
              end
 
            else
-             puts "#{source_url} received: #{res.response.code}"
+             if res.response.code == "200"
+               puts "#{source_url} rejected: no allowable collection in hierarchy"
+             else
+               puts "#{source_url} received: #{res.response.code}"
+             end
            end
          rescue Exception => e
            puts "#{source_url} threw error #{e.message}"
@@ -89,6 +116,7 @@ namespace :solr do
        end
 
        puts "#{successes} URLs scanned successfully."
+       if (successes > 0)
              Net::HTTP.start(update_uri.host, update_uri.port) do |http|
                msg = '<commit waitFlush="false" waitSearcher="false"></commit>'
                hdrs = {'Content-Type'=>'text/xml','Content-Length'=>msg.length.to_s}
@@ -103,6 +131,7 @@ namespace :solr do
                rescue Exception => e
                end
              end
+       end
      end
    end
  end
