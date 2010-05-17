@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090529161304) do
+ActiveRecord::Schema.define(:version => 20100517183853) do
 
   create_table "bookmarks", :force => true do |t|
     t.integer  "user_id",     :null => false
@@ -53,8 +53,12 @@ ActiveRecord::Schema.define(:version => 20090529161304) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "password_salt"
-    t.string   "persistence_token"
     t.datetime "current_login_at"
+    t.string   "wind_login"
+    t.string   "persistence_token"
   end
+
+  add_index "users", ["persistence_token"], :name => "index_users_on_persistence_token"
+  add_index "users", ["wind_login"], :name => "index_users_on_wind_login"
 
 end
