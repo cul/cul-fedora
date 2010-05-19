@@ -1,11 +1,28 @@
-<div id="facetFieldValues">
+<div class="facet_extended_list">
   
-  <%= render :partial=>'facet_pagination' %>
-
-  <h3><%= field_label params[:id] %></h3>
-  
-  <% @pagination.items.each do |item| %>
-    <div class="facet"><%= item.value %> (<%= format_num item.hits %>)</div>
+  <% sidebar_items << capture do %>
+  <p><%= link_back_to_catalog %></p>
   <% end %>
+
+  <div class="pagination top">
+    <%= render :partial=>'facet_pagination' %>
+  </div>
   
+  <h3><%= facet_field_labels[params[:id]] %></h3>
+  
+  <ul class="facet_extended_list">
+    <% @pagination.items.each do |item| %>
+      <li>
+        <% if facet_in_params?( params[:id], item.value ) %>              
+          <%= render_selected_facet_value(params[:id], item) %>              
+        <% else %>              
+          <%= render_facet_value(params[:id], item) %>              
+        <% end -%>
+      </li>
+    <% end %>
+  </ul>
+  
+  <div class="pagination bottom">
+    <%= render :partial=>'facet_pagination' %>
+  </div>
 </div>

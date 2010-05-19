@@ -25,7 +25,9 @@ describe CatalogController do
     it "should map {:controller => 'catalog', :id => '222', :action => 'availability'} to /catalog/222/availability" do
       route_for(:controller => 'catalog', :action => 'availability', :id => '222').should == '/catalog/222/availability'
     end
-
+    it "should map {:controller => 'catalog', :id => '111', :action => 'librarian_view'} to /catalog/111/librarian_view" do
+      route_for(:controller => 'catalog', :action => 'librarian_view', :id => '111').should == '/catalog/111/librarian_view'
+    end
   end
 
   # parameters generated from routes
@@ -48,8 +50,12 @@ describe CatalogController do
     it "should map /catalog/222/availability to {:controller => 'catalog', :action => 'availability', :id => 222}" do
       params_from(:get, '/catalog/222/availability').should == {:controller => 'catalog', :action => 'availability', :id => '222'}
     end
+    it "should map /catalog/111/librarian_view to {:controller => 'catalog', :action => 'librarian_view', :id => 111}" do
+      params_from(:get, '/catalog/111/librarian_view').should == {:controller => 'catalog', :action => 'librarian_view', :id => '111'}
+    end
   end
 
+  
 
   # INDEX ACTION
   describe "index action" do
@@ -240,6 +246,32 @@ describe CatalogController do
       end
     end
 
+    describe "with dynamic export formats" do
+        module FakeExtension
+          def self.extended(document)
+            document.will_export_as(:mock, "application/mock")
+          end
+          
+          def export_as_mock
+            "mock_export"
+          end
+        end
+      before(:each) do
+        SolrDocument.use_extension(FakeExtension)        
+      end
+      
+      it "should respond to an extension-registered format properly" do
+         get :show, :id => doc_id, :format => "mock"
+         response.should be_success
+         response.should have_text("mock_export")         
+      end
+      
+      
+      after(:each) do
+        SolrDocument.registered_extensions = nil
+      end      
+    end # dynamic export formats
+
   end # describe show action
 
   describe "opensearch" do
@@ -295,6 +327,35 @@ describe CatalogController do
     end
   end
 
+  describe "facet_limit_for" do
+    it "should return default value for facet_field not specified" do
+      controller.facet_limit_for("zzz_unknown_facet_field").should == Blacklight.config[:facet][:limits][nil]
+    end
+    it "should return specified value for facet_field specified" do
+      controller.facet_limit_for("subject_facet").should == Blacklight.config[:facet][:limits]["subject_facet"]
+    end
+    it "facet_limit_hash should return hash with key being facet_field and value being configured limit" do
+      controller.facet_limit_hash.should == Blacklight.config[:facet][:limits]
+    end    
+  end
+  
+  describe "errors" do
+    it "should return status 404 for a record that doesn't exist" do
+      get :show, :id=>"987654321"
+      response.redirected_to.should == root_path
+      response.flash[:notice].should == "Sorry, you have requested a record that doesn't exist."
+      response.should_not be_success
+      response.status.should == "404 Not Found"
+    end
+    it "should return a status 500 for a bad search" do
+      get :index, :q=>"+"
+      response.redirected_to.should == root_path
+      response.flash[:notice].should == "Sorry, I don't understand your search."
+      response.should_not be_success
+      response.status.should == "500 Internal Server Error"
+    end
+    
+  end
   
 end
 
