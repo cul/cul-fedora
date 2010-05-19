@@ -87,6 +87,9 @@ Blacklight.configure(:shared) do |config|
       "subject_era_facet"   => "Era",
       "subject_geo_facet"   => "Region",
       "subject_topic_facet"   => "Topic"
+    },
+    :limits => {
+      nil => 10
     }
   }
 
