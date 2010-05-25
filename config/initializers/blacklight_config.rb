@@ -17,20 +17,27 @@
 # 
 
 Blacklight.configure(:shared) do |config|
+
+  # Set up and register the default SolrDocument Marc extension
+  SolrDocument.extension_parameters[:marc_source_field] = :marc_display
+  SolrDocument.extension_parameters[:marc_format_type] = :marc21
+  SolrDocument.use_extension( Blacklight::Solr::Document::Marc) do |document|
+    document.key?( :marc_display  )
+  end
+
   
   # default params for the SolrDocument.search method
   SolrDocument.default_params[:search] = {
     :qt=>:search,
     :per_page => 10,
     :facets => {:fields=>
-      ["collection_h",
-        "format",
+      ["format",
         "language_facet",
         "lc_1letter_facet",
         "lc_alpha_facet",
         "lc_b4cutter_facet",
         "language_facet",
-        "date_created_h",
+        "pub_date",
         "subject_era_facet",
         "subject_geo_facet",
         "subject_topic_facet"]
@@ -62,34 +69,41 @@ Blacklight.configure(:shared) do |config|
   }
 
   # solr fields that will be treated as facets by the blacklight application
-  #   The ordering of the field names is the order of the display 
+  #   The ordering of the field names is the order of the display
+  # TODO: Reorganize facet data structures supplied in config to make simpler
+  # for human reading/writing, kind of like search_fields. Eg,
+  # config[:facet] << {:field_name => "format", :label => "Format", :limit => 10}
   config[:facet] = {
     :field_names => [
-      "collection_h",
       "format_h",
-      "descriptor",
-      "date_created_h",
+      "pub_date",
+      "subject_topic_facet",
       "language_facet",
       "lc_1letter_facet",
-      "name_corporate_facet",
       "subject_geo_facet",
-      "subject_era_facet",
-      "subject_topic_facet"
+      "subject_era_facet"
     ],
     :labels => {
-      "collection_h"              => "Collection",
       "format_h"              => "Format",
-      "descriptor"              => "Data Source",
-      "date_created_h"            => "Date Created",
+      "pub_date"            => "Publication Year",
+      "subject_topic_facet" => "Topic",
       "language_facet"      => "Language",
       "lc_1letter_facet"    => "Call Number",
-      "name_corporate_facet" => "Corporate Name",
       "subject_era_facet"   => "Era",
-      "subject_geo_facet"   => "Region",
-      "subject_topic_facet"   => "Topic"
+      "subject_geo_facet"   => "Region"
     },
+    # Setting a limit will trigger Blacklight's 'more' facet values link.
+    # If left unset, then all facet values returned by solr will be displayed.
+    # nil key can be used for a default limit applying to all facets otherwise
+    # unspecified. 
+    # limit value is the actual number of items you want _displayed_,
+    # #solr_search_params will do the "add one" itself, if neccesary.
     :limits => {
-      nil => 10
+      nil => 10,
+      "subject_facet" => 20
+    },
+    :hierarchy => {
+      "format_h" => true
     }
   }
 
@@ -98,26 +112,22 @@ Blacklight.configure(:shared) do |config|
   config[:index_fields] = {
     :field_names => [
       "title_display",
-      "subtitle_display",
       "title_vern_display",
       "author_display",
       "author_vern_display",
       "format",
       "language_facet",
-      "object_display",
       "published_display",
       "published_vern_display",
       "lc_callnum_display"
     ],
     :labels => {
       "title_display"           => "Title:",
-      "subtitle_display"           => "Subtitle:",
       "title_vern_display"      => "Title:",
       "author_display"          => "Author:",
       "author_vern_display"     => "Author:",
       "format"                  => "Format:",
       "language_facet"          => "Language:",
-      "object_display"       => "In Fedora:",
       "published_display"       => "Published:",
       "published_vern_display"  => "Published:",
       "lc_callnum_display"      => "Call number:"
@@ -135,13 +145,10 @@ Blacklight.configure(:shared) do |config|
       "author_display",
       "author_vern_display",
       "format",
-      "identifier_s",
-      "text",
       "url_fulltext_display",
       "url_suppl_display",
       "material_type_display",
       "language_facet",
-      "object_display",
       "published_display",
       "published_vern_display",
       "lc_callnum_display",
@@ -155,13 +162,10 @@ Blacklight.configure(:shared) do |config|
       "author_display"          => "Author:",
       "author_vern_display"     => "Author:",
       "format"                  => "Format:",
-      "identifier_s"                  => "Identifier:",
-      "text"                  => "Description:",
       "url_fulltext_display"    => "URL:",
       "url_suppl_display"       => "More Information:",
       "material_type_display"   => "Physical description:",
       "language_facet"          => "Language:",
-      "object_display"       => "In Fedora:",
       "published_display"       => "Published:",
       "published_vern_display"  => "Published:",
       "lc_callnum_display"      => "Call number:",
@@ -169,20 +173,14 @@ Blacklight.configure(:shared) do |config|
     }
   }
 
-# FIXME: is this now redundant with above?
-  # type of raw data in index.  Currently marcxml and marc21 are supported.
-  config[:raw_storage_type] = "marc21"
-  # name of solr field containing raw data
-  config[:raw_storage_field] = "marc_display"
 
-  # "fielded" search select (pulldown)
-  # label in pulldown is followed by the name of a SOLR request handler as 
-  # defined in solr/conf/solrconfig.xml
+  # "fielded" search configuration. Used by pulldown among other places.
+  # For supported keys in hash, see rdoc for Blacklight::SearchFields
   config[:search_fields] ||= []
-  config[:search_fields] << ['All Fields', 'search']
-  config[:search_fields] << ['Title', 'title_search']
-  config[:search_fields] << ['Author', 'author_search']
-  config[:search_fields] << ['Subject', 'subject_search']
+  config[:search_fields] << {:display_label => 'All Fields', :qt => 'search'}
+  config[:search_fields] << {:display_label => 'Title', :qt => 'title_search'}
+  config[:search_fields] << {:display_label =>'Author', :qt => 'author_search'}
+  config[:search_fields] << {:display_label => 'Subject', :qt=> 'subject_search'}
   
   # "sort results by" select (pulldown)
   # label in pulldown is followed by the name of the SOLR field to sort by and

@@ -7,42 +7,31 @@ module Blacklight::Solr::Hfacets
     raise "['facet.offset'] is required" unless params['facet.offset']
     params[:rows] = 0
     response = Blacklight.solr.find(params)
-    Paginator.new(response.facets.first.items, params['facet.offset'], params['facet.limit'])
+    FacetPaginator.new(response.facets.first.items, {:offset => params['facet.offset'], :limit => params['facet.limit']})
   end
 
-  class Subfacet
-    attr_accessor :value, :hits, :label
-    def subfacets
-      @subfacets
-    end
-    def subfacets=(value)
-      @subfacets = value
-    end
-    def initialize(*value)
-      @value = value[0]
-    end
+  class SubfacetItem < RSolr::Ext::Response::Facets::FacetItem
+    attr_accessor :subfacets, :label
   end
   
-  #
-  # Pagination for facet values -- works by setting the limit to (max + 1)
-  # If limit is 6, then the resulting facet value items.size==5
-  # This is a workaround for the fact that Solr itself can't compute
-  # the total values for a given facet field,
-  # so we cannot know how many "pages" there are.
-  #
-  class Paginator
+  class FacetPaginator < Blacklight::Solr::FacetPaginator
     
-    attr_reader :total, :items, :previous_offset, :next_offset
+    attr_reader :total, :items, :previous_offset, :next_offset, :limit, :sort
 
-    def initialize(top_level_values, offset, limit)
-      offset = offset.to_s.to_i
-      limit = limit.to_s.to_i
-      total = top_level_values.size
-      @items = subfacets(top_level_values).slice(0, limit-1)
-      @has_next = total == limit
-      @has_previous = offset > 0
-      @next_offset = offset + (limit-1)
-      @previous_offset = offset - (limit-1)
+    def initialize(values, arguments)
+      @offset = arguments[:offset].to_s.to_i
+      @limit = arguments[:limit].to_s.to_i
+      @sort = arguments[:sort].to_s.to_i
+      total = values.size
+      if (@limit)
+        @items = values.slice(0, @limit)
+        @has_next = total > @limit
+        @has_previous = @offset > 0
+      else
+        @items = values
+        @has_next = false
+        @has_previous = false
+      end
     end
 
     def has_next?
@@ -57,26 +46,39 @@ module Blacklight::Solr::Hfacets
 
   def self.subfacets(subfacet_values)
     # a hfacet item has a label, a count, and a value. It may have subfacets.
+    # parsing is hinky because of the flat list of returned values
+    warn "called Hfacets.subfacets"
     items = Array.new()
     if (! subfacet_values )
+      p "nil/false for subfacet_values"
       return items
     end
-    items.push(Subfacet.new())
-    (0...subfacet_values.size).step(2) do |i|
+    template = {:v=>nil, :h=>nil, :l=>nil, :s=>nil}
+    i = 0
+    #(0...subfacet_values.size).step(2) do |i|
+    while i < subfacet_values.size
        name = subfacet_values[i]
        value = subfacet_values[i+1]
+       p name.to_s + " : " + value.to_s
        if (name =~ /^path\-.*/) :
-         items.last.value = value
+         template[:v] = value
        elsif (name.eql? 'sub_facets') :
-         items.last.subfacets = Blacklight::Solr::Hfacets.subfacets(value)
+         template[:s] = Blacklight::Solr::Hfacets.subfacets(value)
        else
-         if (items.last.label) :
-           items.push(Subfacet.new())
+         if (!template[:l].nil?) :
+           items.push(SubfacetItem.new(template[:v],template[:h]))
+           items.last.subfacets= (template[:s].nil?)?[]:template[:s]
+           items.last.label= template[:l]
+           template = {:v=>nil, :h=>nil, :l=>nil, :s=>nil}
          end
-         items.last.label = name
-         items.last.hits = value.to_i
+         template[:l] = name
+         template[:h] = value.to_i
        end
+    i += 4
     end
+    items.push(SubfacetItem.new(template[:v],template[:h]))
+    items.last.subfacets= (template[:s].nil?)?[]:template[:s]
+    items.last.label= template[:l]
     return items
   end
 end
