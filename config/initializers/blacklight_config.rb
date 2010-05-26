@@ -77,6 +77,7 @@ Blacklight.configure(:shared) do |config|
     :field_names => [
       "format_h",
       "collection_h",
+      "date_created_h",
       "pub_date",
       "subject_topic_facet",
       "language_facet",
@@ -87,6 +88,7 @@ Blacklight.configure(:shared) do |config|
     :labels => {
       "format_h"              => "Format",
       "collection_h"              => "In Hierarchy",
+      "date_created_h"              => "Date Created",
       "pub_date"            => "Publication Year",
       "subject_topic_facet" => "Topic",
       "language_facet"      => "Language",
@@ -106,6 +108,7 @@ Blacklight.configure(:shared) do |config|
     },
     :hierarchy => {
       "format_h" => true,
+      "date_created_h" => true,
       "collection_h" => true
     }
   }

@@ -7,9 +7,8 @@
       <% if display_facet.items.length > 0 %>
         <h3 class="toggle"><%= facet_field_labels[solr_fname] -%></h3>
         <ul>
-          <% ptype =    
-              (solr_fname =~ /.*_h$/)? Blacklight::Solr::Hfacets::FacetPaginator : Blacklight::Solr::FacetPaginator
-             paginator = ptype.new(display_facet.items,        
+          <% paginator =
+              Blacklight::Solr::FacetPaginator.new(display_facet.items,        
                 :limit => facet_limit_for(solr_fname))
           %>
           <% paginator.items.each do |item| -%>

@@ -1,10 +1,15 @@
 module RSolr::Ext::Response::Facets
- p "loaded override facets"
  class SubfacetItem < FacetItem
    attr_accessor :subfacets, :label
  end
 
  module LabelledFacet
+  def label=(arg)
+    @label=arg
+  end
+  def label
+    @label
+  end
  end
 
  def facets
@@ -18,10 +23,9 @@ module RSolr::Ext::Response::Facets
  def subfacets(name, subfacet_values)
     # a hfacet item has a label, a count, and a value. It may have subfacets.
     # parsing is hinky because of the flat list of returned values
-    p "setting subfacets"
     items = []
     if (! subfacet_values )
-      p "nil/false for subfacet_values"
+      warn "nil/false for subfacet_values"
       return items
     end
     i = 0
@@ -30,7 +34,6 @@ module RSolr::Ext::Response::Facets
       _value = subfacet_values[i]
       _hits = subfacet_values[i+1]
       _subfacets = nil
-      p _value.to_s + " : " + _hits.to_s
       if (_label.eql? 'sub_facets'):
         items = subfacets(name, _hits)
         break
@@ -49,8 +52,8 @@ module RSolr::Ext::Response::Facets
       else
         items.push(SubfacetItem.new(_value,_hits))
         items.last.subfacets= _subfacets
-        items.last.label = _label
       end
+      items.last.label = _label
       i += 2
     end
     return items
