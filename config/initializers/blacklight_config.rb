@@ -81,6 +81,7 @@ Blacklight.configure(:shared) do |config|
       "pub_date",
       "subject_topic_facet",
       "language_facet",
+      "descriptor",
       "lc_1letter_facet",
       "subject_geo_facet",
       "subject_era_facet"
@@ -91,6 +92,7 @@ Blacklight.configure(:shared) do |config|
       "date_created_h"              => "Date Created",
       "pub_date"            => "Publication Year",
       "subject_topic_facet" => "Topic",
+      "descriptor"          => "Metadata Type",
       "language_facet"      => "Language",
       "lc_1letter_facet"    => "Call Number",
       "subject_era_facet"   => "Era",
@@ -125,6 +127,7 @@ Blacklight.configure(:shared) do |config|
       "language_facet",
       "published_display",
       "published_vern_display",
+      "object_display",
       "lc_callnum_display"
     ],
     :labels => {
@@ -136,6 +139,7 @@ Blacklight.configure(:shared) do |config|
       "language_facet"          => "Language:",
       "published_display"       => "Published:",
       "published_vern_display"  => "Published:",
+      "object_display"          => "In Fedora:",
       "lc_callnum_display"      => "Call number:"
     }
   }
@@ -158,6 +162,7 @@ Blacklight.configure(:shared) do |config|
       "published_display",
       "published_vern_display",
       "lc_callnum_display",
+      "object_display",
       "isbn_t"
     ],
     :labels => {
@@ -175,6 +180,7 @@ Blacklight.configure(:shared) do |config|
       "published_display"       => "Published:",
       "published_vern_display"  => "Published:",
       "lc_callnum_display"      => "Call number:",
+      "object_display"          => "In Fedora:",
       "isbn_t"                  => "ISBN:"
     }
   }
