@@ -17,11 +17,14 @@
 # 
 
 Blacklight.configure(:shared) do |config|
-  
-  # FIXME: is this duplicated below?
-  SolrDocument.marc_source_field  = :marc_display
-  SolrDocument.marc_format_type   = :marc21
-  SolrDocument.ead_source_field   = :xml_display
+
+  # Set up and register the default SolrDocument Marc extension
+  SolrDocument.extension_parameters[:marc_source_field] = :marc_display
+  SolrDocument.extension_parameters[:marc_format_type] = :marc21
+  SolrDocument.use_extension( Blacklight::Solr::Document::Marc) do |document|
+    document.key?( :marc_display  )
+  end
+
   
   # default params for the SolrDocument.search method
   SolrDocument.default_params[:search] = {
@@ -66,7 +69,10 @@ Blacklight.configure(:shared) do |config|
   }
 
   # solr fields that will be treated as facets by the blacklight application
-  #   The ordering of the field names is the order of the display 
+  #   The ordering of the field names is the order of the display
+  # TODO: Reorganize facet data structures supplied in config to make simpler
+  # for human reading/writing, kind of like search_fields. Eg,
+  # config[:facet] << {:field_name => "format", :label => "Format", :limit => 10}
   config[:facet] = {
     :field_names => [
       "format",
@@ -85,6 +91,16 @@ Blacklight.configure(:shared) do |config|
       "lc_1letter_facet"    => "Call Number",
       "subject_era_facet"   => "Era",
       "subject_geo_facet"   => "Region"
+    },
+    # Setting a limit will trigger Blacklight's 'more' facet values link.
+    # If left unset, then all facet values returned by solr will be displayed.
+    # nil key can be used for a default limit applying to all facets otherwise
+    # unspecified. 
+    # limit value is the actual number of items you want _displayed_,
+    # #solr_search_params will do the "add one" itself, if neccesary.
+    :limits => {
+      nil => 10,
+      "subject_facet" => 20
     }
   }
 
@@ -154,20 +170,14 @@ Blacklight.configure(:shared) do |config|
     }
   }
 
-# FIXME: is this now redundant with above?
-  # type of raw data in index.  Currently marcxml and marc21 are supported.
-  config[:raw_storage_type] = "marc21"
-  # name of solr field containing raw data
-  config[:raw_storage_field] = "marc_display"
 
-  # "fielded" search select (pulldown)
-  # label in pulldown is followed by the name of a SOLR request handler as 
-  # defined in solr/conf/solrconfig.xml
+  # "fielded" search configuration. Used by pulldown among other places.
+  # For supported keys in hash, see rdoc for Blacklight::SearchFields
   config[:search_fields] ||= []
-  config[:search_fields] << ['All Fields', 'search']
-  config[:search_fields] << ['Title', 'title_search']
-  config[:search_fields] << ['Author', 'author_search']
-  config[:search_fields] << ['Subject', 'subject_search']
+  config[:search_fields] << {:display_label => 'All Fields', :qt => 'search'}
+  config[:search_fields] << {:display_label => 'Title', :qt => 'title_search'}
+  config[:search_fields] << {:display_label =>'Author', :qt => 'author_search'}
+  config[:search_fields] << {:display_label => 'Subject', :qt=> 'subject_search'}
   
   # "sort results by" select (pulldown)
   # label in pulldown is followed by the name of the SOLR field to sort by and

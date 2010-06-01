@@ -2,9 +2,117 @@
 # Methods added to this helper will be available to all templates in the application.
 #
 module ApplicationHelper
+  include HashAsHiddenFields
   
   def application_name
     'Blacklight'
+  end
+
+  ##
+  # This method should be included in any Blacklight layout, including
+  # custom ones. It will output results of #render_js_includes,
+  # #render_stylesheet_includes, and all the content of 
+  # current_controller#extra_head_content.
+  #
+  # Uses controller methods #extra_head_content, #javascript_includes,
+  # and #stylesheet_links to find content. Tolerates it if those
+  # methods don't exist, silently skipping. 
+  #
+  # By a layout outputting this in html HEAD, it provides an easy way for
+  # local config or extra plugins to add HEAD content.
+  # 
+  # Add your own css or remove the defaults by simply editing
+  # controller.stylesheet_links, controller.javascript_includes,
+  # or controller.extra_head_content. 
+  #
+  # 
+  #
+  # in an initializer or other startup file (plugin init.rb?):
+  #
+  # == Apply to all actions in all controllers:
+  # 
+  #   ApplicationController.before_filter do |controller|
+  #     # remove default jquery-ui theme.
+  #     controller.stylesheet_links.each do |args|
+  #       args.delete_if {|a| a =~ /^|\/jquery-ui-[\d.]+\.custom\.css$/ }
+  #     end
+  # 
+  #     # add in a different jquery-ui theme, or any other css or what have you
+  #     controller.stylesheet_links << 'my_css.css'
+  #
+  #     controller.javascript_includes << "my_local_behaviors.js"
+  #
+  #     controller.extra_head_content << '<link rel="something" href="something">'
+  #   end
+  #
+  # == Apply to a particular action in a particular controller:
+  #
+  #   CatalogController.before_filter :only => :show |controller|
+  #     controller.extra_head_content << '<link rel="something" href="something">'
+  #   end
+  #
+  # == Or in a view file that wants to add certain header content? no problem:
+  #
+  #   <%  stylesheet_links << "mystylesheet.css" %>
+  #   <%  javascript_includes << "my_js.js" %>
+  #   <%  extra_head_content << capture do %>
+  #       <%= tag :link, { :href => some_method_for_something, :rel => "alternate" } %> 
+  #   <%  end %>
+  #
+  # == Full power of javascript_include_tag and stylesheet_link_tag
+  # Note that the elements added to stylesheet_links and javascript_links
+  # are arguments to Rails javascript_include_tag and stylesheet_link_tag
+  # respectively, you can pass complex arguments. eg:
+  #
+  # stylesheet_links << ["stylesheet1.css", "stylesheet2.css", {:cache => "mykey"}]
+  # javascript_includes << ["myjavascript.js", {:plugin => :myplugin} ]
+  def render_head_content
+    render_stylesheet_includes +
+    render_js_includes +
+    ( respond_to?(:extra_head_content) ?
+        extra_head_content.join("\n") :
+      "")
+  end
+  
+  ##
+  # Assumes controller has a #stylesheet_link_tag method, array with
+  # each element being a set of arguments for stylesheet_link_tag
+  # See #render_head_content for instructions on local code or plugins
+  # adding stylesheets. 
+  def render_stylesheet_includes
+    return "" unless respond_to?(:stylesheet_links)
+    
+    stylesheet_links.collect do |args|
+      stylesheet_link_tag(*args)
+    end.join("\n")
+  end
+  
+
+  ##
+  # Assumes controller has a #js_includes method, array with each
+  # element being a set of arguments for javsascript_include_tag.
+  # See #render_head_content for instructions on local code or plugins
+  # adding js files. 
+  def render_js_includes
+    return "" unless respond_to?(:javascript_includes)    
+  
+    javascript_includes.collect do |args|
+      javascript_include_tag(*args)
+    end.join("\n")
+  end
+
+  # Create <link rel="alternate"> links from a documents dynamically
+  # provided export formats. Currently not used by standard BL layouts,
+  # but available for your custom layouts to provide link rel alternates.
+  def render_link_rel_alternates(document=@document)
+    return nil if document.nil?  
+
+    html = ""
+    document.export_formats.each_pair do |format, spec|
+      #html << tag(:link, {:rel=>"alternate", :title=>format, :type => spec[:content_type], :href=> url_for(:action => "show", :id => document[:id], :format => format, :only_path => false) }) << "\n"
+      html << tag(:link, {:rel=>"alternate", :title=>format, :type => spec[:content_type], :href=> catalog_url(document[:id],  format)}) << "\n"
+    end
+    return html
   end
   
   # collection of items to be rendered in the @sidebar
@@ -40,6 +148,9 @@ module ApplicationHelper
   def document_heading
     @document[Blacklight.config[:show][:heading]]
   end
+  def render_document_heading
+    '<h1>' + document_heading + '</h1>'
+  end
   
   # Used in the show view for setting the main html document title
   def document_show_html_title
@@ -58,7 +169,7 @@ module ApplicationHelper
   
   # Used in the search form partial for building a select tag
   def search_fields
-    Blacklight.config[:search_fields]
+    Blacklight.search_field_options_for_select
   end
   
   # used in the catalog/_show/_default partial
@@ -91,7 +202,15 @@ module ApplicationHelper
   
   # Search History and Saved Searches display
   def link_to_previous_search(params)
-    query_part = params[:qt] == Blacklight.config[:default_qt] ? params[:q] : "#{params[:qt]}:(#{params[:q]})"
+    query_part = case
+                   when params[:q].blank?
+                     ""
+                   when (params[:search_field] == Blacklight.default_search_field[:key])
+                     params[:q]
+                   else
+                     "#{Blacklight.label_for_search_field(params[:search_field])}:(#{params[:q]})"
+                 end      
+    
     facet_part = 
     if params[:f]
       tmp = 
@@ -105,90 +224,67 @@ module ApplicationHelper
     link_to("#{query_part} #{facet_part}", catalog_index_path(params))
   end
   
-  #
-  # Export Helpers
-  #
-  def render_refworks_text(record)
-    if record.marc.marc
-      fields = record.marc.marc.find_all { |f| ('000'..'999') === f.tag }
-      text = "LEADER #{record.marc.marc.leader}"
-      fields.each do |field|
-        unless ["940","999"].include?(field.tag)
-          if field.is_a?(MARC::ControlField)
-            text << "#{field.tag}    #{field.value}\n"
-          else
-            text << "#{field.tag} "
-            text << (field.indicator1 ? field.indicator1 : " ")
-            text << (field.indicator2 ? field.indicator2 : " ")
-            text << " "
-            field.each {|s| s.code == 'a' ? text << "#{s.value}" : text << " |#{s.code}#{s.value}"}
-            text << "\n"
-          end
-        end
-      end
-      text
-    end 
-  end
-  def render_endnote_text(record)
-    end_note_format = {
-      "%A" => "100.a",
-      "%C" => "260.a",
-      "%D" => "260.c",
-      "%E" => "700.a",
-      "%I" => "260.b",
-      "%J" => "440.a",
-      "%@" => "020.a",
-      "%_@" => "022.a",
-      "%T" => "245.a,245.b",
-      "%U" => "856.u",
-      "%7" => "250.a"
-    }
-    marc = record.marc.marc
-    text = ''
-    text << "%0 #{document_partial_name(record)}\n"
-    # If there is some reliable way of getting the language of a record we can add it here
-    #text << "%G #{record['language'].first}\n"
-    end_note_format.each do |key,value|
-      values = value.split(",")
-      first_value = values[0].split('.')
-      if values.length > 1
-        second_value = values[1].split('.')
-      else
-        second_value = []
-      end
-      
-      if marc[first_value[0].to_s]
-        marc.find_all{|f| (first_value[0].to_s) === f.tag}.each do |field|
-          if field[first_value[1]].to_s or field[second_value[1]].to_s
-            text << "#{key.gsub('_','')}"
-            if field[first_value[1]].to_s
-              text << " #{field[first_value[1]].to_s}"
-            end
-            if field[second_value[1]].to_s
-              text << " #{field[second_value[1]].to_s}"
-            end
-            text << "\n"
-          end
-        end
-      end
-    end
-    text
-  end
   
   #
   # facet param helpers ->
   #
+
+  # Standard display of a facet value in a list. Used in both _facets sidebar
+  # partial and catalog/facet expanded list. Will output facet value name as
+  # a link to add that to your restrictions, with count in parens. 
+  # first arg item is a facet value item from rsolr-ext.
+  # options consist of:
+  # :suppress_link => true # do not make it a link, used for an already selected value for instance
+  def render_facet_value(facet_solr_field, item, options ={})    
+    link_to_unless(options[:suppress_link], item.value, add_facet_params_and_redirect(facet_solr_field, item.value), :class=>"facet_select") + " (" + format_num(item.hits) + ")" 
+  end
+
+  # Standard display of a SELECTED facet value, no link, special span
+  # with class, and 'remove' button.
+  def render_selected_facet_value(facet_solr_field, item)
+    '<span class="selected">' +
+    render_facet_value(facet_solr_field, item, :suppress_link => true) +
+    '</span>' +
+    ' [' + link_to("remove", remove_facet_params(facet_solr_field, item.value, params), :class=>"remove") + ']'
+  end
   
   # adds the value and/or field to params[:f]
+  # Does NOT remove request keys and otherwise ensure that the hash
+  # is suitable for a redirect. See
+  # add_facet_params_and_redirect
   def add_facet_params(field, value)
     p = params.dup
-    p.delete :page
     p[:f]||={}
     p[:f][field] ||= []
     p[:f][field].push(value)
     p
   end
-  
+
+  # Used in catalog/facet action, facets.rb view, for a click
+  # on a facet value. Add on the facet params to existing
+  # search constraints. Remove any paginator-specific request
+  # params, or other request params that should be removed
+  # for a 'fresh' display. 
+  # Change the action to 'index' to send them back to
+  # catalog/index with their new facet choice. 
+  def add_facet_params_and_redirect(field, value)
+    new_params = add_facet_params(field, value)
+
+    # Delete page, if needed. 
+    new_params.delete(:page)
+
+    # Delete any request params from facet-specific action, needed
+    # to redir to index action properly. 
+    Blacklight::Solr::FacetPaginator.request_keys.values.each do |paginator_key| 
+      new_params.delete(paginator_key)
+    end
+    new_params.delete(:id)
+
+    # Force action to be index. 
+    new_params[:action] = "index"
+
+    new_params
+  end
   # copies the current params (or whatever is passed in as the 3rd arg)
   # removes the field value from params[:f]
   # removes the field if there are no more values in params[:f][field]
@@ -212,15 +308,6 @@ module ApplicationHelper
   # true or false, depending on whether the field and value is in params[:f]
   def facet_in_params?(field, value)
     params[:f] and params[:f][field] and params[:f][field].include?(value)
-  end
-  
-  # NOTE: as of 2009-04-20, this is only used for facet.html.erb, which
-  #  is facet pagination ... and it probably shouldn't be used there.
-  # creates a formatted label for a field (removes _facet and _display etc.)
-  def field_label(field)
-    @__field_label_cache ||= {}
-    @__field_label_cache[field] ||= field.to_s.sub(/_facet$|_display$|_[a-z]$/,'').gsub(/_/,' ')
-    @__field_label_cache[field]
   end
   
   #
@@ -267,6 +354,25 @@ module ApplicationHelper
     link_url = catalog_index_path(query_params)
     link_to opts[:label], link_url
   end
+  
+  # Create form input type=hidden fields representing the entire search context,
+  # for inclusion in a form meant to change some aspect of it, like
+  # re-sort or change records per page. Can pass in params hash
+  # as :params => hash, otherwise defaults to #params. Can pass
+  # in certain top-level params keys to _omit_, defaults to :page
+  def search_as_hidden_fields(options={})
+    
+    options = {:params => params, :omit_keys => [:page]}.merge(options)
+    my_params = options[:params].dup
+    options[:omit_keys].each {|omit_key| my_params.delete(omit_key)}
+    # removing action and controller from duplicate params so that we don't get hidden fields for them.
+    my_params.delete(:action)
+    my_params.delete(:controller)
+    # hash_as_hidden_fields in hash_as_hidden_fields.rb
+    return hash_as_hidden_fields(my_params)
+  end
+  
+    
 
   def link_to_previous_document(previous_document)
     return if previous_document == nil
@@ -331,8 +437,8 @@ module ApplicationHelper
     action = (href && url.size > 0) ? "'#{url}'" : 'this.href'
     submit_function =
       "var f = document.createElement('form'); f.style.display = 'none'; " +
-      "this.parentNode.appendChild(f); f.method = 'POST'; f.action = #{action};"
-
+      "this.parentNode.appendChild(f); f.method = 'POST'; f.action = #{action};"+
+      "if(event.metaKey || event.ctrlKey){f.target = '_blank';};" # if the command or control key is being held down while the link is clicked set the form's target to _blank
     if data
       data.each_pair do |key, value|
         submit_function << "var d = document.createElement('input'); d.setAttribute('type', 'hidden'); "
@@ -349,14 +455,6 @@ module ApplicationHelper
       submit_function << "s.setAttribute('name', '#{request_forgery_protection_token}'); s.setAttribute('value', '#{escape_javascript form_authenticity_token}'); f.appendChild(s);"
     end
     submit_function << "f.submit();"
-  end
-  
-  # performs an XSLT transform
-  def xslt(stylesheet_file_path, document, params={})
-    require 'nokogiri'
-    document = Nokogiri::XML(document) if document.is_a?(String)
-    stylesheet = Nokogiri::XSLT.parse(render(stylesheet_file_path))
-    stylesheet.apply_to(Nokogiri::XML(document.to_xml), params)
   end
   
 end

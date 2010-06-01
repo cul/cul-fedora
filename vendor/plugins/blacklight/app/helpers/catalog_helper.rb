@@ -31,14 +31,13 @@ module CatalogHelper
 
   # Look up search field user-displayable label
   # based on params[:qt] and configuration.
-  # Return "Keyword" if not found. 
   def search_field_label(params)
-    if (  (! params[:qt].blank?)  &&   
-          pair = search_fields.find {|pair| pair[1] == params[:qt]  })
-      h(pair[0])     
-    else
-      "Keyword"
-    end
+    h( Blacklight.label_for_search_field(params[:search_field]) )
+  end
+
+  # Export to Refworks URL, called in _show_tools
+  def refworks_export_url(document = @document)
+    "http://www.refworks.com/express/expressimport.asp?vendor=#{CGI.escape(application_name)}&filter=MARC%20Format&encoding=65001&url=#{CGI.escape(catalog_path(document[:id], :format => 'refworks_marc_txt', :only_path => false))}"        
   end
   
 end

@@ -1,7 +1,7 @@
 class CatalogController < ApplicationController
-  
+
   include Blacklight::SolrHelper
-  
+
   before_filter :search_session, :history_session
   before_filter :delete_or_assign_search_session_params,  :only=>:index
   after_filter :set_additional_search_session_values, :only=>:index
@@ -9,24 +9,19 @@ class CatalogController < ApplicationController
   # Whenever an action raises SolrHelper::InvalidSolrID, this block gets executed.
   # Hint: the SolrHelper #get_solr_response_for_doc_id method raises this error,
   # which is used in the #show action here.
-  rescue_from InvalidSolrID, :with => lambda {
-    # when a request for /catalog/BAD_SOLR_ID is made, this method is executed...
-    flash[:notice] = "Sorry, you seem to have encountered an error."
-    redirect_to catalog_index_path
-  }
+  rescue_from InvalidSolrID, :with => :invalid_solr_id_error
+
   
-  # When RSolr::RequestError is raised, this block is executed.
+  # When RSolr::RequestError is raised, the rsolr_request_error method is executed.
   # The index action will more than likely throw this one.
   # Example, when the standard query parser is used, and a user submits a "bad" query.
-  rescue_from RSolr::RequestError, :with => lambda {
-    # when solr (RSolr) throws an error (RSolr::RequestError), this method is executed.
-    flash[:notice] = "Sorry, I don't understand your search."
-    redirect_to catalog_index_path
-  }
+  rescue_from RSolr::RequestError, :with => :rsolr_request_error
   
   # get search results from the solr index
   def index
-    @response = get_search_results
+    extra_head_content << '<link rel="alternate" type="application/rss+xml" title="RSS for results" href="'+ url_for(params.merge("format" => "rss")) + '">'
+    
+    (@response, @document_list) = get_search_results
     @filters = params[:f] || []
     respond_to do |format|
       format.html { save_current_search_params }
@@ -36,13 +31,18 @@ class CatalogController < ApplicationController
   
   # get single document from the solr index
   def show
-    @response = get_solr_response_for_doc_id
-    @document = SolrDocument.new(@response.docs.first)
+    @response, @document = get_solr_response_for_doc_id    
     respond_to do |format|
       format.html {setup_next_and_previous_documents}
-      format.xml  {render :xml => @document.marc.to_xml}
-      format.refworks
-      format.endnote
+      
+      # Add all dynamically added (such as by document extensions)
+      # export formats.
+      @document.export_formats.each_key do | format_name |
+        # It's important that the argument to send be a symbol;
+        # if it's a string, it makes Rails unhappy for unclear reasons. 
+        format.send(format_name.to_sym) { render :text => @document.export_as(format_name) }
+      end
+      
     end
   end
   
@@ -87,24 +87,24 @@ class CatalogController < ApplicationController
   
   # citation action
   def citation
-    @response = get_solr_response_for_doc_id
-    @document = SolrDocument.new(@response.docs.first)
+    @response, @document = get_solr_response_for_doc_id
   end
   # Email Action (this will only be accessed when the Email link is clicked by a non javascript browser)
   def email
-    @response = get_solr_response_for_doc_id
-    @document = SolrDocument.new(@response.docs.first)
+    @response, @document = get_solr_response_for_doc_id
   end
   # SMS action (this will only be accessed when the SMS link is clicked by a non javascript browser)
   def sms 
-    @response = get_solr_response_for_doc_id
-    @document = SolrDocument.new(@response.docs.first)
+    @response, @document = get_solr_response_for_doc_id
+  end
+  
+  def librarian_view
+    @response, @document = get_solr_response_for_doc_id
   end
   
   # action for sending email.  This is meant to post from the form and to do processing
   def send_email_record
-    @response = get_solr_response_for_doc_id
-    @document = SolrDocument.new(@response.docs.first)
+    @response, @document = get_solr_response_for_doc_id
     if params[:to]
       from = request.host # host w/o port for From address (from address cannot have port#)
       host = request.host
@@ -128,17 +128,52 @@ class CatalogController < ApplicationController
           end
       end
       RecordMailer.deliver(email) unless flash[:error]
-      redirect_to catalog_path(@document.id)
+      redirect_to catalog_path(@document[:id])
     else
       flash[:error] = "You must enter a recipient in order to send this message"
     end
   end
+
+    ##################
+  # Config-lookup methods. Should be moved to a module of some kind, once
+  # all this stuff is modulized. But methods to look up config'ed values,
+  # so logic for lookup is centralized in case storage methods changes.
+  # Such methods need to be available from controller and helper sometimes,
+  # so they go in controller with helper_method added.
+  # TODO: Move to a module, and make them look inside the controller
+  # for info instead of in global Blacklight.config object!
+  ###################
+
+  # Look up configged facet limit for given facet_field. If no
+  # limit is configged, may drop down to default limit (nil key)
+  # otherwise, returns nil for no limit config'ed. 
+  def facet_limit_for(facet_field)
+    limits_hash = facet_limit_hash
+    return nil unless limits_hash
+
+    limit = limits_hash[facet_field]
+    limit = limits_hash[nil] unless limit
+
+    return limit
+  end
+  helper_method :facet_limit_for
+  # Returns complete hash of key=facet_field, value=limit.
+  # Used by SolrHelper#solr_search_params to add limits to solr
+  # request for all configured facet limits.
+  def facet_limit_hash
+    Blacklight.config[:facet][:limits]           
+  end
+  helper_method :facet_limit_hash
+
+  
   
   protected
   
   #
   # non-routable methods ->
   #
+
+  
   
   # calls setup_previous_document then setup_next_document.
   # used in the show action for single view pagination.
@@ -178,7 +213,7 @@ class CatalogController < ApplicationController
   # if the values are blank? (nil or empty string)
   # if the values aren't blank, they are saved to the session in the :search hash.
   def delete_or_assign_search_session_params
-    [:q, :qt, :f, :per_page, :page, :sort].each do |pname|
+    [:q, :qt, :search_field, :f, :per_page, :page, :sort].each do |pname|
       params[pname].blank? ? session[:search].delete(pname) : session[:search][pname] = params[pname]
     end
   end
@@ -202,4 +237,33 @@ class CatalogController < ApplicationController
     end
   end
   
+  
+  # when solr (RSolr) throws an error (RSolr::RequestError), this method is executed.
+  def rsolr_request_error(exception)
+    if RAILS_ENV == "development"
+      raise exception # Rails own code will catch and give usual Rails error page with stack trace
+    else
+      flash_notice = "Sorry, I don't understand your search."
+      # Set the notice flag if the flash[:notice] is already set to the error that we are setting.
+      # This is intended to stop the redirect loop error
+      notice = flash[:notice] if flash[:notice] == flash_notice
+      unless notice
+        flash[:notice] = flash_notice
+        redirect_to root_path, :status => 500
+      else
+        render :template => "public/500.html", :layout => false, :status => 500
+      end
+    end
+  end
+  
+  # when a request for /catalog/BAD_SOLR_ID is made, this method is executed...
+  def invalid_solr_id_error
+    if RAILS_ENV == "development"
+      render # will give us the stack trace
+    else
+      flash[:notice] = "Sorry, you have requested a record that doesn't exist."
+      redirect_to root_path, :status => 404
+    end
+    
+  end
 end

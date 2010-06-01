@@ -6,7 +6,7 @@ $(document).ready(function() {
         // hide it
         ul.hide();
         // attach the toggle behavior to the h3 tag
-        $(ul.parent().children('.toggle')).click(function(){
+        $('h3', ul.parent()).click(function(){
            // toggle the next ul sibling
            $(this).next('ul').slideToggle();
        });

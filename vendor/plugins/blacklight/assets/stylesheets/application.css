@@ -20,7 +20,6 @@ hr {border:none; height:1px; background-color:#ccc;}
 .formElement {font: 8pt Verdana, Arial, sans-serif;}
 
 /* Links */
-a {outline: none;}
 a:link, a:visited, a:active {border-bottom: 1px dotted #aaa; color: #2e4f81; text-decoration: none;}
 a:hover {color: #029;}
 
@@ -49,7 +48,7 @@ h1.site_title a:link, h1.site_title a:visited, h1.site_title a:hover, h1.site_ti
 h2.search {margin:0; display:inline;}
 
 /* Search Box */
-#search {position: absolute; top: -4em; left: 0; text-align: left; font-size: 120%;}
+#search {position: absolute; top: -2.5em; left: 0; text-align: left; font-size: 120%;}
 #search #q {width: 200px;}
 #search .submit {padding: 0px 0.25em; margin: 0 0.5em; text-transform: capitalize;}
 #search h2 {display: none;}
@@ -68,6 +67,13 @@ th, td {border: 0;}
 #facets li a:hover {background-color: #eee;}
 #facets li a.remove {color: #666;}
 #facets span.selected {color: green;}
+#facets li.more_facets_link {text-align: right;}
+ul.facet_extended_list { margin:0;}
+ul.facet_extended_list li {list-style:none; margin: 0.5em 0;}
+.facet_extended_list {text-align: left;} /* for our ajaxy dialog to make sure we're overriding the yui global text-align: center */
+.facet_extended_list .sort_options {text-align: right}
+
+
 
 /* Solr Query */
 .solrQuery {padding: .5em; margin: 2em; background-color:#eee; border: 1px dotted #ccc; font-size:90%;}
@@ -105,6 +111,12 @@ dl.defList dd {text-align: left; margin: 0; padding: 2px 0;}
 
 /* Individual Result Listing */
 #document h1 {margin: 0px; padding: 0px 0px 1em 0px;}
+#marc_view {padding:5px; text-align:left;}
+#marc_view .ind1, #marc_view .ind2 {padding:0 5px; display:inline;}
+#marc_view .tag_ind {float:left;}
+#marc_view .subfields {padding-left:5em;}
+#marc_view .field {clear:both; border-bottom:1px solid #CCCCCC;}
+#librarian_view{top:10%;left:-17%;text-align:left;width:700px;} /* Lightbox element */
 
 /* FORMS */
 form div.row label {float:left; width:120px; text-align:right; margin-right: .5em;}
