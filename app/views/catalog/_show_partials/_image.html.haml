@@ -1,0 +1,43 @@
+// default partial to display solr document fields in catalog show view
+
+= render :partial => "show_descriptive_information", :locals => {:document => document, :thumbnail => true}
+
+- if document["object_display"]
+  %table#imageMembers
+    %caption Available Image Versions
+    %tr
+      %th MIME Type
+      %th Dimensions
+      %th File Size
+      %th Link
+    :javascript
+      var j_url = "#{document["object_display"].first}/ldpd:sdef.Aggregator/listMembers?max=&format=json&start=&callback=?";
+      var row_create = function (i, item){
+        var dim = item.imageWidth + " x " + item.imageHeight;
+        var size = (item.fileSize % 1024 ) + " Kb";
+        var i_url = "#{document["object_display"].first}";
+        i_url = i_url.substring(0,i_url.lastIndexOf(':'));
+        i_url = i_url + item.member.substring(item.member.lastIndexOf(':'));
+        var row = $("<tr></tr>");
+        // do cell appends
+        var t1 = $("<td></td>");
+        t1.text(item.type);
+        t1.appendTo(row);
+        t1 = $("<td></td>");
+        t1.text(dim);
+        t1.appendTo(row);
+        t1 = $("<td></td>");
+        t1.text(size);
+        t1.appendTo(row);
+        t1 = $("<td></td>");
+        var a_link = $("<a />").attr("href",i_url+"/CONTENT");
+        a_link.text("[DOWNLOAD]");
+        a_link.appendTo(t1);
+        t1.appendTo(row);
+        row.appendTo("#imageMembers");
+      }
+      var members = function (data){
+        $.each(data.results, row_create );
+      }
+      $.getJSON(j_url, members );
+

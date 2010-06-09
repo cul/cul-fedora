@@ -1,0 +1,15 @@
+= render :partial => "show_descriptive_information", :locals => {:document => document}
+
+- if (rft_id = document["rft_id"])
+  #tags
+  %p#shortdesc
+    rft_id: #{rft_id}
+  #map.smallmap
+  #data
+
+  :javascript
+    init_map("#{rft_id}");
+- else
+  %p
+    document["rft_id"] was false
+
