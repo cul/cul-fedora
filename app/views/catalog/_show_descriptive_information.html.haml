@@ -1,10 +1,10 @@
 - thumbnail ||= false
 %h3 Descriptive Information
 
-#descriptive_information.yui-gd
+%dl.defList
   - document_show_fields.select { |f| document[f] }.each do |solr_fname|
-    .label.yui-u.first= document_show_field_labels[solr_fname]
-    .value.yui-u= document[solr_fname].listify.join("<br/>")
+    %dt= document_show_field_labels[solr_fname]
+    %dd= h(document[solr_fname].listify.join("<br/>"))
 
 - if thumbnail
   %div
