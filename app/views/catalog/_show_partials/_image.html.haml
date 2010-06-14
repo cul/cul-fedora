@@ -3,6 +3,7 @@
 = render :partial => "show_descriptive_information", :locals => {:document => document, :thumbnail => true}
 
 - if document["object_display"]
+  %h3 Resources
   %table#imageMembers
     %caption Available Image Versions
     %tr

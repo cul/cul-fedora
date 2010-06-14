@@ -6,8 +6,23 @@
     %dt= document_show_field_labels[solr_fname]
     %dd= h(document[solr_fname].listify.join("<br/>"))
 
+
+
 - if thumbnail
+  %h3 Thumbnail
   %div
     %img(src="#{doc_object_method(document,'/ldpd:sdef.Image/getThumbnail')}")
 
-      
+%h3 Inspect
+
+= document.inspect
+
+%h3 Metadata
+
+%dl.defList
+  - get_metadata_list(document).each do |meta_hash|
+    - meta_hash.each_pair do |desc, url|
+      %dt= desc.capitalize
+      %dd
+        = link_to "Download", fedora_content_path(url,document["title_t"].first.to_s.gsub(/[\:\@\#]/,"") + "_" + desc + ".xml")
+
