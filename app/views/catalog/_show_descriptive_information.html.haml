@@ -24,5 +24,5 @@
     - meta_hash.each_pair do |desc, url|
       %dt= desc.capitalize
       %dd
-        = link_to "Download", fedora_content_path(url,document["title_t"].first.to_s.gsub(/[\:\@\#]/,"") + "_" + desc + ".xml")
+        = link_to "Download", fedora_content_path(:download, url,document["title_t"].first.to_s.gsub(/[\:\@\#]/,"") + "_" + desc + ".xml")
 
