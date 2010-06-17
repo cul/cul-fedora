@@ -1,6 +1,7 @@
 - thumbnail ||= false
 %h3 Descriptive Information
 
+
 %dl.defList
   - document_show_fields.select { |f| document[f] }.each do |solr_fname|
     %dt= document_show_field_labels[solr_fname]
@@ -24,5 +25,6 @@
     - meta_hash.each_pair do |desc, url|
       %dt= desc.capitalize
       %dd
+        = link_to "Show", fedora_metadata_pretty_path(url)
         = link_to "Download", fedora_content_path(:download, url,document["title_t"].first.to_s.gsub(/[\:\@\#]/,"") + "_" + desc + ".xml")
 

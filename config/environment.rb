@@ -16,6 +16,7 @@ Rails::Initializer.run do |config|
   config.gem 'authlogic_wind', :version => '>= 0.4.0'
   config.gem 'haml'
   config.gem 'httpclient'
+  config.gem 'nokogiri'
   # Settings in config/environments/* take precedence over those specified here.
   #
   # Application configuration should go into files in config/initializers
