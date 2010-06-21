@@ -1,0 +1,20 @@
+- resource_list = build_image_resource_list(document)
+- if document["object_display"]
+  %h3 Resources
+  %table#imageMembers
+    %tr
+      %th MIME Type
+      %th Dimensions
+      %th File Size
+      %th Link
+    - resource_list.each do |resource|
+      %tr
+        %td=resource[:mime_type]
+        %td=resource[:dimensions]
+        %td=resource[:size] 
+        %td
+          = link_to "Show", resource[:show_path] if resource[:show_path]
+          = link_to "Download", resource[:download_path] if resource[:download_path]
+          = link_to "DC", resource[:dc_path] if resource[:dc_path]
+
+

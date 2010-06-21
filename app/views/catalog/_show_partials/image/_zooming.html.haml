@@ -1,9 +1,9 @@
-= render :partial => "show_descriptive_information", :locals => {:document => document}
+= render :partial => "catalog/_show_partials/descriptive_information", :locals => {:document => document}
+
+= render :partial => "catalog/_show_partials/image/display_derivatives", :locals => {:document => document}
 
 - if (rft_id = document["rft_id"])
   #tags
-  %p#shortdesc
-    rft_id: #{rft_id}
   #map.smallmap
   #data
 
@@ -11,5 +11,5 @@
     init_map("#{rft_id}");
 - else
   %p
-    document["rft_id"] was false
+    No Zooming Map ID provided
 

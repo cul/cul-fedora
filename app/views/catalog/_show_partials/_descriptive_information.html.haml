@@ -14,17 +14,12 @@
   %div
     %img(src="#{doc_object_method(document,'/ldpd:sdef.Image/getThumbnail')}")
 
-%h3 Inspect
-
-= document.inspect
-
 %h3 Metadata
 
 %dl.defList
-  - get_metadata_list(document).each do |meta_hash|
-    - meta_hash.each_pair do |desc, url|
-      %dt= desc.capitalize
-      %dd
-        = link_to "Show", fedora_metadata_pretty_path(url)
-        = link_to "Download", fedora_content_path(:download, url,document["title_t"].first.to_s.gsub(/[\:\@\#]/,"") + "_" + desc + ".xml")
+  - get_metadata_list(document).each do |metadata|
+    %dt= metadata[:title]
+    %dd
+      = link_to "Show", metadata[:show_url] 
+      = link_to "Download", metadata[:download_url] 
 
