@@ -1,40 +1,44 @@
 class DownloadController < ApplicationController
   def fedora_content
+      
+    url = FEDORA_CONFIG[:riurl] + "/get/" + params[:uri]+ "/" + params[:block]
 
-    cd = "filename=""#{CGI.escapeHTML(params[:filename].to_s)}"""
-    cd = "attachment; " + cd if params[:download_method] == "download"
-    
-    headers["Content-Disposition"] = cd
-
-
-    url = FEDORA_CONFIG[:riurl] + "/get/" + params[:uri]+ "/CONTENT"
-    
     cl = HTTPClient.new
-    headers["Content-Type"] = cl.head(url).header["Content-Type"].to_s
+    h_cd = "filename=""#{CGI.escapeHTML(params[:filename].to_s)}"""
+    h_ct = cl.head(url).header["Content-Type"].to_s
   
-    render :status => 200, :text => Proc.new { |response, output|
-      cl.get_content(url) do |chunk|
-        output.write chunk
-      end
-    }
-  end
+    text_result = nil
 
-  def fedora_metadata_pretty
-    url = FEDORA_CONFIG[:riurl] + "/get/" + params[:id] + "/CONTENT"
-    result = ""
-    cl = HTTPClient.new()
-    if cl.head(url).header["Content-Type"].to_s.include?("xml")
-      xsl = Nokogiri::XSLT(File.read(RAILS_ROOT + "/app/stylesheets/pretty-print.xsl"))
-      xml = Nokogiri(cl.get_content(url))
-      result = xsl.apply_to(xml).to_s
-    else
-      result = "Fedora Content not a valid xml"
+    case params[:download_method]
+    when "download"
+      h_cd = "attachment; " + h_cd 
+    when "show_pretty"
+      if h_ct.include?("xml")
+        
+        xsl = Nokogiri::XSLT(File.read(RAILS_ROOT + "/app/stylesheets/pretty-print.xsl"))
+        xml = Nokogiri(cl.get_content(url))
+        text_result = xsl.apply_to(xml).to_s
+      else
+        text_result = "Non-xml content streams cannot be pretty printed."
+      end
     end
 
-    headers["Content-Type"] = "text/plain"
-    render :text => result
+    if text_result
+      headers["Content-Type"] = "text/plain"
+      render :text => text_result
+    else
+        
+      headers["Content-Disposition"] = h_cd
+      headers["Content-Type"] = h_ct
+
+      
+      render :status => 200, :text => Proc.new { |response, output|
+        cl.get_content(url) do |chunk|
+          output.write chunk
+        end
+      }
+    end
   end
-  private
 
 end
 
