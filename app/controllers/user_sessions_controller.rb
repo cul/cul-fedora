@@ -8,5 +8,24 @@ class UserSessionsController < ApplicationController
     session[:return_to] = params[:return_to] if params[:return_to]
     @user_session.save 
   end
+
+ 
+  def create
+    @user_session = UserSession.new(params[:user_session])
+    @user_session.save do |result|  
+      if result  
+        session[:return_to] = nil if session[:return_to].to_s.include?("logout")
+        redirect_back_or_default root_url  
+      else  
+        flash[:error] = "Unsuccessfully logged in."
+        redirect_to root_url
+      end  
+    end
+    
+  end
   
+  def destroy
+    current_user_session.destroy
+    redirect_to logout_url
+  end
 end
