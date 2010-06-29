@@ -4,8 +4,11 @@
   %tr
     %th Collection Name
     %th Count
-
-  - @results.keys.sort.each do |collection|
+    - @formats.each do |format|
+      %th=format
+  - @collections.keys.sort.each do |collection|
     %tr
       %td= collection
-      %td= @results[collection][:count]
+      %td= @collections[collection][:count]
+      - @formats.each do |format|
+        %td= @collections[collection][format]

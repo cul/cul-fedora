@@ -6,7 +6,6 @@ class DownloadController < ApplicationController
     cl = HTTPClient.new
     h_cd = "filename=""#{CGI.escapeHTML(params[:filename].to_s)}"""
     h_ct = cl.head(url).header["Content-Type"].to_s
-  
     text_result = nil
 
     case params[:download_method]

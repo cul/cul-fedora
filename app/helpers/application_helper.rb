@@ -9,6 +9,8 @@ module ApplicationHelper
 
 
 
+
+
   # RSolr presumes one suggested word, this is a temporary fix
   def get_suggestions(spellcheck)
     words = []

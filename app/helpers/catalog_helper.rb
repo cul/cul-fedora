@@ -1,10 +1,16 @@
 module CatalogHelper
-  def build_image_resource_list(document)
+
+
+  def build_resource_list(document)
     obj_display = (document["object_display"] || []).first
     results = []
     case document["format"]
     when "image/zooming"
       base_id = base_id_for(document)
+      url = FEDORA_CONFIG[:riurl] + "/get/" + base_id + "/SOURCE"
+      head_req = HTTPClient.new.head(url)
+      # raise head_req.inspect
+      file_size = head_req.header["Content-Length"].first.to_i
       results << {:dimensions => "Original", :mime_type => "image/jp2", :show_path => fedora_content_path("show", base_id, "SOURCE", base_id + "_source.jp2"), :download_path => fedora_content_path("download", base_id , "SOURCE", base_id + "_source.jp2")}  
     when "image"
       if obj_display
@@ -13,7 +19,8 @@ module CatalogHelper
           res = {}
           res[:dimensions] = image["imageWidth"] + " x " + image["imageHeight"]
           res[:mime_type] = image["type"]
-          res[:size] = (image["fileSize"].to_i % 1024).to_s + " Kb"
+          res[:file_size] = image["fileSize"].to_i
+          res[:size] = (image["fileSize"].to_i / 1024).to_s + " Kb"
           
           base_id = trim_fedora_uri_to_pid(image["member"])
           base_filename = base_id.gsub(/\:/,"")
@@ -29,7 +36,7 @@ module CatalogHelper
     end
     return results
   end
-  
+
   def base_id_for(doc)
     doc["id"].gsub(/(\#.+|\@.+)/, "")
   end
