@@ -7,7 +7,7 @@ class UserSessionsController < ApplicationController
     current_user_session.destroy if current_user_session
     @user_session = UserSession.new
     params[:login_with_wind] = true if UserSession.login_only_with_wind
-    session[:return_to] = params[:return_to] if params[:return_to]
+    session[:return_to] = params[:return_to] || root_url
     @user_session.save 
   end
 

@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100601153337) do
+ActiveRecord::Schema.define(:version => 20100630200810) do
 
   create_table "bookmarks", :force => true do |t|
     t.integer  "user_id",     :null => false
@@ -20,6 +20,16 @@ ActiveRecord::Schema.define(:version => 20100601153337) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "content_blocks", :force => true do |t|
+    t.string   "title",      :null => false
+    t.integer  "user_id",    :null => false
+    t.text     "data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "content_blocks", ["title"], :name => "index_content_blocks_on_title"
 
   create_table "searches", :force => true do |t|
     t.text     "query_params"

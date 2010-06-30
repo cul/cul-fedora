@@ -1,0 +1,11 @@
+<% if block = ContentBlock.find_by_title("Home Page") -%>
+  <%= sanitize block.data %>
+<% else -%>
+    
+
+  <h3>Welcome to the Staff Collection Viewer</h3>
+
+
+  <p>This is a staff-restricted viewer to various collections in our digital repository.</p>
+  <p>Please begin by browsing via the facets on the left, or searching the entire repository above.</p>
+<% end -%>

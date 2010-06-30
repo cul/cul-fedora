@@ -1,0 +1,6 @@
+- form_tag "edit_home_page" do
+  %div
+    %div Home Page Content:
+    = text_area_tag "home_page_data", @home_block_data, :size => "60x8" 
+
+  = submit_tag "Change Home Page"
