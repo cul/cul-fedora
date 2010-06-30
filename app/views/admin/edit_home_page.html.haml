@@ -1,6 +1,11 @@
+- content_for :jstemplates do
+  :plain
+    $(function(){ $("textarea").htmlarea();});
+
+%h3 Home Page Content:
+
 - form_tag "edit_home_page" do
   %div
-    %div Home Page Content:
-    = text_area_tag "home_page_data", @home_block_data, :size => "60x8" 
+    %div= text_area_tag "home_page_data", @home_block_data, :style => "width: 600px"
 
   = submit_tag "Change Home Page"

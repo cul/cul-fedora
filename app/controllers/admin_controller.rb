@@ -1,6 +1,6 @@
 class AdminController < ApplicationController
   before_filter :require_admin 
-
+  before_filter :add_jhtmlarea, :only => [:edit_home_page]
 
   def edit_home_page
     if params[:commit]
@@ -16,4 +16,11 @@ class AdminController < ApplicationController
     @home_block_data = home_block ? home_block.data : ""
   end
   
+  private
+
+  def add_jhtmlarea
+    
+    javascript_includes << ["jHtmlArea-0.7.0.min", "jHtmlArea.ColorPickerMenu-0.7.0.min"]
+    stylesheet_links << ["jHtmlArea", "jHtmlArea.ColorPickerMenu"]
+  end
 end
