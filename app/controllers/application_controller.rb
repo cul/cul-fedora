@@ -16,6 +16,18 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def require_admin
+    if current_user
+      unless current_user.admin
+        redirect_to access_denied_url  
+      end
+    else
+      store_location
+      redirect_to new_user_session_url
+      return false
+    end
+  end
+
   def require_no_user
     if current_user
       store_location

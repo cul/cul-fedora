@@ -9,7 +9,8 @@ ActionController::Routing::Routes.draw do |map|
     :block => /(DC|CONTENT|SOURCE)/,
     :uri => /.+/, :filename => /.+/, :download_method => /(download|show|show_pretty)/
   map.wind_logout '/wind_logout', :controller => 'welcome', :action => 'logout'
-  
+  map.access_denied '/access_denied', :controller => 'welcome', :action => 'access_denied'
+
   map.connect ':controller/:action/:id'
   map.connect ':controller/:action/:id.:format'
 
