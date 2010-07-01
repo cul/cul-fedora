@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :reports
+
 
 
   Blacklight::Routes.build map
@@ -11,6 +13,8 @@ ActionController::Routing::Routes.draw do |map|
   map.wind_logout '/wind_logout', :controller => 'welcome', :action => 'logout'
   map.access_denied '/access_denied', :controller => 'welcome', :action => 'access_denied'
 
+
+  map.resource :report
   map.connect ':controller/:action/:id'
   map.connect ':controller/:action/:id.:format'
 
