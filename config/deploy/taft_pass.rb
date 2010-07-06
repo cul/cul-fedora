@@ -1,3 +1,4 @@
+set :rails_env, "taft_pass"
 set :domain,      "taft.cul.columbia.edu"
 set :deploy_to,   "/opt/passenger/#{application}/"
 set :user, "deployer"
