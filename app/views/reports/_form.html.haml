@@ -1,3 +1,6 @@
+
+= render :partial => "report", :object => @report.data_hash, :locals => {:category => @report.category}
+
 - form_for @report do |f|
   = f.error_messages
   %p
@@ -7,7 +10,7 @@
   %p
     = f.label :category
     %br
-    = f.text_field :category
+    = f.select :category, Report::VALID_CATEGORIES
   %p
     = f.label :generated_on
     %br
@@ -15,14 +18,10 @@
   %p
     = f.label :user_id
     %br
-    = f.text_field :user_id
+    = f.collection_select :user_id, User.admins, :id, :to_s
   %p
     = f.label :options
     %br
     = f.text_area :options
-  %p
-    = f.label :data
-    %br
-    = f.text_area :data
   %p
     = f.submit

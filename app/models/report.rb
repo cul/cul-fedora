@@ -72,7 +72,7 @@ class Report < ActiveRecord::Base
 
     formats.uniq!.sort!
   
-    {:collections => collections, :formats => formats}
+    {"collections" => collections, "formats" => formats}
   end
   
   def self.collection_list_for_doc(doc)

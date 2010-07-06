@@ -18,7 +18,7 @@ class ReportsController < ApplicationController
   end
   
   def new
-    @report = Report.new
+    redirect_to reports_url
   end
   
   def create
@@ -38,7 +38,9 @@ class ReportsController < ApplicationController
   
   def update
     @report = Report.find(params[:id])
+    params[:report].delete(:data) if params[:report]
     if @report.update_attributes(params[:report])
+      
       flash[:notice] = "Successfully updated report."
       redirect_to @report
     else

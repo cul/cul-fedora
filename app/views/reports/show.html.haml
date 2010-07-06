@@ -1,4 +1,7 @@
-- title "Report"
+- @page_title = "Report"
+
+= render :partial => "report", :object => @report.data_hash, :locals => {:category => @report.category}
+
 
 %p
   %strong Name:
@@ -8,16 +11,10 @@
   =h @report.category
 %p
   %strong Generated On:
-  =h @report.generated_on
+  =h @report.generated_on.to_formatted_s(:short)
 %p
   %strong User:
-  =h @report.user_id
-%p
-  %strong Options:
-  =h @report.options
-%p
-  %strong Data:
-  =h @report.data
+  =h @report.user.to_s
 
 %p
   = link_to "Edit", edit_report_path(@report)
