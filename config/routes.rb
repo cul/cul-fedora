@@ -1,6 +1,8 @@
 ActionController::Routing::Routes.draw do |map|
   map.resources :reports
 
+  map.resources :reports
+
 
 
   Blacklight::Routes.build map
@@ -15,6 +17,10 @@ ActionController::Routing::Routes.draw do |map|
 
 
   map.resource :report
+  
+  map.connect '/reports/preview/:category', :controller => 'reports', :action => 'preview', 
+    :category => /(by_collection)/
+  
   map.connect ':controller/:action/:id'
   map.connect ':controller/:action/:id.:format'
 

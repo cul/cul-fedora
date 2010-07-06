@@ -1,0 +1,23 @@
+- title "Reports"
+
+%table
+  %tr
+    %th Name
+    %th Category
+    %th Generated on
+    %th User
+    %th Options
+    %th Data
+  - for report in @reports
+    %tr
+      %td= h report.name
+      %td= h report.category
+      %td= h report.generated_on
+      %td= h report.user_id
+      %td= h report.options
+      %td= h report.data
+      %td= link_to 'Show', report
+      %td= link_to 'Edit', edit_report_path(report)
+      %td= link_to 'Destroy', report, :confirm => 'Are you sure?', :method => :delete
+
+%p= link_to "New Report", new_report_path

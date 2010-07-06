@@ -7,8 +7,8 @@ class Report < ActiveRecord::Base
   validates_inclusion_of :category, :in => VALID_CATEGORIES
 
   def generate!
-    generated_on = Time.now
-    data = self.generate(category, options_hash).to_json
+    self.generated_on = Time.now
+    self.data = Report.generate(category, options_hash).to_json
     return self
   end
 
@@ -16,11 +16,19 @@ class Report < ActiveRecord::Base
   
 
   def data_hash
-    JSON.parse(data)
+    begin
+      JSON.parse(data.to_s)
+    rescue
+      {}
+    end
   end
 
   def options_hash
-    JSON.parse(options)
+    begin
+      JSON.parse(options.to_s)
+    rescue
+      {}
+    end
   end
 
   def self.generate(category,options = {})

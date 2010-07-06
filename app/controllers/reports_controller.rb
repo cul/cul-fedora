@@ -1,4 +1,14 @@
 class ReportsController < ApplicationController
+  before_filter :require_admin
+
+  def preview
+    @category = params[:category]
+    @report = Report.generate(@category)
+    @new_report = Report.new(:category => @category, :user => current_user, :generated_on => Date.today)
+
+
+  end
+
   def index
     @reports = Report.all
   end
@@ -13,7 +23,8 @@ class ReportsController < ApplicationController
   
   def create
     @report = Report.new(params[:report])
-    if @report.save
+  
+    if @report.generate!.save
       flash[:notice] = "Successfully created report."
       redirect_to @report
     else

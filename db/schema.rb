@@ -32,9 +32,11 @@ ActiveRecord::Schema.define(:version => 20100701170542) do
   add_index "content_blocks", ["title"], :name => "index_content_blocks_on_title"
 
   create_table "reports", :force => true do |t|
-    t.string   "name",       :null => false
-    t.string   "category",   :null => false
+    t.string   "name",         :null => false
+    t.string   "category",     :null => false
+    t.datetime "generated_on"
     t.integer  "user_id"
+    t.text     "options"
     t.text     "data"
     t.datetime "created_at"
     t.datetime "updated_at"
