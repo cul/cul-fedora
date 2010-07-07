@@ -4,7 +4,7 @@
   | <%= link_to('View your last search', catalog_index_path(current_user.last_search_url)) %>
   <% end %> | 
   <% if current_user.admin? %> 
-    <%= link_to("Admin", :controler => :admin) %> | 
+    <%= link_to("Admin", :controller => :admin) %> | 
   <% end %>
   <%= link_to 'Bookmarks', bookmarks_path %> |
   <%= link_to "Saved Searches", saved_searches_path %>
