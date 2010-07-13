@@ -9,5 +9,3 @@ role :app, domain
 role :web, domain
 role :db,  domain, :primary => true
 
-
-
