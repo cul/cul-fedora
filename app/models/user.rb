@@ -5,6 +5,10 @@ class User < ActiveRecord::Base
 
   named_scope :admins, :conditions => {:admin => true}
 
+  acts_as_authentic do |c|
+    c.validate_password_field = false
+  end
+
   def to_s
     if first_name
       first_name.to_s + ' ' + last_name.to_s

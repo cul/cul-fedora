@@ -11,3 +11,11 @@ taft_pass:
     riurl: https://repository2.cul.columbia.edu:8443/fedora
     riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
     collections: "ldpd:91652;ldpd:91654"
+pass_test:
+    riurl: https://repository2.cul.columbia.edu:8443/fedora
+    riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
+    collections: "ldpd:91652;ldpd:91654"
+ludwig_prod:
+    riurl: https://repository2.cul.columbia.edu:8443/fedora
+    riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
+    collections: "ldpd:91652;ldpd:91654"
