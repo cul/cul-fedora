@@ -1,24 +1,133 @@
 require 'nokogiri'
+require 'rsolr-ext'
 
+class SolrCollection
+  attr_reader :pid, :solr
+  def initialize(pid, solr_url)
+    @pid = pid
+    @solr = RSolr.connect :url=>solr_url
+    @colon = Regexp.new(':')
+  end
+  def solr_query(query, start, rows, fl, collection_prefix=false)
+    query_parms = {}
+    query_parms[:q]=query
+    query_parms[:start]=start
+    query_parms[:rows]=rows
+    query_parms[:fl]= "*"
+    query_parms[:wt]= :ruby
+    query_parms[:qt]= :document
+    if (collection_prefix)
+      query_parms[:facet]="on"
+      query_parms["facet.field"]=:internal_h
+      query_parms["facet.prefix"]=(collection_prefix + "*")
+    end
+    resp_json = solr.request('/select', query_parms)
+    resp_json
+  end
+  def paths()
+    if !(@paths)
+      @paths = []
+      response=solr_query("id:#{pid.gsub(@colon,'\:')}@*",0,1,"internal_h")
+      @paths |= response["response"]["docs"][0]["internal_h"]
+    end
+    @paths
+  end
+  def paths=(arg1)
+    @paths=arg1
+  end
+  def members()
+    if !(@members)
+      @members = []
+      paths.each{|path|
+        q = path.gsub(@colon,'\:')
+        if q[0] = '/'
+          q = q.slice(1,q.size - 1)
+        end
+        if q[-1] != '/'
+          q = q + '/'
+        end
+        q = "internal_h:" + q
+        p q
+        size = 10
+        start = 0
+        while
+          response=solr_query(q,start,size,:id)
+          numFound = response["response"]["numFound"]
+          docs = response["response"]["docs"] | []
+          ids = docs.collect{|doc|
+            p doc["id"]
+            doc["id"].split('@')[0]
+          }
+          ids.compact!
+          ids.uniq!
+          @members |= ids
+          start += size
+          break if start > numFound
+        end
+      }
+    end
+    @members
+  end
+end
 class Gatekeeper
-  attr_reader :allowed
+  attr_reader :pids, :patterns
   def initialize(arg1)
-    @allowed = arg1.collect { |pid|
-      Regexp.new('\b' + pid + '[\b\/]')
+    @pids = arg1
+    @patterns = arg1.collect { |pid|
+      Regexp.new('\b' + pid + '\b(\/)?')
     }
+  end
+  def allowed?(value)
+    result = false
+    patterns.each do |pattern|
+      result |= (pattern =~ value)
+    end
+    result
   end
   def accept?(filedata)
     result = false
-    if (allowed.length == 0)
+    if (patterns.length == 0)
       p "Warning: No allowable collection regex's"
     end
     doc = Nokogiri::XML::Document.parse(filedata,'utf-8')
     doc.xpath('//xmlns:field[@name="internal_h"]').each do |element|
-      allowed.each do |pid|
-        result |= (pid =~ element.content)
-      end
+      result |= allowed?element.content
     end
     result
+  end
+  def getInternalFacets(solr_url)
+    # select_uri = base_uri + "/select"
+    p solr_url
+    results = []
+    query_parms = {}
+    query_parms[:q]="*:*"
+    query_parms[:start]=0
+    query_parms[:rows]=2
+    query_parms[:facet]="on"
+    query_parms["facet.field"]=[:internal_h]
+    query_parms[:fl]= :internal_h
+    query_parms[:wt]= :ruby
+    query_parms[:qt]= :document
+    solr = RSolr.connect :url=>solr_url
+    colon = Regexp.new(':')
+    pids.each { |pid|
+      query_parms[:q]="id:#{pid.gsub(colon,'\:')}@*"
+      facet_json = solr.request('/select', query_parms)
+      #facet_json = solr.get('select', query_parms)
+      p facet_json
+      # parse it
+      facets = facet_json
+      # pull all internal_h values, and check against allowed patterns
+      facet_counts = facets['facet_counts']['facet_fields']['internal_h']
+      facet_counts.flatten!
+      facet_counts.each_with_index { |val, index|
+        if (val.to_s.index('path-')==0):
+          results << facet_counts[index + 1] 
+        end
+      }
+    }
+      # return filtered values
+    results
   end
 end
 namespace :solr do
@@ -47,6 +156,17 @@ namespace :solr do
          url_list.finish
          urls
        when ENV['COLLECTION_PID']
+         solr_url = ENV['SOLR'] || Blacklight.solr_config[:url]
+         collection = SolrCollection.new(ENV['COLLECTION_PID'],solr_url)
+         facet_vals = collection.paths.find_all { |val|
+           ALLOWED.allowed?val
+         }
+         facet_vals = facet_vals.reject{|val|
+           facet_vals.any?{|compare|
+             (val != compare && val.index(compare) == 0)
+           }
+         }
+         collection.paths=facet_vals
          query = "format=json&lang=itql&query=" + URI.escape(sprintf(ENV['RI_QUERY'],ENV['COLLECTION_PID']))
          fedora_uri = URI.parse(ENV['RI_URL'])
          risearch = Net::HTTP.new(fedora_uri.host, fedora_uri.port)
@@ -55,7 +175,11 @@ namespace :solr do
          members = risearch.post(fedora_uri.path + '/risearch',query)
          risearch.finish
          members = JSON::parse(members.body)['results']
-         url_array = members.collect {|member| fedora_uri.merge('/fedora/get/' + member['member'].split('/')[1] + '/ldpd:sdef.Core/getIndex').to_s}
+         members = members.collect {|member|
+           member['member'].split('/')[1]
+         }
+         members |= collection.members
+         url_array = members.collect {|member| fedora_uri.merge('/fedora/get/' + member + '/ldpd:sdef.Core/getIndex').to_s}
        when ENV['PID']
          pid = ENV['PID']
          fedora_uri = URI.parse(ENV['RI_URL'])
