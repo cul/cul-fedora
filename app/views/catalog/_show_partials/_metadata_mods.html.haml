@@ -1,0 +1,5 @@
+.detail
+  .items.yui-gd
+    - metadata[:details].each do |name, value|
+      .label.yui-u.first= name
+      .value.yui-u= value

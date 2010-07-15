@@ -21,7 +21,7 @@ module CatalogHelper
           res[:mime_type] = image["type"]
           res[:file_size] = image["fileSize"].to_i
           res[:size] = (image["fileSize"].to_i / 1024).to_s + " Kb"
-          
+
           base_id = trim_fedora_uri_to_pid(image["member"])
           base_filename = base_id.gsub(/\:/,"")
           img_filename = base_filename + "." + image["type"].gsub(/^[^\/]+\//,"")
@@ -52,9 +52,12 @@ module CatalogHelper
   end
 
   def get_metadata_list(doc)
-    
+
     json = doc_json_method(doc, "/ldpd:sdef.Core/describedBy?format=json")["results"]
     json << {"DC" => base_id_for(doc)}
+    hc = HTTPClient.new()
+    hc.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
     results = []
     json.each do  |meta_hash|
       meta_hash.each do |desc, uri|
@@ -67,10 +70,44 @@ module CatalogHelper
         filename += ".xml"
         res[:show_url] = fedora_content_path(:show_pretty, res[:id], block, filename)
         res[:download_url] = fedora_content_path(:download, res[:id], block, filename)
+        res[:direct_link] = FEDORA_CONFIG[:riurl] + "/get/" + res[:id] + "/" + block
+        res[:type] = block == "DC"  ? "DublinCore" : "unknown"
+        begin
+          res[:xml] = Nokogiri::XML(hc.get_content(res[:direct_link]))
+          root = res[:xml].root
+          res[:type] = "MODS" if root.name == "mods" && root.attributes["schemaLocation"].value.include?("/mods/")
+          extract_mods_details(res)
+        rescue
+        end
+
         results << res
       end
     end
     return results
+  end
+
+  def extract_mods_details(metadata)
+    details = [] 
+    xml = metadata[:xml].at_css("mods")
+
+    details << ["Identifier:", xml.at_css("identifier").content]
+    xml.css("name").each do |name_node|
+      name = ""
+      name_node.css("namePart").each  do |np|
+        name  += ", " if np.attributes["type"] && np.attributes["type"].value == "date"
+        name += np.content
+      end
+
+      name_node.css("description").each do |desc|
+        name += ", " + desc.content
+      end
+
+      details << ["Name:", name] unless name == ""
+    end
+    metadata[:details] = details
+    
+    return metadata
+
   end
 
   def trim_fedora_uri_to_pid(uri)

@@ -1,0 +1,12 @@
+
+.metadata
+  .title_row.yui-gc
+    .title.yui-u.first
+      .title_data
+        = metadata[:title]
+        =" (#{metadata[:type]})"
+    .links.yui-u
+      = link_to "Show", metadata[:show_url] 
+      = link_to "Download", metadata[:download_url] 
+
+  = render :partial => "catalog/_show_partials/metadata_#{metadata[:type].underscore}", :locals => {:metadata => metadata}

@@ -1,4 +1,5 @@
 - thumbnail ||= false
+- metadata_list = get_metadata_list(document)
 %h3 Descriptive Information
 
 
@@ -16,12 +17,9 @@
 
 %h3 Metadata
 
-%dl.defList
-  - get_metadata_list(document).each do |metadata|
-    %dt= metadata[:title]
-    %dd
-      = link_to "Show", metadata[:show_url] 
-      = link_to "Download", metadata[:download_url] 
+.metadata-list
+  = render :partial => "catalog/_show_partials/metadata", :collection => metadata_list, :locals => {:document => document}
+
 
 %h3 Find any errors?
 %div
