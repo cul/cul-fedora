@@ -10,5 +10,5 @@
   .metadata .detail {
     background-color: #f9f9f9;
     margin-left: 2em; }
-    .metadata .detail .items .value {
-      margin-bottom: 0.5em; }
+    .metadata .detail .items {
+      min-height: 1.75em; }
