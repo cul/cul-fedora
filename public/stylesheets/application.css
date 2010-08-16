@@ -11,4 +11,6 @@
     background-color: #f9f9f9;
     margin-left: 2em; }
     .metadata .detail .items {
+      overflow: hidden;
+      text-overflow: ellipsis;
       min-height: 1.75em; }

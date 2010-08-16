@@ -165,7 +165,7 @@ module CatalogHelper
     details += add_mods_details("Location:", xml.css("location>physicalLocation") - xml.css("location>physicalLocation[authority]"))
 
     xml.css("location>url").each do |url_node|
-      details << ["URL:", link_to(url_node.content.to_s.abbreviate(50), url_node.content, :target => "blank")]
+      details << ["URL:", link_to(url_node.content.to_s, url_node.content, :target => "blank")]
     end
 
     xml.css("relatedItem").each do |related_node|
@@ -182,7 +182,7 @@ module CatalogHelper
       end
 
       related_node.css("location>url").each do |url_node|
-        details << [title + " URL:", link_to(url_node.content.to_s.abbreviate(50), url_node.content, :target => "blank")]
+        details << [title + " URL:", link_to(url_node.content.to_s, url_node.content, :target => "blank")]
       end
     end
 
