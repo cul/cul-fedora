@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<mods xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-2.xsd">
+   <identifier type="local">ldpd.russianpages.5_5</identifier>
+   <titleInfo displayLabel="Supplied title">
+      <title>Grand Duke Igor Konstantinovich</title>
+   </titleInfo>
+   <relatedItem>
+      <titleInfo>
+         <title>Soiuz Pazhei Papers</title>
+      </titleInfo>
+   </relatedItem>
+   <note displayLabel="Provenance">Purchase, 1957</note>
+   <originInfo>
+      <place>
+         <placeTerm type="text">St. Petersburg</placeTerm>
+      </place>
+      <dateCreated encoding="w3cdtf" keyDate="yes">1917</dateCreated>
+   </originInfo>
+   <physicalDescription>
+      <form authority="marcform">electronic</form>
+      <reformattingQuality>access</reformattingQuality>
+      <internetMediaType>image/jpeg</internetMediaType>
+      <digitalOrigin>reformatted digital</digitalOrigin>
+   </physicalDescription>
+   <typeOfResource>still image</typeOfResource>
+   <subject authority="lcsh">
+      <name authority="naf" type="corporate">
+         <namePart>Pazheskii Ego Imperatorskago Velichestva korpus (Russia)</namePart>
+      </name>
+   </subject>
+   <subject authority="lcsh">
+      <topic>Russia--Court and courtiers</topic>
+   </subject>
+   <abstract>Grand Duke Igor Konstantinovich (1894-1918)</abstract>
+   <relatedItem displayLabel="Exhibition Case: " type="host">
+      <titleInfo>
+         <title>Russian Imperial Corps of Pages.  Class of 1917 &amp; Union of Pages</title>
+      </titleInfo>
+      <location>
+         <url>http://www.columbia.edu/cu/lweb/eresources/exhibitions/pages/html/Cla.html</url>
+      </location>
+   </relatedItem>
+   <location>
+      <physicalLocation authority="marcorg">NNC-RB</physicalLocation>
+      <physicalLocation>Columbia University  Rare Book and Manuscript Library</physicalLocation>
+      <url access="object in context" usage="primary display">http://www.columbia.edu/cu/lweb/eresources/exhibitions/pages/html/5e001.html</url>
+   </location>
+   <accessCondition type="useAndReproduction">For rights relating to this resource, visit http://www.columbia.edu/cu/lweb/eresources/exhibitions/pages/permissions.html</accessCondition>
+   <recordInfo>
+      <recordCreationDate encoding="w3cdtf">2009-03-17</recordCreationDate>
+      <recordContentSource authority="marcorg">NNC</recordContentSource>
+      <languageOfCataloging>
+         <languageTerm authority="iso639-2b">eng</languageTerm>
+      </languageOfCataloging>
+      <recordOrigin>Metadata derived from original exhibition information, edited to conform to the DLF Implementation Guidelines for Shareable MODS Records, Version 1.0</recordOrigin>
+   </recordInfo>
+</mods>
