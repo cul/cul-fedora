@@ -4,7 +4,11 @@ require 'shoulda'
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
+
 require 'cul-fedora'
 
 class Test::Unit::TestCase
+  def load_yaml_config(file)
+    YAML::parse(File.read(file))
+  end
 end
