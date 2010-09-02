@@ -28,7 +28,9 @@ class SolrCollection
     if !(@paths)
       @paths = []
       response=solr_query("id:#{pid.gsub(@colon,'\:')}@*",0,1,"internal_h")
-      @paths |= response["response"]["docs"][0]["internal_h"]
+      if response["response"]["docs"][0]
+        @paths |= response["response"]["docs"][0]["internal_h"]
+      end
     end
     @paths
   end
