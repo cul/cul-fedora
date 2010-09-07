@@ -10,7 +10,8 @@ begin
     gem.email = "tastyhat@jamesstuart.org"
     gem.homepage = "http://github.com/tastyhat/cul-fedora"
     gem.authors = ["James Stuart"]
-    gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
+    gem.add_development_dependency "shoulda", ">= 0"
+    gem.add_development_dependency "mocha", ">=0.9.8"
     gem.add_dependency "nokogiri"
     gem.add_dependency "httpclient"
 
