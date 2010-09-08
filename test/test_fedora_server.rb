@@ -3,18 +3,12 @@ require "helper"
 
 class TestFedoraServer < Test::Unit::TestCase
   context "given  a fedora server" do
-    CONFIG = YAML.load_file("private/config.yml")
-    URI_EXAMPLES = YAML.load_file("test/example_server_requests.yml")
 
     setup do
-
-
-
-
-      @riurl = CONFIG["fedora"]["riurl"]
-
-
-      @server = Server.new(CONFIG["fedora"])
+      @config = YAML.load_file("private/config.yml")
+      @examples = YAML.load_file("test/example_server_requests.yml")
+      @riurl = @config["fedora"]["riurl"]
+      @server = Server.new(@config["fedora"])
     end
 
     should "require a riurl" do
@@ -35,28 +29,22 @@ class TestFedoraServer < Test::Unit::TestCase
 
     end
 
-    context "and a list of sample requests" do
-
-      should "be be able to generate urls to methods" do
-        URI_EXAMPLES.each do |test|
-          puts test.inspect
-
-        end
-
+    should "be be able to generate paths out of sample requests" do
+      @examples.each do |test|
+        assert_equal @server.request_path(test["params"]), [@riurl + test["uri"], test["query"]]
       end
 
+    end
 
-      should "be able to create urls to various methods" do
-        riurl = CONFIG["fedora"]["riurl"]
-        assert_equal @server.request_path(:request => "RELS-EXT", :pid => "ac:4"),
-          [riurl + "/get/ac:4/RELS-EXT", {}] 
-        
-        assert_equal @server.request_path(:request => "listMembers", :pid => "ac:5", :sdef => "ldpd:sdef.Aggregator"),
-          [riurl + "/get/ac:5/ldpd:sdef.Aggregator/listMembers", {}]
+    should "be able to make httpclient calls from sample requests" do
+      mock_hc = mock()
+      server_with_hc = Server.new(@config["fedora"].merge(:http_client => mock_hc))
 
-        assert_equal @server.request_path(:request => "getIndex", :pid => "ac:6", :sdef => "ldpd:sdef.Core", :format => "raw"),
-          [riurl + "/get/ac:6/ldpd:sdef.Core/getIndex", {:format => "raw"}]
 
+      @examples.each do |test|
+        mock_hc.expects(:get_content).with(@riurl + test["uri"], test["query"]).returns(nil)
+
+        server_with_hc.request(test["params"])
       end
     end
   end

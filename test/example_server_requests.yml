@@ -2,4 +2,18 @@
     :request: RELS-EXT
     :pid: ac:4
   uri: /get/ac:4/RELS-EXT
-  query:
+  query: {}
+- params:
+    :request: listMembers
+    :pid: ac:5
+    :sdef: ldpd:sdef.Aggregator
+  uri: /get/ac:5/ldpd:sdef.Aggregator/listMembers
+  query: {}
+- params:
+    :request: getIndex
+    :pid: ac:6
+    :sdef: ldpd:sdef.Core
+    :format: raw
+  uri: /get/ac:6/ldpd:sdef.Core/getIndex
+  query: 
+    :format: raw

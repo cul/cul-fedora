@@ -4,7 +4,7 @@ module Cul
       def initialize(*args)
         options = args.extract_options!
         @riurl = options["riurl"] || raise(ArgumentError, "Must provide riurl argument")
-        @hc = options["http_client"] 
+        @hc = options[:http_client] 
       end
 
       def item(uri)
@@ -38,6 +38,7 @@ module Cul
 
       def http_client
         @hc ||= HTTPClient.new()
+        @hc
       end
     end
   end
