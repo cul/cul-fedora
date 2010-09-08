@@ -13,7 +13,7 @@
     :request: getIndex
     :pid: ac:6
     :sdef: ldpd:sdef.Core
-    :format: raw
+    :profile: raw
   uri: /get/ac:6/ldpd:sdef.Core/getIndex
   query: 
-    :format: raw
+    :profile: raw

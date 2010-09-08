@@ -8,7 +8,7 @@ module Cul
       end
 
       def item(uri)
-        Item.new(self, uri)
+        Item.new(:server => self, :uri => uri)
       end
 
  
@@ -33,7 +33,11 @@ module Cul
         
         return [uri, query]
       end
- 
+
+      def inspect
+        '#<Cul::Fedora::Server:' + self.object_id.to_s + ' @riurl="' + @riurl + '">'  
+      end
+
       private
 
       def http_client

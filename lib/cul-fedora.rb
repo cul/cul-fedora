@@ -4,3 +4,4 @@ require "active_support"
 
 require "cul-fedora/item"
 require "cul-fedora/server"
+require "cul-fedora/solr"

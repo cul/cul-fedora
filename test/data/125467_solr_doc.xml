@@ -1,0 +1,40 @@
+<add> 
+  <doc> 
+    <field name="id">ac:125467</field> 
+    <field name="format">Object</field> 
+    <field name="pid">ac:125467</field> 
+    <field name="internal_h">collection:3/</field> 
+    <field name="member_of">collection:3</field> 
+    <field name="member_of">ac:59</field> 
+    <field name="title_display">A Source for Rubens's Modello of the Assumption and Coronation of the Virgin in Leningrad: A Case Study in the Response to Images Burlington Magazine</field> 
+    <field name="title_search">A Source for Rubens's Modello of the Assumption and Coronation of the Virgin in Leningrad: A Case Study in the Response to Images Burlington Magazine</field> 
+    <field name="author_search">freedberg, david</field> 
+    <field name="author_facet">Freedberg, David</field> 
+    <field name="authors_display">Freedberg, David</field> 
+    <field name="date">1978</field> 
+    <field name="genre_facet">Articles</field> 
+    <field name="genre_search">Articles</field> 
+    <field name="abstract"></field> 
+    <field name="handle">http://hdl.handle.net/10022/AC:P:8619</field> 
+    <field name="keyword_search"></field> 
+    <field name="keyword_facet"></field> 
+    <field name="subject">Fine arts</field> 
+    <field name="subject_search">Fine arts</field> 
+    <field name="tableOfContents"></field> 
+    <field name="notes"></field> 
+    <field name="notes"></field> 
+    <field name="book_journal_title">Burlington Magazine</field> 
+    <field name="book_author"></field> 
+    <field name="issn"></field> 
+    <field name="publisher"></field> 
+    <field name="publisher_location"></field> 
+    <field name="isbn"></field> 
+    <field name="doi"></field> 
+    <field name="media_type_facet">application/pdf</field> 
+    <field name="type_of_resource_facet">text</field> 
+    <field name="geographic_area"></field> 
+    <field name="geographic_area_search"></field> 
+    <field name="ac.fulltext_0"></field> 
+  </doc> 
+</add>
+

@@ -4,7 +4,9 @@ class TestFedoraItem < Test::Unit::TestCase
   context "given a server" do
     setup do
       @config = YAML.load_file("private/config.yml")
-      @server = Server.new(@config["fedora"])
+      @riurl = @config["fedora"]["riurl"]
+      @hc = HTTPClient.new()
+      @server = Server.new(@config["fedora"].merge(:http_client => @hc))
       @item = Item.new(:server => @server, :uri => "info:fedora/ac:3")
     end
 
@@ -37,6 +39,35 @@ class TestFedoraItem < Test::Unit::TestCase
     end
 
 
+    should "be able to make requests" do
+
+      @server.expects(:request).with(:pid => "ac:3", :request => "RELS-EXT")
+
+      @item.request(:request => "RELS-EXT")
+    end
+
+    should "be able to call getIndex" do
+      @hc.expects(:get_content).with(@riurl + "/get/ac:3/ldpd:sdef.Core/getIndex", :profile => "raw").returns(nil)
+
+      @item.getIndex("raw")
+    end
+
+
+    context "and an academic commons object" do
+      setup do
+        @get_index = Nokogiri::XML(File.read("test/data/125467_get_index.xml"))
+        @solr_doc = Nokogiri::XML(File.read("test/data/125467_solr_doc.xml"))
+      end
+
+      should "be able to generate a solr doc" do
+        
+
+      end
+
+    end
+
   end
+
+  
 
 end

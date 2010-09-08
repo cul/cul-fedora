@@ -1,0 +1,130 @@
+<index:allMetadata xmlns:index="http://repository.cul.columbia.edu/namespace/index/1_0/" pid="ac:125467" fedora="https://repository2.cul.columbia.edu:8443/fedora"><index:overrides><index:format>Collection</index:format></index:overrides><index:hierarchies><index:collection>/Academic Commons</index:collection><index:collection>/David Freedberg Papers</index:collection><index:internal>/collection:3/ac:125467</index:internal><index:internal>/ac:59/ac:125467</index:internal><index:format>collection/</index:format></index:hierarchies><index:description containerPid="ac:125467" src="https://repository2.cul.columbia.edu:8443/fedora/get/ac:125467/DC" > 
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"> 
+  <dc:title>Generic Content Aggregator</dc:title> 
+  <dc:creator>BATCH</dc:creator> 
+  <dc:type>InteractiveResource</dc:type> 
+  <dc:identifier>AC:P:8619</dc:identifier> 
+  <dc:identifier>ac:125467</dc:identifier> 
+</oai_dc:dc> 
+</index:description><index:description containerPid="ac:125469" src="https://repository2.cul.columbia.edu:8443/fedora/get/ac:125469/CONTENT" > 
+<mods xmlns="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:copyrightMD="http://www.cdlib.org/inside/diglib/copyrightMD" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-3.xsd"> 
+    
+    <titleInfo> 
+        <title>A Source for Rubens&apos;s Modello of the Assumption and Coronation of the Virgin in Leningrad: A Case Study in the Response to Images</title> 
+        <subTitle></subTitle> 
+    </titleInfo> 
+    <name type="personal"> 
+        <namePart type="family">Freedberg</namePart> 
+        <namePart type="given">David</namePart> 
+        <role> 
+            <roleTerm type="text">Author</roleTerm> 
+        </role> 
+        <affiliation type="email">daf5@columbia.edu</affiliation> 
+        <affiliation type="department.other"></affiliation> 
+        <affiliation type="department">Art History and Archaeology, Department of</affiliation> 
+        <affiliation type="organization">Columbia University</affiliation> 
+        <affiliation type="country">United States</affiliation> 
+        <authorID type="institution">daf5</authorID> 
+        <authorID type="repository">NNC2010.04.016</authorID> 
+        <authorID type="naf">n81029377</authorID> 
+    </name> 
+    <typeOfResource>text</typeOfResource> 
+    <genre>Articles</genre> 
+    
+    <originInfo> 
+        <dateCreated encoding="w3cdtf" keyDate="yes">1978</dateCreated> 
+    </originInfo> 
+    
+    <language> 
+        <languageTerm type="text">English</languageTerm> 
+    </language> 
+    
+    <physicalDescription> 
+        <internetMediaType>application/pdf</internetMediaType> 
+        <extent type="totalpages"></extent> 
+        <extent type="filesize">1.79 MB</extent> 
+    </physicalDescription> 
+    <abstract></abstract> 
+    <note></note> 
+    
+    <subject> 
+        <topic></topic> 
+        <geographic></geographic> 
+    </subject> 
+    <subject authority="local"> 
+        <topic>Fine arts</topic> 
+    </subject> 
+    <relatedItem type="host"> 
+        <titleInfo> 
+            <title>Burlington Magazine</title> 
+        </titleInfo> 
+        <part> 
+            <detail type="volume"> 
+                <number>120</number> 
+                <caption>vol. </caption> 
+            </detail> 
+            <detail type="issue"> 
+                <number>904</number> 
+                <caption>no. </caption> 
+            </detail> 
+            <extent unit="page"> 
+                <start>432</start> 
+                <end>441</end> 
+            </extent> 
+            <date>July 1978</date> 
+        </part> 
+        <identifier type="issn"></identifier> 
+    </relatedItem> 
+    <identifier type="local">dept_freed_source_for_rubens_modello</identifier> 
+    <identifier type="doi" displayLabel="Published version"></identifier> 
+    <identifier type="uri" displayLabel="Published version"></identifier> 
+    <identifier type="hdl">http://hdl.handle.net/10022/AC:P:8619</identifier> 
+    
+    <location> 
+        <physicalLocation authority="marcorg">NNC</physicalLocation> 
+        <url></url> 
+    </location> 
+    
+    <accessCondition> 
+        <copyrightMD:copyright copyright.status="copyrighted" publication.status="published"> 
+            <copyrightMD:creation> 
+                <copyrightMD:year.creation>1978</copyrightMD:year.creation> 
+                <copyrightMD:country.creation></copyrightMD:country.creation> 
+            </copyrightMD:creation> 
+            <copyrightMD:rights.holder> 
+                <copyrightMD:name></copyrightMD:name> 
+                <copyrightMD:contact></copyrightMD:contact> 
+                <copyrightMD:note></copyrightMD:note> 
+            </copyrightMD:rights.holder> 
+            <copyrightMD:notice></copyrightMD:notice> 
+            <copyrightMD:general.note></copyrightMD:general.note> 
+        </copyrightMD:copyright> 
+        <embargo> 
+            <levelOfAccess>pubAccess</levelOfAccess> 
+            <issuedBy></issuedBy> 
+            <dateEmbargo point="start"></dateEmbargo> 
+            <dateEmbargo point="end"></dateEmbargo> 
+            <note type="embargo"></note> 
+        </embargo> 
+        
+    </accessCondition>    
+    
+    <extension> 
+        <authorRights>1</authorRights> 
+        
+    </extension> 
+    
+    <recordInfo> 
+        <recordContentSource authority="marcorg">NNC</recordContentSource> 
+        <recordCreationDate encoding="w3cdtf">2010-04-06 19:17:55 UTC</recordCreationDate> 
+        <recordChangeDate encoding="w3cdtf">2010-04-16 16:29:58 UTC</recordChangeDate> 
+        <recordIdentifier>1062</recordIdentifier> 
+        <recordOrigin>Will Andersen; wla2103@columbia.edu</recordOrigin> 
+        <languageOfCataloging> 
+            <languageTerm authority="iso639-2b">eng</languageTerm> 
+        </languageOfCataloging> 
+    </recordInfo> 
+    
+</mods> 
+</index:description></index:allMetadata>
+

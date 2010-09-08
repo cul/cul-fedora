@@ -14,6 +14,7 @@ begin
     gem.add_development_dependency "mocha", ">=0.9.8"
     gem.add_dependency "nokogiri"
     gem.add_dependency "httpclient"
+    gem.add_dependency "active_support"
 
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end

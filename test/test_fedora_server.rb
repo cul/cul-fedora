@@ -6,7 +6,7 @@ class TestFedoraServer < Test::Unit::TestCase
 
     setup do
       @config = YAML.load_file("private/config.yml")
-      @examples = YAML.load_file("test/example_server_requests.yml")
+      @examples = YAML.load_file("test/data/example_server_requests.yml")
       @riurl = @config["fedora"]["riurl"]
       @server = Server.new(@config["fedora"])
     end
@@ -22,7 +22,7 @@ class TestFedoraServer < Test::Unit::TestCase
     end
 
     should "be able to create an item from a uri or pid" do
-      item = Item.new(@server, "ac:4")
+      item = Item.new(:server => @server, :pid => "ac:4")
 
       assert_equal @server.item("ac:4"),  item
       assert_equal @server.item("info:fedora/ac:4"), item
