@@ -53,18 +53,7 @@ class TestFedoraItem < Test::Unit::TestCase
     end
 
 
-    context "and an academic commons object" do
-      setup do
-        @get_index = Nokogiri::XML(File.read("test/data/125467_get_index.xml"))
-        @solr_doc = Nokogiri::XML(File.read("test/data/125467_solr_doc.xml"))
-      end
 
-      should "be able to generate a solr doc" do
-        
-
-      end
-
-    end
 
   end
 

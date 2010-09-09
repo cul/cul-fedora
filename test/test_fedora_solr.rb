@@ -19,6 +19,10 @@ class TestFedoraSolr < Test::Unit::TestCase
       assert @solr
     end
 
+    should "return an rsolr" do
+      assert_kind_of RSolr::Client, @solr.rsolr
+    end
+
   end
 end
 

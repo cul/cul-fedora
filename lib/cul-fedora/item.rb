@@ -35,17 +35,14 @@ module Cul
         request(:request => name.to_s.upcase)
       end
 
-      def listMembers
-        begin
-          result = request(:request => "listMembers", :sdef => "ldpd:sdef.Aggregator", :format => "", :max => "", :start => "")
 
-          Nokogiri::XML(result).css("sparql>results>result>member").collect do |member|
-            @server.item(member.attributes["uri"].value)
-          end
-        rescue
-          []
-        end
+      def listMembers
+        results = JSON::parse(@server.request(:method => "", :request => "risearch", :format => "json", :lang => "itql", :query => sprintf(@server.riquery, @pid)))["results"]
+
+        results.collect { |r| @server.item(r["member"]) }
+
       end
+
 
       def describedBy
         begin
@@ -69,10 +66,11 @@ module Cul
         end
       end
 
-      def ac2_solr_doc
+      def index_for_ac2
+        results = Hash.new { |h,k| h[k] = [] }
         normalize_space = lambda { |s| s.to_s.strip.gsub(/\s{2,}/," ") }
         search_to_content = lambda { |x| x.kind_of?(Nokogiri::XML::Element) ? x.content : x.to_s }
-        add_field = lambda { |x, name, value| x.field(:name => name) { x.text search_to_content.call(value) }}
+        add_field = lambda { |name, value| results[name] << search_to_content.call(value) }
 
         get_fullname = lambda { |node| node.nil? ? nil : (node.css("namePart[@type='family']").collect(&:content) | node.css("namePart[@type='given']").collect(&:content)).join(", ") }
 
@@ -82,110 +80,105 @@ module Cul
         meta = describedBy.first
 
         meta = Nokogiri::XML(meta.datastream("CONTENT")) if meta
+        mods = meta.at_css("mods") if meta
 
-        builder = Nokogiri::XML::Builder.new do |xml|
-          xml.doc_ {
-            # baseline blacklight fields: id is the unique identifier, format determines by default, what partials get called
-            add_field.call(xml, "id", @pid)
-            add_field.call(xml, "internal_h",  collections.first.to_s + "/")
-
-             collections.each do |collection|
-            add_field.call(xml, "member_of", collection)
-          end
-          
-          
-          if (meta && mods = meta.css("mods"))
-            title = normalize_space.call(mods.css("titleInfo>nonSort,title").collect(&:content).join(" "))
-            add_field.call(xml, "title_display", title)
-            add_field.call(xml, "title_search", title)
-         
-            all_names = []
-            mods.css("name[@type='personal']").each do |name_node|
-              if name_node.css("role>roleTerm[@type='text']").collect(&:content).any? { |role| roles.include?(role) }
-                
-                fullname = get_fullname.call(name_node)
-                
-                all_names << fullname
-                
-                add_field.call(xml, "author_search", fullname.downcase)
-                add_field.call(xml, "author_facet", fullname)
-
-              end
-              
-            end
-
-            add_field.call(xml, "authors_display",all_names.join("; "))
-            add_field.call(xml, "date", mods.at_css("*[@keyDate='yes']"))
-
-            mods.css("genre").each do |genre_node|
-              add_field.call(xml, "genre_facet", genre_node)
-              add_field.call(xml, "genre_search", genre_node)
-
-            end
-              
-
-            add_field.call(xml, "abstract", mods.at_css("abstract"))
-            add_field.call(xml, "handle", mods.at_css("identifier[@type='hdl']"))
-         
-            mods.css("subject:not([@authority='local'])>topic").each do |topic_node|
-              add_field.call(xml, "keyword_search", topic_node.content.downcase)
-              add_field.call(xml, "keyword_facet", topic_node)
-            end
-
-            mods.css("subject[@authority='local']>topic").each do |topic_node|
-              add_field.call(xml, "subject", topic_node)
-              add_field.call(xml, "subject_search", topic_node)
-            end
-
-
-            add_field.call(xml, "tableOfContents", mods.at_css("tableOfContents"))
-            
-            mods.css("note").each { |note| add_field.call(xml, "notes", note) }
-            
-            if (related_host = mods.at_css("relatedItem[@type='host']"))
-              book_journal_title = related_host.at_css("titleInfo>title") 
-
-              if book_journal_title
-                book_journal_subtitle = mods.at_css("name>titleInfo>subTitle")
-                
-                book_journal_title = book_journal_title.content + ": " + book_journal_subtitle.content.to_s if book_journal_subtitle
-
-              end
-
-              add_field.call(xml, "book_journal_title", book_journal_title)
-
-              add_field.call(xml, "book_author", get_fullname.call(related_host.at_css("name"))) 
-  
-              add_field.call(xml, "issn", related_host.at_css("identifier[@type='issn']"))
-            end
-
-            add_field.call(xml, "publisher", mods.at_css("relatedItem>originInfo>publisher"))
-            add_field.call(xml, "publisher_location", mods.at_css("relatedItem > originInfo>place>placeTerm[@type='text']"))
-            add_field.call(xml, "isbn", mods.at_css("relatedItem>identifier[@type='isbn']"))
-            add_field.call(xml, "doi", mods.at_css("identifier[@type='doi'][@displayLabel='Published version']"))
-            
-            mods.css("physicalDescription>internetMediaType").each { |mt| add_field.call(xml, "media_type_facet", mt) }
-
-            mods.css("typeOfResource").each { |tr| add_field.call(xml, "type_of_resource_facet", tr)}
-            mods.css("subject>geographic").each do |geo|
-              add_field.call(xml, "geographic_area", geo)
-              add_field.call(xml, "geographic_area_search", geo)
-            end
-
-
-            
-          end
-
-          listMembers.each_with_index do |member, i|
-            add_field.call(xml, "ac.fulltext_#{i}", "")
-          end
-
-          
-          
-          }
+        return {} unless mods
+        # baseline blacklight fields: id is the unique identifier, format determines by default, what partials get called
+        add_field.call("id", @pid)
+        add_field.call("internal_h",  collections.first.to_s + "/")
+        add_field.call("pid", @pid)
+        collections.each do |collection|
+          add_field.call("member_of", collection)
         end
 
-        return builder.to_xml.sub('<?xml version="1.0"?>',"")
+
+
+        title = normalize_space.call(mods.css("titleInfo>nonSort,title").collect(&:content).join(" "))
+        add_field.call("title_display", title)
+        add_field.call("title_search", title)
+
+        all_names = []
+        mods.css("name[@type='personal']").each do |name_node|
+          if name_node.css("role>roleTerm[@type='text']").collect(&:content).any? { |role| roles.include?(role) }
+
+            fullname = get_fullname.call(name_node)
+
+            all_names << fullname
+
+            add_field.call("author_search", fullname.downcase)
+            add_field.call("author_facet", fullname)
+
+          end
+
+        end
+
+        add_field.call("authors_display",all_names.join("; "))
+        add_field.call("date", mods.at_css("*[@keyDate='yes']"))
+
+        mods.css("genre").each do |genre_node|
+          add_field.call("genre_facet", genre_node)
+          add_field.call("genre_search", genre_node)
+
+        end
+
+
+        add_field.call("abstract", mods.at_css("abstract"))
+        add_field.call("handle", mods.at_css("identifier[@type='hdl']"))
+
+        mods.css("subject:not([@authority='local'])>topic").each do |topic_node|
+          add_field.call("keyword_search", topic_node.content.downcase)
+          add_field.call("keyword_facet", topic_node)
+        end
+
+        mods.css("subject[@authority='local']>topic").each do |topic_node|
+          add_field.call("subject", topic_node)
+          add_field.call("subject_search", topic_node)
+        end
+
+
+        add_field.call("tableOfContents", mods.at_css("tableOfContents"))
+
+        mods.css("note").each { |note| add_field.call("notes", note) }
+
+        if (related_host = mods.at_css("relatedItem[@type='host']"))
+          book_journal_title = related_host.at_css("titleInfo>title") 
+
+          if book_journal_title
+            book_journal_subtitle = mods.at_css("name>titleInfo>subTitle")
+
+            book_journal_title = book_journal_title.content + ": " + book_journal_subtitle.content.to_s if book_journal_subtitle
+
+          end
+
+          add_field.call("book_journal_title", book_journal_title)
+
+          add_field.call("book_author", get_fullname.call(related_host.at_css("name"))) 
+
+          add_field.call("issn", related_host.at_css("identifier[@type='issn']"))
+        end
+
+        add_field.call("publisher", mods.at_css("relatedItem>originInfo>publisher"))
+        add_field.call("publisher_location", mods.at_css("relatedItem > originInfo>place>placeTerm[@type='text']"))
+        add_field.call("isbn", mods.at_css("relatedItem>identifier[@type='isbn']"))
+        add_field.call("doi", mods.at_css("identifier[@type='doi'][@displayLabel='Published version']"))
+
+        mods.css("physicalDescription>internetMediaType").each { |mt| add_field.call("media_type_facet", mt) }
+
+        mods.css("typeOfResource").each { |tr| add_field.call("type_of_resource_facet", tr)}
+        mods.css("subject>geographic").each do |geo|
+          add_field.call("geographic_area", geo)
+          add_field.call("geographic_area_search", geo)
+        end
+
+
+
+
+
+        listMembers.each_with_index do |member, i|
+          add_field.call("ac.fulltext_#{i}", "")
+        end
+
+        return results
       end
 
       def to_s
