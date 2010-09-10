@@ -24,7 +24,7 @@ module Cul
 
 
 
-        rsolr.add(items.collect { |i| i.send("index_for_#{format}")})
+        rsolr.add(items.collect { |i| i.send("index_for_#{format}")}.reject { |doc| doc == {}})
        
         rsolr.commit
       end
