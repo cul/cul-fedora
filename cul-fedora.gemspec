@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "Rakefile",
      "VERSION",
+     "cul-fedora.gemspec",
      "lib/cul-fedora.rb",
      "lib/cul-fedora/item.rb",
      "lib/cul-fedora/server.rb",
