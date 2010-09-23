@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["James Stuart"]
-  s.date = %q{2010-09-21}
+  s.date = %q{2010-09-23}
   s.description = %q{Columbia-specific Fedora libraries}
   s.email = %q{tastyhat@jamesstuart.org}
   s.extra_rdoc_files = [
@@ -60,7 +60,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<mocha>, [">= 0.9.8"])
       s.add_runtime_dependency(%q<nokogiri>, [">= 0"])
       s.add_runtime_dependency(%q<httpclient>, [">= 0"])
-      s.add_runtime_dependency(%q<active_support>, [">= 0"])
+      s.add_runtime_dependency(%q<activesupport>, [">= 0"])
       s.add_runtime_dependency(%q<rsolr>, [">= 0"])
       s.add_runtime_dependency(%q<rsolr-ext>, [">= 0"])
     else
@@ -68,7 +68,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<mocha>, [">= 0.9.8"])
       s.add_dependency(%q<nokogiri>, [">= 0"])
       s.add_dependency(%q<httpclient>, [">= 0"])
-      s.add_dependency(%q<active_support>, [">= 0"])
+      s.add_dependency(%q<activesupport>, [">= 0"])
       s.add_dependency(%q<rsolr>, [">= 0"])
       s.add_dependency(%q<rsolr-ext>, [">= 0"])
     end
@@ -77,7 +77,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<mocha>, [">= 0.9.8"])
     s.add_dependency(%q<nokogiri>, [">= 0"])
     s.add_dependency(%q<httpclient>, [">= 0"])
-    s.add_dependency(%q<active_support>, [">= 0"])
+    s.add_dependency(%q<activesupport>, [">= 0"])
     s.add_dependency(%q<rsolr>, [">= 0"])
     s.add_dependency(%q<rsolr-ext>, [">= 0"])
   end

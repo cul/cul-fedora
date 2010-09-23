@@ -14,7 +14,7 @@ begin
     gem.add_development_dependency "mocha", ">=0.9.8"
     gem.add_dependency "nokogiri"
     gem.add_dependency "httpclient"
-    gem.add_dependency "active_support"
+    gem.add_dependency "activesupport"
     gem.add_dependency "rsolr"
     gem.add_dependency "rsolr-ext"
 
