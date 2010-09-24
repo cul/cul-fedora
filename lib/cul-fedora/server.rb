@@ -5,8 +5,8 @@ module Cul
 
       def initialize(*args)
         options = args.extract_options!
-        @riurl = options["riurl"] || raise(ArgumentError, "Must provide riurl argument")
-        @riquery = options["riquery"] || raise(ArgumentError, "Must provide riquery argument")
+        @riurl = options[:riurl] || raise(ArgumentError, "Must provide riurl argument")
+        @riquery = options[:riquery] || raise(ArgumentError, "Must provide riquery argument")
         @hc = options[:http_client] 
       end
 

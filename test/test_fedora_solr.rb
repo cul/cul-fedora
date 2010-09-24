@@ -6,7 +6,7 @@ class TestFedoraSolr < Test::Unit::TestCase
 
     setup do
       @config = YAML.load_file("private/config.yml")
-      @solr = Solr.new(@config["solr"])
+      @solr = Solr.new(@config[:solr])
     end
 
     should "require a url" do

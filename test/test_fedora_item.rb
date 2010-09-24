@@ -4,9 +4,9 @@ class TestFedoraItem < Test::Unit::TestCase
   context "given a server" do
     setup do
       @config = YAML.load_file("private/config.yml")
-      @riurl = @config["fedora"]["riurl"]
+      @riurl = @config[:fedora][:riurl]
       @hc = HTTPClient.new()
-      @server = Server.new(@config["fedora"].merge(:http_client => @hc))
+      @server = Server.new(@config[:fedora].merge(:http_client => @hc))
       @item = Item.new(:server => @server, :uri => "info:fedora/ac:3")
     end
 
@@ -16,7 +16,7 @@ class TestFedoraItem < Test::Unit::TestCase
     end
 
     should "initialize properly with a server config and pid" do
-      assert Item.new(:server_config => @config["fedora"], :uri => "info:fedora/ac:3")
+      assert Item.new(:server_config => @config[:fedora], :uri => "info:fedora/ac:3")
     end
 
     should "require a server and pid" do
@@ -35,7 +35,7 @@ class TestFedoraItem < Test::Unit::TestCase
      
       assert_equal @item, Item.new(:server => @server, :pid => "ac:3")
       assert_equal @item, Item.new(:server => @server, :uri => "info:fedora/ac:3")
-      assert_equal @item, Item.new(:server_config => @config["fedora"], :pid => "ac:3")
+      assert_equal @item, Item.new(:server_config => @config[:fedora], :pid => "ac:3")
     end
 
 

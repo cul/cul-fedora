@@ -7,8 +7,8 @@ class TestFedoraServer < Test::Unit::TestCase
     setup do
       @config = YAML.load_file("private/config.yml")
       @examples = YAML.load_file("test/data/example_server_requests.yml")
-      @riurl = @config["fedora"]["riurl"]
-      @server = Server.new(@config["fedora"])
+      @riurl = @config[:fedora][:riurl]
+      @server = Server.new(@config[:fedora])
     end
 
     should "require a riurl" do
@@ -38,7 +38,7 @@ class TestFedoraServer < Test::Unit::TestCase
 
     should "be able to make httpclient calls from sample requests" do
       mock_hc = mock()
-      server_with_hc = Server.new(@config["fedora"].merge(:http_client => mock_hc))
+      server_with_hc = Server.new(@config[:fedora].merge(:http_client => mock_hc))
 
 
       @examples.each do |test|
