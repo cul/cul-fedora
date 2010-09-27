@@ -104,7 +104,9 @@ module Cul
               fullname = get_fullname.call(name_node)
 
               all_names << fullname
-
+              add_field.call("author_id_uni", name_node.at_css("authorID[@type='institution']"))
+              add_field.call("author_id_repository", name_node.at_css("authorID[@type='repository']"))
+              add_field.call("author_id_naf", name_node.at_css("authorID[@type='naf']"))
               add_field.call("author_search", fullname.downcase)
               add_field.call("author_facet", fullname)
 
