@@ -16,6 +16,18 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def require_admin
+    if current_user
+      unless current_user.admin
+        redirect_to access_denied_url  
+      end
+    else
+      store_location
+      redirect_to new_user_session_url
+      return false
+    end
+  end
+
   def require_no_user
     if current_user
       store_location
@@ -55,6 +67,7 @@ class ApplicationController < ActionController::Base
   def default_html_head
     stylesheet_links << ['yui', 'jquery/ui-lightness/jquery-ui-1.8.1.custom.css', 'application',{:plugin=>:blacklight, :media=>'all'}]
     stylesheet_links << ['zooming_image', 'accordion', {:media=>'all'}]
+    stylesheet_links << ['application']
     javascript_includes << ['jquery-1.4.2.min.js', 'jquery-ui-1.8.1.custom.min.js', 'blacklight', 'application', { :plugin=>:blacklight } ]
     javascript_includes << ['accordion', 'zooming_image']
     extra_head_content << [stylesheet_tag(openlayers_css, :media=>'all'), javascript_tag(openlayers_js)]

@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100601153337) do
+ActiveRecord::Schema.define(:version => 20100701170542) do
 
   create_table "bookmarks", :force => true do |t|
     t.integer  "user_id",     :null => false
@@ -20,6 +20,29 @@ ActiveRecord::Schema.define(:version => 20100601153337) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "content_blocks", :force => true do |t|
+    t.string   "title",      :null => false
+    t.integer  "user_id",    :null => false
+    t.text     "data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "content_blocks", ["title"], :name => "index_content_blocks_on_title"
+
+  create_table "reports", :force => true do |t|
+    t.string   "name",         :null => false
+    t.string   "category",     :null => false
+    t.datetime "generated_on"
+    t.integer  "user_id"
+    t.text     "options"
+    t.text     "data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "reports", ["category"], :name => "index_reports_on_category"
 
   create_table "searches", :force => true do |t|
     t.text     "query_params"
@@ -55,19 +78,27 @@ ActiveRecord::Schema.define(:version => 20100601153337) do
   end
 
   create_table "users", :force => true do |t|
-    t.string   "login",             :null => false
+    t.string   "first_name"
+    t.string   "last_name"
+    t.boolean  "admin"
+    t.string   "login",                            :null => false
+    t.string   "wind_login"
     t.string   "email"
     t.string   "crypted_password"
+    t.string   "persistence_token"
+    t.integer  "login_count",       :default => 0, :null => false
     t.text     "last_search_url"
     t.datetime "last_login_at"
+    t.datetime "last_request_at"
+    t.datetime "current_login_at"
+    t.string   "last_login_ip"
+    t.string   "current_login_ip"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "password_salt"
-    t.datetime "current_login_at"
-    t.string   "wind_login"
-    t.string   "persistence_token"
   end
 
+  add_index "users", ["last_request_at"], :name => "index_users_on_last_request_at"
+  add_index "users", ["login"], :name => "index_users_on_login"
   add_index "users", ["persistence_token"], :name => "index_users_on_persistence_token"
   add_index "users", ["wind_login"], :name => "index_users_on_wind_login"
 

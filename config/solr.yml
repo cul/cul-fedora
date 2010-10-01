@@ -6,3 +6,7 @@ test:
     url: http://testcat.cul.columbia.edu:8983/solr-1.5/blacklight
 taft_pass:
     url: http://testcat.cul.columbia.edu:8983/solr-1.5/blacklight
+pass_test:
+    url: http://testcat.cul.columbia.edu:8983/solr-1.5/blacklight
+ludwig_prod:
+    url: http://testcat.cul.columbia.edu:8983/solr-1.5/blacklight

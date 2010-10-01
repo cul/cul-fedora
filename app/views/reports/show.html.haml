@@ -1,0 +1,24 @@
+- @page_title = "Report"
+
+= render :partial => "report", :object => @report.data_hash, :locals => {:category => @report.category}
+
+
+%p
+  %strong Name:
+  =h @report.name
+%p
+  %strong Category:
+  =h @report.category
+%p
+  %strong Generated On:
+  =h @report.generated_on.to_formatted_s(:short)
+%p
+  %strong User:
+  =h @report.user.to_s
+
+%p
+  = link_to "Edit", edit_report_path(@report)
+  |
+  = link_to "Destroy", @report, :confirm => 'Are you sure?', :method => :delete
+  |
+  = link_to "View All", reports_path

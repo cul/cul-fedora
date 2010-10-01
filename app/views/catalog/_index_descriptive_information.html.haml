@@ -1,0 +1,8 @@
+- thumbnail ||= false
+%div
+  - if thumbnail
+    %img(src="#{doc_object_method(document,'/ldpd:sdef.Image/getThumbnail')}") 
+  %dl.defList(style="float:right")
+    - index_field_names.select { |f| document[f] }.each do |solr_fname|
+      %dt= index_field_labels[solr_fname]
+      %dd= h(document[solr_fname].listify.join("<br/>"))

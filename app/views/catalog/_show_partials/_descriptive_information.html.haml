@@ -1,0 +1,32 @@
+- thumbnail ||= false
+%h3 Descriptive Information
+
+
+%dl.defList
+  - document_show_fields.select { |f| document[f] }.each do |solr_fname|
+    %dt= document_show_field_labels[solr_fname]
+    %dd= h(document[solr_fname].listify.join("<br/>"))
+
+
+
+- if thumbnail
+  %h3 Thumbnail
+  %div
+    %img(src="#{doc_object_method(document,'/ldpd:sdef.Image/getThumbnail')}")
+
+%h3 Metadata
+
+%dl.defList
+  - get_metadata_list(document).each do |metadata|
+    %dt= metadata[:title]
+    %dd
+      = link_to "Show", metadata[:show_url] 
+      = link_to "Download", metadata[:download_url] 
+
+%h3 Find any errors?
+%div
+  If you have any problems or concerns with this resource, please
+  - reporter = current_user ? current_user.wind_login : "conduit_api"
+  - description = "Browser User-Agent: #{request.headers['User-Agent']}\r\nPage: #{request.url}\r\n"
+  = link_to "create an issue", "https://issues.cul.columbia.edu/secure/CreateIssueDetails!init.jspa?pid=10171&issuetype=9&summary=#{CGI::escape("Issue with " + document['title_t'].first.to_s)}&reporter=#{reporter}&description=#{CGI::escape(description)}&priority=2"
+

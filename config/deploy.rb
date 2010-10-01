@@ -1,8 +1,9 @@
+set :default_stage, "taft_pass"
+set :stages, %w(taft_pass pass_test ludwig_prod)
+
 require 'capistrano/ext/multistage'
 default_run_options[:pty] = true
 
-set :default_stage, "taft_pass"
-set :stages, %w(taft_pass)
 set :scm, :git
 set :repository,  "git@github.com:tastyhat/cul-blacklight-scv.git"
 set :application, "scv"

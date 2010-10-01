@@ -1,0 +1,11 @@
+= render :partial => "report", :object => @report, :locals => {:category => @category}
+
+%h3 Save this report:
+
+- form_for @new_report do |f|
+  Name: 
+  = f.text_field :name
+  = f.hidden_field :category
+  = f.hidden_field :generated_on
+  = f.hidden_field :user_id
+  = submit_tag "Save"

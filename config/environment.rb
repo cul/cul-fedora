@@ -2,18 +2,24 @@
 
 # Specifies gem version of Rails to use when vendor/rails is not present
 RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
-RELEASE_STAMP = '0.1.0'
+RELEASE_STAMP = '0.3.0'
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 require File.join(File.dirname(__FILE__), '../vendor/plugins/blacklight/vendor/plugins/engines/boot')
+require "james_monkeys"
+
 
 Rails::Initializer.run do |config|
   config.plugin_paths += ["#{RAILS_ROOT}/vendor/plugins/blacklight/vendor/plugins"]
   config.gem 'authlogic', :version => '2.1.2'
   config.gem 'authlogic_wind', :version => '>= 0.4.0'
   config.gem 'haml'
+  config.gem 'httpclient'
+  config.gem 'nokogiri'
+  config.gem 'net-ldap', :version => '>=0.1.1'
   # Settings in config/environments/* take precedence over those specified here.
+  #
   # Application configuration should go into files in config/initializers
   # -- all .rb files in that directory are automatically loaded.
 
@@ -40,7 +46,7 @@ Rails::Initializer.run do |config|
   # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
   # Run "rake -D time" for a list of tasks for finding time zone names.
   config.time_zone = 'UTC'
-
+  config.action_controller.session_store = :active_record_store
   # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
   # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
   # config.i18n.default_locale = :de
