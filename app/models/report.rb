@@ -36,6 +36,10 @@ class Report < ActiveRecord::Base
   end
 
   private
+  
+  def self.generate_by_collection_and_size(options = {})
+    self.generate_by_collection(options.merge(:size => true))
+  end
 
   def self.generate_by_collection(options = {})
 
@@ -62,7 +66,7 @@ class Report < ActiveRecord::Base
 
         end
 
-        
+     
       end
       break if page_results["response"]["start"] + per_page >  page_results["response"]["numFound"]
       

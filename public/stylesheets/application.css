@@ -1,2 +1,16 @@
 #descriptive_information .label {
   font-weight: bold; }
+
+.metadata {
+  margin-bottom: 1em; }
+  .metadata .title_row {
+    margin-bottom: 0.5em; }
+  .metadata .title_data {
+    padding-left: 1em; }
+  .metadata .detail {
+    background-color: #f9f9f9;
+    margin-left: 2em; }
+    .metadata .detail .items {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-height: 1.75em; }
