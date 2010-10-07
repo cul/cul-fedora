@@ -36,13 +36,20 @@ module Cul
       end
 
 
-      def listMembers
+      def risearch_for_members()
         results = JSON::parse(@server.request(:method => "", :request => "risearch", :format => "json", :lang => "itql", :query => sprintf(@server.riquery, @pid)))["results"]
         
         results.collect { |r| @server.item(r["member"]) }
 
       end
 
+      def listMembers()
+        result = Nokogiri::XML(request(:sdef => "ldpd:sdef.Aggregator", :request => "listMembers", :format => "", :max => "", :start => ""))
+
+        result.css("sparql>results>result>member").collect do |result_node|
+          @server.item(result_node.attributes["uri"].value)
+        end
+      end
 
       def describedBy
         begin
@@ -175,9 +182,16 @@ module Cul
 
 
         
-
         listMembers.each_with_index do |member, i|
-          add_field.call("ac.fulltext_#{i}", "")
+          resource = member.datastream("CONTENT")
+
+          tika_result = IO.popen("java -jar tika/tika-app-0.7.jar -t", "r+") do |io|
+            io.write(resource)
+            io.close_write
+            io.read
+          end
+
+          add_field.call("ac.fulltext_#{i}", tika_result)
         end
 
         return results
