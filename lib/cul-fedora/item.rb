@@ -183,15 +183,16 @@ module Cul
 
         
         listMembers.each_with_index do |member, i|
-          resource = member.datastream("CONTENT")
+          resource_file_name = "tika/scratch/" + Time.now.to_i.to_s + "_" + rand(10000000).to_s
 
-          tika_result = IO.popen("java -jar tika/tika-app-0.7.jar -t", "r+") do |io|
-            io.write(resource)
-            io.close_write
-            io.read
-          end
+          File.open(resource_file_name, "w") { |f| f.write(member.datastream("CONTENT")) }
+
+          tika_result = %x[java -jar tika/tika-app-0.7.jar -t #{resource_file_name}]
+          
 
           add_field.call("ac.fulltext_#{i}", tika_result)
+       
+          # File.delete(resource_file_name)
         end
 
         return results
