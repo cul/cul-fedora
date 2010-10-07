@@ -185,7 +185,7 @@ module Cul
         listMembers.each_with_index do |member, i|
           resource_file_name = "tika/scratch/" + Time.now.to_i.to_s + "_" + rand(10000000).to_s
 
-          File.open(resource_file_name, "w") { |f| f.write(member.datastream("CONTENT")) }
+          File.open(resource_file_name, "w") { |f| f.puts(member.datastream("CONTENT")) }
 
           tika_result = %x[java -jar tika/tika-app-0.7.jar -t #{resource_file_name}]
           

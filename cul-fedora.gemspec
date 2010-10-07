@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{cul-fedora}
-  s.version = "0.4.1"
+  s.version = "0.4.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["James Stuart"]
@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
      "lib/cul-fedora/item.rb",
      "lib/cul-fedora/server.rb",
      "lib/cul-fedora/solr.rb",
+     "lib/test",
      "lib/tika/tika-app-0.7.jar",
      "test/data/125467_get_index.xml",
      "test/data/125467_solr_doc.xml",
