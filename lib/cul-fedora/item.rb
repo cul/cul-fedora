@@ -196,7 +196,7 @@ module Cul
 
           add_field.call("ac.fulltext_#{i}", tika_result)
        
-          # File.delete(resource_file_name)
+          File.delete(resource_file_name)
         end
 
         return results
