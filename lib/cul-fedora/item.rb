@@ -183,11 +183,15 @@ module Cul
 
         
         listMembers.each_with_index do |member, i|
-          resource_file_name = "tika/scratch/" + Time.now.to_i.to_s + "_" + rand(10000000).to_s
+          tika_directory = File.expand_path(File.join(File.expand_path(File.dirname(__FILE__)), "..", "tika"))
+
+          resource_file_name = File.join(tika_directory, "scratch", Time.now.to_i.to_s + "_" + rand(10000000).to_s)
+          tika_jar = File.join(tika_directory, "tika-0.3.jar")
 
           File.open(resource_file_name, "w") { |f| f.puts(member.datastream("CONTENT")) }
 
-          tika_result = %x[java -jar tika/tika-app-0.7.jar -t #{resource_file_name}]
+          
+          tika_result = %x[java -jar #{tika_jar} -t #{resource_file_name}]
           
 
           add_field.call("ac.fulltext_#{i}", tika_result)

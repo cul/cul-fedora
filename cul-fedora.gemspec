@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{cul-fedora}
-  s.version = "0.4.2"
+  s.version = "0.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["James Stuart"]
-  s.date = %q{2010-10-07}
+  s.date = %q{2010-10-11}
   s.description = %q{Columbia-specific Fedora libraries}
   s.email = %q{tastyhat@jamesstuart.org}
   s.extra_rdoc_files = [
@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
      "lib/cul-fedora/server.rb",
      "lib/cul-fedora/solr.rb",
      "lib/test",
-     "lib/tika/tika-app-0.7.jar",
+     "lib/tika/scratch/1286482364_820891",
      "test/data/125467_get_index.xml",
      "test/data/125467_solr_doc.xml",
      "test/data/example_server_requests.yml",
