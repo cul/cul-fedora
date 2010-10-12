@@ -1,11 +1,21 @@
+require "open3"
+
 module Cul
   module Fedora
     class Item
       attr_reader :server, :pid
+      include Open3 
 
       URI_TO_PID = 'info:fedora/'
 
 
+      def <=>(other)
+        pid <=> other.pid
+      end
+
+      def pid_escaped
+        pid.gsub(/:/,'\\:')
+      end
 
       def initialize(*args)
         options = args.extract_options!
@@ -38,7 +48,7 @@ module Cul
 
       def risearch_for_members()
         results = JSON::parse(@server.request(:method => "", :request => "risearch", :format => "json", :lang => "itql", :query => sprintf(@server.riquery, @pid)))["results"]
-        
+
         results.collect { |r| @server.item(r["member"]) }
 
       end
@@ -73,7 +83,14 @@ module Cul
         end
       end
 
-      def index_for_ac2
+      def index_for_ac2(options = {})
+        do_fulltext = options[:fulltext] || false
+        do_metadata = options[:metadata] || true
+
+        status = :success
+        error_message = ""
+
+
         results = Hash.new { |h,k| h[k] = [] }
         normalize_space = lambda { |s| s.to_s.strip.gsub(/\s{2,}/," ") }
         search_to_content = lambda { |x| x.kind_of?(Nokogiri::XML::Element) ? x.content : x.to_s }
@@ -83,124 +100,149 @@ module Cul
 
         roles = ["Author","author","Creator","Thesis Advisor","Collector","Owner","Speaker","Seminar Chairman","Secretary","Rapporteur","Committee Member","Degree Grantor","Moderator","Editor","Interviewee","Interviewer","Organizer of Meeting","Originator","Teacher"]
 
-        collections = self.belongsTo
-        meta = describedBy.first
 
-        meta = Nokogiri::XML(meta.datastream("CONTENT")) if meta
-        mods = meta.at_css("mods") if meta
+        begin
+          collections = self.belongsTo
+          meta = describedBy.first
 
-        return {} unless mods
-        # baseline blacklight fields: id is the unique identifier, format determines by default, what partials get called
-        add_field.call("id", @pid)
-        add_field.call("internal_h",  collections.first.to_s + "/")
-        add_field.call("pid", @pid)
-        collections.each do |collection|
-          add_field.call("member_of", collection)
-        end
+          meta = Nokogiri::XML(meta.datastream("CONTENT")) if meta
+          mods = meta.at_css("mods") if meta
+
+          if mods && do_metadata
+            # baseline blacklight fields: id is the unique identifier, format determines by default, what partials get called
+            add_field.call("id", @pid)
+            add_field.call("internal_h",  collections.first.to_s + "/")
+            add_field.call("pid", @pid)
+            collections.each do |collection|
+              add_field.call("member_of", collection)
+            end
 
 
-        
-          title = normalize_space.call(mods.css("titleInfo>nonSort,title").collect(&:content).join(" "))
-          add_field.call("title_display", title)
-          add_field.call("title_search", title)
 
-          all_names = []
-          mods.css("name[@type='personal']").each do |name_node|
-            if name_node.css("role>roleTerm[@type='text']").collect(&:content).any? { |role| roles.include?(role) }
+            title = normalize_space.call(mods.css("titleInfo>nonSort,title").collect(&:content).join(" "))
+            add_field.call("title_display", title)
+            add_field.call("title_search", title)
 
-              fullname = get_fullname.call(name_node)
+            all_names = []
+            mods.css("name[@type='personal']").each do |name_node|
+              if name_node.css("role>roleTerm[@type='text']").collect(&:content).any? { |role| roles.include?(role) }
 
-              all_names << fullname
-              add_field.call("author_id_uni", name_node.at_css("authorID[@type='institution']"))
-              add_field.call("author_id_repository", name_node.at_css("authorID[@type='repository']"))
-              add_field.call("author_id_naf", name_node.at_css("authorID[@type='naf']"))
-              add_field.call("author_search", fullname.downcase)
-              add_field.call("author_facet", fullname)
+                fullname = get_fullname.call(name_node)
+
+                all_names << fullname
+                add_field.call("author_id_uni", name_node.at_css("authorID[@type='institution']"))
+                add_field.call("author_id_repository", name_node.at_css("authorID[@type='repository']"))
+                add_field.call("author_id_naf", name_node.at_css("authorID[@type='naf']"))
+                add_field.call("author_search", fullname.downcase)
+                add_field.call("author_facet", fullname)
+
+              end
 
             end
 
-          end
+            add_field.call("authors_display",all_names.join("; "))
+            add_field.call("date", mods.at_css("*[@keyDate='yes']"))
 
-          add_field.call("authors_display",all_names.join("; "))
-          add_field.call("date", mods.at_css("*[@keyDate='yes']"))
-
-          mods.css("genre").each do |genre_node|
-            add_field.call("genre_facet", genre_node)
-            add_field.call("genre_search", genre_node)
-
-          end
-
-
-          add_field.call("abstract", mods.at_css("abstract"))
-          add_field.call("handle", mods.at_css("identifier[@type='hdl']"))
-
-          mods.css("subject:not([@authority='local'])>topic").each do |topic_node|
-            add_field.call("keyword_search", topic_node.content.downcase)
-            add_field.call("keyword_facet", topic_node)
-          end
-
-          mods.css("subject[@authority='local']>topic").each do |topic_node|
-            add_field.call("subject", topic_node)
-            add_field.call("subject_search", topic_node)
-          end
-
-
-          add_field.call("tableOfContents", mods.at_css("tableOfContents"))
-
-          mods.css("note").each { |note| add_field.call("notes", note) }
-
-          if (related_host = mods.at_css("relatedItem[@type='host']"))
-            book_journal_title = related_host.at_css("titleInfo>title") 
-
-            if book_journal_title
-              book_journal_subtitle = mods.at_css("name>titleInfo>subTitle")
-
-              book_journal_title = book_journal_title.content + ": " + book_journal_subtitle.content.to_s if book_journal_subtitle
+            mods.css("genre").each do |genre_node|
+              add_field.call("genre_facet", genre_node)
+              add_field.call("genre_search", genre_node)
 
             end
 
-            add_field.call("book_journal_title", book_journal_title)
 
-            add_field.call("book_author", get_fullname.call(related_host.at_css("name"))) 
+            add_field.call("abstract", mods.at_css("abstract"))
+            add_field.call("handle", mods.at_css("identifier[@type='hdl']"))
 
-            add_field.call("issn", related_host.at_css("identifier[@type='issn']"))
+            mods.css("subject:not([@authority='local'])>topic").each do |topic_node|
+              add_field.call("keyword_search", topic_node.content.downcase)
+              add_field.call("keyword_facet", topic_node)
+            end
+
+            mods.css("subject[@authority='local']>topic").each do |topic_node|
+              add_field.call("subject", topic_node)
+              add_field.call("subject_search", topic_node)
+            end
+
+
+            add_field.call("tableOfContents", mods.at_css("tableOfContents"))
+
+            mods.css("note").each { |note| add_field.call("notes", note) }
+
+            if (related_host = mods.at_css("relatedItem[@type='host']"))
+              book_journal_title = related_host.at_css("titleInfo>title") 
+
+              if book_journal_title
+                book_journal_subtitle = mods.at_css("name>titleInfo>subTitle")
+
+                book_journal_title = book_journal_title.content + ": " + book_journal_subtitle.content.to_s if book_journal_subtitle
+
+              end
+
+              add_field.call("book_journal_title", book_journal_title)
+
+              add_field.call("book_author", get_fullname.call(related_host.at_css("name"))) 
+
+              add_field.call("issn", related_host.at_css("identifier[@type='issn']"))
+            end
+
+            add_field.call("publisher", mods.at_css("relatedItem>originInfo>publisher"))
+            add_field.call("publisher_location", mods.at_css("relatedItem > originInfo>place>placeTerm[@type='text']"))
+            add_field.call("isbn", mods.at_css("relatedItem>identifier[@type='isbn']"))
+            add_field.call("doi", mods.at_css("identifier[@type='doi'][@displayLabel='Published version']"))
+
+            mods.css("physicalDescription>internetMediaType").each { |mt| add_field.call("media_type_facet", mt) }
+
+            mods.css("typeOfResource").each { |tr| add_field.call("type_of_resource_facet", tr)}
+            mods.css("subject>geographic").each do |geo|
+              add_field.call("geographic_area", geo)
+              add_field.call("geographic_area_search", geo)
+            end
           end
 
-          add_field.call("publisher", mods.at_css("relatedItem>originInfo>publisher"))
-          add_field.call("publisher_location", mods.at_css("relatedItem > originInfo>place>placeTerm[@type='text']"))
-          add_field.call("isbn", mods.at_css("relatedItem>identifier[@type='isbn']"))
-          add_field.call("doi", mods.at_css("identifier[@type='doi'][@displayLabel='Published version']"))
 
-          mods.css("physicalDescription>internetMediaType").each { |mt| add_field.call("media_type_facet", mt) }
+          if do_fulltext 
+            listMembers.each_with_index do |member, i|
+              tika_directory = File.expand_path(File.join(File.expand_path(File.dirname(__FILE__)), "..", "tika"))
 
-          mods.css("typeOfResource").each { |tr| add_field.call("type_of_resource_facet", tr)}
-          mods.css("subject>geographic").each do |geo|
-            add_field.call("geographic_area", geo)
-            add_field.call("geographic_area_search", geo)
+              resource_file_name = File.join(tika_directory, "scratch", Time.now.to_i.to_s + "_" + rand(10000000).to_s)
+              tika_jar = File.join(tika_directory, "tika-0.3.jar")
+
+              File.open(resource_file_name, "w") { |f| f.puts(member.datastream("CONTENT")) }
+
+
+              tika_result = []
+              tika_error = []
+
+              Open3.popen3("java -jar #{tika_jar} -t #{resource_file_name}") do |stdin, stdout, stderr|
+                tika_result = stdout.readlines
+                tika_error = stderr.readlines
+              end
+
+              unless tika_error.empty?
+                status = :error
+                error_message += tika_error.join("\n")
+              else
+
+
+                add_field.call("ac.fulltext_#{i}", tika_result)
+              end
+
+              File.delete(resource_file_name)
+            end
           end
 
-
-
-        
-        listMembers.each_with_index do |member, i|
-          tika_directory = File.expand_path(File.join(File.expand_path(File.dirname(__FILE__)), "..", "tika"))
-
-          resource_file_name = File.join(tika_directory, "scratch", Time.now.to_i.to_s + "_" + rand(10000000).to_s)
-          tika_jar = File.join(tika_directory, "tika-0.3.jar")
-
-          File.open(resource_file_name, "w") { |f| f.puts(member.datastream("CONTENT")) }
-
-          
-          tika_result = %x[java -jar #{tika_jar} -t #{resource_file_name}]
-          
-
-          add_field.call("ac.fulltext_#{i}", tika_result)
-       
-          File.delete(resource_file_name)
+        rescue Exception => e
+          status = :error
+          error_message += e.message
         end
 
-        return results
+        status = :invalid_format  if results.empty?
+
+        return {:status => status, :error_message => error_message, :results => results}
+
       end
+
+
 
       def to_s
         @pid
