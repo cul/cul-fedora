@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{cul-fedora}
-  s.version = "0.5.1"
+  s.version = "0.5.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["James Stuart"]
-  s.date = %q{2010-10-11}
+  s.date = %q{2010-10-12}
   s.description = %q{Columbia-specific Fedora libraries}
   s.email = %q{tastyhat@jamesstuart.org}
   s.extra_rdoc_files = [
@@ -47,6 +47,7 @@ Gem::Specification.new do |s|
      "lib/tika/poi-3.5-beta5.jar",
      "lib/tika/poi-ooxml-3.5-beta5.jar",
      "lib/tika/poi-scratchpad-3.5-beta5.jar",
+     "lib/tika/scratch/1286827167_3249395",
      "lib/tika/tika-0.3.jar",
      "lib/tika/xercesImpl-2.8.1.jar",
      "lib/tika/xml-apis-1.0.b2.jar",
