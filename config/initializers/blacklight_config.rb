@@ -40,6 +40,13 @@ Blacklight.configure(:shared) do |config|
         "pub_date",
         "subject_era_facet",
         "subject_geo_facet",
+        "subject_topic_facet",
+        "lib_repo_facet",
+        "lib_date_facet",
+        "lib_name_facet",
+        "lib_format_facet",
+        "lib_project_facet",
+        "lib_collection_facet",
         "subject_topic_facet"]
     }  
   }
@@ -75,6 +82,12 @@ Blacklight.configure(:shared) do |config|
   # config[:facet] << {:field_name => "format", :label => "Format", :limit => 10}
   config[:facet] = {
     :field_names => [
+      "lib_project_facet",
+      "lib_name_facet",
+      "lib_date_facet",
+      "lib_format_facet",
+      "lib_collection_facet",
+      "lib_repo_facet",
       "format_h",
       "collection_h",
       "date_created_h",
@@ -87,10 +100,15 @@ Blacklight.configure(:shared) do |config|
       "subject_era_facet"
     ],
     :labels => {
-      "format_h"              => "Format",
+      "lib_project_facet"              => "Project",
+      "lib_name_facet"            => "Names",
+      "lib_date_facet"            => "Date",
+      "lib_format_facet"              => "Format",
+      "lib_collection_facet"              => "Collection",
+      "lib_repo_facet"            => "Repository",
+      "format_h"              => "Routed as",
       "collection_h"              => "In Hierarchy",
-      "date_created_h"              => "Date Created",
-      "pub_date"            => "Publication Year",
+      "date_created_h"              => "Date (Experimental)",
       "subject_topic_facet" => "Topic",
       "descriptor"          => "Metadata Type",
       "language_facet"      => "Language",
@@ -123,10 +141,12 @@ Blacklight.configure(:shared) do |config|
       "title_vern_display",
       "author_display",
       "author_vern_display",
+      "lib_format_display",
       "format",
+      "lib_collection_display",
+      "lib_repo_display",
       "language_facet",
       "published_display",
-      "published_vern_display",
       "object_display",
       "lc_callnum_display"
     ],
@@ -135,10 +155,12 @@ Blacklight.configure(:shared) do |config|
       "title_vern_display"      => "Title:",
       "author_display"          => "Author:",
       "author_vern_display"     => "Author:",
-      "format"                  => "Format:",
+      "lib_format_display"                  => "Format:",
+      "format"                  => "Routing:",
+      "lib_collection_display"  => "Collection:",
+      "lib_repo_display"  => "Repository:",
       "language_facet"          => "Language:",
       "published_display"       => "Published:",
-      "published_vern_display"  => "Published:",
       "object_display"          => "In Fedora:",
       "lc_callnum_display"      => "Call number:"
     }
@@ -154,7 +176,10 @@ Blacklight.configure(:shared) do |config|
       "subtitle_vern_display",
       "author_display",
       "author_vern_display",
+      "lib_format_display",
       "format",
+      "lib_collection_display",
+      "lib_repo_display",
       "url_fulltext_display",
       "url_suppl_display",
       "material_type_display",
@@ -172,7 +197,10 @@ Blacklight.configure(:shared) do |config|
       "subtitle_vern_display"   => "Subtitle:",
       "author_display"          => "Author:",
       "author_vern_display"     => "Author:",
-      "format"                  => "Format:",
+      "lib_format_display"                  => "Format:",
+      "format"                  => "Routing:",
+      "lib_collection_display"  => "Collection:",
+      "lib_repo_display"  => "Repository:",
       "url_fulltext_display"    => "URL:",
       "url_suppl_display"       => "More Information:",
       "material_type_display"   => "Physical description:",
@@ -200,10 +228,10 @@ Blacklight.configure(:shared) do |config|
   # except in the relevancy case).
   # label is key, solr field is value
   config[:sort_fields] ||= []
-  config[:sort_fields] << ['relevance', 'score desc, pub_date_sort desc, title_sort asc']
-  config[:sort_fields] << ['year', 'pub_date_sort desc, title_sort asc']
-  config[:sort_fields] << ['author', 'author_sort asc, title_sort asc']
-  config[:sort_fields] << ['title', 'title_sort asc, pub_date_sort desc']
+  config[:sort_fields] << ['relevance', 'score desc, date_created_dt desc, title_sort asc']
+  config[:sort_fields] << ['year', 'date_created_dt desc, title_sort asc']
+  config[:sort_fields] << ['name', 'name_facet asc, title_t asc']
+  config[:sort_fields] << ['title', 'title_sort asc, date_created_dt desc']
   
   # If there are more than this many search results, no spelling ("did you 
   # mean") suggestion is offered.

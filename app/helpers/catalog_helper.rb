@@ -42,7 +42,7 @@ module CatalogHelper
   end
 
   def doc_object_method(doc, method)
-    doc["object_display"].first + method.to_s
+    FEDORA_CONFIG[:riurl] + '/get/' + base_id_for(doc).to_s +  method.to_s
   end
 
   def doc_json_method(doc, method)

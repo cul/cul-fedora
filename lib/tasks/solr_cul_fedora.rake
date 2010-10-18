@@ -181,11 +181,11 @@ namespace :solr do
            member['member'].split('/')[1]
          }
          members |= collection.members
-         url_array = members.collect {|member| fedora_uri.merge('/fedora/get/' + member + '/ldpd:sdef.Core/getIndex').to_s}
+         url_array = members.collect {|member| fedora_uri.merge('/fedora/get/' + member + '/ldpd:sdef.Core/getIndex?profile=scv').to_s}
        when ENV['PID']
          pid = ENV['PID']
          fedora_uri = URI.parse(ENV['RI_URL'])
-         url_array = [ fedora_uri.merge('/fedora/get/' + pid + '/ldpd:sdef.Core/getIndex').to_s]
+         url_array = [ fedora_uri.merge('/fedora/get/' + pid + '/ldpd:sdef.Core/getIndex?profile=scv').to_s]
        when ENV['SAMPLE_DATA']
          File.read(File.join(RAILS_ROOT,"test","sample_data","cul_fedora_index.json"))
        else
@@ -209,7 +209,7 @@ namespace :solr do
            source = Net::HTTP.new(source_uri.host, source_uri.port)
            source.use_ssl = source_uri.scheme.eql? "https"
            source.start
-           res =  source.get(source_uri.path)
+           res =  source.get(source_uri.path+'?profile=scv')
            source.finish
            if res.response.code == "200" && ALLOWED.accept?(res.body)
              Net::HTTP.start(update_uri.host, update_uri.port) do |http|
