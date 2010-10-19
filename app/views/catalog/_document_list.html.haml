@@ -1,0 +1,13 @@
+%div#documents
+  - @response.docs.each_with_index do |document,counter| 
+
+    %div.document
+      
+      %div{:class=>["yui-g", "documentHeader"]}
+        %div{:class=>["yui-u", "documentFunctions", "first"]}
+          = render :partial=>'bookmark_control', :locals=>{:document=>document}
+        %div{:class=>["yui-u"]}
+      %h3.index_title
+        = (counter + 1 + @response.params[:start].to_i).to_s + "." 
+        = link_to_document document, :label=>document_show_link_field, :counter => (counter + 1 + @response.params[:start].to_i)
+      = render_document_partial document, :index
