@@ -1,10 +1,6 @@
-- thumbnail ||= false
 %div.yui-gf
   %div.yui-u.first
-    - if thumbnail
-      %img{:src=>"#{doc_object_method(document,'/ldpd:sdef.Image/getThumbnail')}",:class=>"thumbnail"} 
-    - else
-      %span="(no thumbnail)"
+    = render_document_partial(document, "thumbnail")
   %div.yui-u
     %dl.defList
       - index_field_names.select { |f| document[f] }.each do |solr_fname|
