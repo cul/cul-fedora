@@ -1,4 +1,4 @@
-- members_list = doc_json_method(document,"/ldpd:sdef.Aggregator/listMembers?max=&format=json&start=&callback=?")["members"]
+- members_list = doc_json_method(document,"/ldpd:sdef.Aggregator/listMembers?max=&format=json&start=&callback=?")["results"]
 - if document["object_display"]
  %h3 Member Items
  %div#imageMembers
@@ -8,6 +8,6 @@
      %div{:class=>["yui-u", (j==0?"first":false)]}
       - if members_list.at(j)
        - member = members_list[j]
-       %p=member["pid"]
+       %p=member["member"]
        - if member["dctype"] == "Image"
-        %img(src="#{doc_object_method({"id"=>member["pid"]},'/ldpd:sdef.Image/getThumbnail')}")
+        %img{:src=>"#{doc_object_method(get_fake_doc(member["member"],"image"),'/ldpd:sdef.Image/getThumbnail')}",:class=>"thumbnail"}

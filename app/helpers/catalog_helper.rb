@@ -63,7 +63,7 @@ module CatalogHelper
 
   def get_fake_doc(pid,type)
     pid = pid.gsub(/^info\:fedora\/(.+)/,'\1')
-    return {:id=>pid,Blacklight.config[:show][:display_type]=>type}
+    return {"id"=>pid,Blacklight.config[:show][:display_type]=>type}
   end
 
   def get_first_member(doc, imageOnly=True)
