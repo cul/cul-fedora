@@ -5,11 +5,19 @@
 # config[:search_fields] will be an array of hashes describing search fields.
 #
 # = Search Field Configuration Hash =
-# { :display_label => "Title",  # user-displayable label
-#   :qt => "search", # Solr qt param, request handler, defaults to Blacklight.config[:default_qt] if left blank.
-#   :solr_parameters => {:qf => "something"} # optional hash of additional parameters to pass to solr for searches on this field.
-#   :include_in_simple_select => false.  Defaults to true, but you can set to false to have a search field defined for deep-links or BL extensions, but not actually included in the HTML select for simple search choice. 
-# }
+# [:key]
+#   "title", required, unique key used in search URLs to specify search_field 
+# [:display_label]
+#   "Title",  # user-displayable label, optional, if not supplied :key.titlecase will be used
+# [:qt]
+#   "search", # Solr qt param, request handler, usually can be left blank; defaults to Blacklight.config[:default_solr_params][:qt] if not specified. 
+# [:solr_parameters]
+#   {:qf => "something"} # optional hash of additional parameters to pass to solr for searches on this field.
+# [:solr_local_parameters]
+#   {:qf => "$something"} # optional hash of additional parameters that will be passed using Solr LocalParams syntax, that can use dollar sign to reference other solr variables.
+# [:include_in_simple_select]
+#   false.  Defaults to true, but you can set to false to have a search field defined for deep-links or BL extensions, but not actually included in the HTML select for simple search choice.
+# 
 # Optionally you can supply a :key, which is what Blacklight will use
 # to identify this search field in HTTP query params. If no :key is
 # supplied, one will be computed from the :display_label. If that will
@@ -23,7 +31,13 @@ module Blacklight::SearchFields
   # 'normalizes' all field config hashes using normalize_config method. 
   # Memoized for efficiency of normalization. 
   def search_field_list
-    config[:search_fields].collect {|obj| normalize_config(obj)}
+    normalized = config[:search_fields].collect {|obj| normalize_config(obj)}
+
+    if (duplicates = normalized.collect{|h| h[:key]}.uniq!)
+      raise "Duplicate keys found in search_field config: #{duplicates.inspect}"
+    end
+    
+    normalized
   end
   memoize :search_field_list
 
@@ -46,7 +60,7 @@ module Blacklight::SearchFields
   # Returns default search field, used for simpler display in history, etc.
   # if not set in config, defaults to first field listed in #search_field_list
   def default_search_field
-    Blacklight.config[:default_search_field] || search_field_list[0]
+    config[:default_search_field] || search_field_list[0]
   end
   memoize :default_search_field
 
@@ -76,13 +90,15 @@ module Blacklight::SearchFields
     else
       # Make a copy of passed in Hash so we don't alter original. 
       field_hash = field_hash.clone
-    end
+    end        
+
+    raise Exception.new("Search field config is missing ':key' => #{field_hash.inspect}") unless field_hash[:key]
     
-    # If no key was provided, turn the display label into one.      
-    field_hash[:key] ||= field_hash[:display_label].downcase.gsub(/[^a-z0-9]+/,'_')
+    # If no display_label was provided, turn the :key into one.      
+    field_hash[:display_label] ||= field_hash[:key].titlecase
 
     # If no :qt was provided, take from config default
-    field_hash[:qt] ||= Blacklight.config[:default_qt]
+    field_hash[:qt] ||= config[:default_solr_params][:qt] if config[:default_solr_params]
   
     field_hash
   end

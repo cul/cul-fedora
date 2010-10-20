@@ -3,6 +3,8 @@
 #
 module ApplicationHelper
   include HashAsHiddenFields
+  include RenderConstraintsHelper
+
   
   def application_name
     'Blacklight'
@@ -104,13 +106,28 @@ module ApplicationHelper
   # Create <link rel="alternate"> links from a documents dynamically
   # provided export formats. Currently not used by standard BL layouts,
   # but available for your custom layouts to provide link rel alternates.
-  def render_link_rel_alternates(document=@document)
+  #
+  # Returns empty string if no links available. 
+  #
+  # :unique => true, will ensure only one link is output for every
+  # content type, as required eg in atom. Which one 'wins' is arbitrary.
+  # :exclude => array of format shortnames, formats to not include at all.
+  def render_link_rel_alternates(document=@document, options = {})
+    options = {:unique => false, :exclude => []}.merge(options)  
+  
     return nil if document.nil?  
 
+    seen = Set.new
+    
     html = ""
     document.export_formats.each_pair do |format, spec|
-      #html << tag(:link, {:rel=>"alternate", :title=>format, :type => spec[:content_type], :href=> url_for(:action => "show", :id => document[:id], :format => format, :only_path => false) }) << "\n"
-      html << tag(:link, {:rel=>"alternate", :title=>format, :type => spec[:content_type], :href=> catalog_url(document[:id],  format)}) << "\n"
+      unless( options[:exclude].include?(format) ||
+             (options[:unique] && seen.include?(spec[:content_type]))
+             )
+        html << tag(:link, {:rel=>"alternate", :title=>format, :type => spec[:content_type], :href=> catalog_url(document[:id],  format)}) << "\n"
+        
+        seen.add(spec[:content_type]) if options[:unique]
+      end
     end
     return html
   end
@@ -132,6 +149,14 @@ module ApplicationHelper
   # used in the catalog/_facets partial
   def facet_field_names
     Blacklight.config[:facet][:field_names]
+  end
+
+  # used in the catalog/_facets partial and elsewhere
+  # Renders a single section for facet limit with a specified
+  # solr field used for faceting. Can be over-ridden for custom
+  # display on a per-facet basis. 
+  def render_facet_limit(solr_field)
+    render( :partial => "catalog/facet_limit", :locals => {:solr_field =>solr_field })
   end
   
   # used in the catalog/_index_partials/_default view
@@ -155,6 +180,11 @@ module ApplicationHelper
   # Used in the show view for setting the main html document title
   def document_show_html_title
     @document[Blacklight.config[:show][:html_title]]
+  end
+  
+  # Used in citation view for displaying the title
+  def citation_title(document)
+    document[Blacklight.config[:show][:html_title]]
   end
   
   # Used in the document_list partial (search view) for building a select element
@@ -202,26 +232,7 @@ module ApplicationHelper
   
   # Search History and Saved Searches display
   def link_to_previous_search(params)
-    query_part = case
-                   when params[:q].blank?
-                     ""
-                   when (params[:search_field] == Blacklight.default_search_field[:key])
-                     params[:q]
-                   else
-                     "#{Blacklight.label_for_search_field(params[:search_field])}:(#{params[:q]})"
-                 end      
-    
-    facet_part = 
-    if params[:f]
-      tmp = 
-      params[:f].collect do |pair|
-        "#{Blacklight.config[:facet][:labels][pair.first]}:#{pair.last}"
-      end.join(" AND ")
-      "{#{tmp}}"
-    else
-      ""
-    end
-    link_to("#{query_part} #{facet_part}", catalog_index_path(params))
+    link_to(render_search_to_s(params), catalog_index_path(params))
   end
   
   
@@ -236,16 +247,23 @@ module ApplicationHelper
   # options consist of:
   # :suppress_link => true # do not make it a link, used for an already selected value for instance
   def render_facet_value(facet_solr_field, item, options ={})    
-    link_to_unless(options[:suppress_link], item.value, add_facet_params_and_redirect(facet_solr_field, item.value), :class=>"facet_select") + " (" + format_num(item.hits) + ")" 
+    link_to_unless(options[:suppress_link], item.value, add_facet_params_and_redirect(facet_solr_field, item.value), :class=>"facet_select label") + " " + render_facet_count(item.hits)
   end
 
   # Standard display of a SELECTED facet value, no link, special span
   # with class, and 'remove' button.
   def render_selected_facet_value(facet_solr_field, item)
-    '<span class="selected">' +
+    '<span class="selected label">' +
     render_facet_value(facet_solr_field, item, :suppress_link => true) +
     '</span>' +
-    ' [' + link_to("remove", remove_facet_params(facet_solr_field, item.value, params), :class=>"remove") + ']'
+    link_to("[remove]", remove_facet_params(facet_solr_field, item.value, params), :class=>"remove")
+  end
+
+  # Renders a count value for facet limits. Can be over-ridden locally
+  # to change style, for instance not use parens. And can be called
+  # by plugins to get consistent display. 
+  def render_facet_count(num)
+    content_tag("span",  "(" + format_num(num) + ")", :class => "count") 
   end
   
   # adds the value and/or field to params[:f]
@@ -332,8 +350,8 @@ module ApplicationHelper
   # link_to_document(doc, :label=>'VIEW', :counter => 3)
   # Use the catalog_path RESTful route to create a link to the show page for a specific item. 
   # catalog_path accepts a HashWithIndifferentAccess object. The solr query params are stored in the session,
-  # so we only need the +counter+ param here.
-  def link_to_document(doc, opts={:label=>Blacklight.config[:index][:show_link].to_sym, :counter => nil})
+  # so we only need the +counter+ param here. We also need to know if we are viewing to document as part of search results.
+  def link_to_document(doc, opts={:label=>Blacklight.config[:index][:show_link].to_sym, :counter => nil, :results_view => true})
     label = case opts[:label]
     when Symbol
       doc.get(opts[:label])
@@ -342,13 +360,13 @@ module ApplicationHelper
     else
       raise 'Invalid label argument'
     end
-    link_to_with_data(label, catalog_path(doc[:id]), {:method => :put, :data => {:counter => opts[:counter]}})
+    link_to_with_data(label, catalog_path(doc[:id]), {:method => :put, :class => label.parameterize, :data => {:counter => opts[:counter], :results_view => opts[:results_view]}})
   end
 
   # link_back_to_catalog(:label=>'Back to Search')
   # Create a link back to the index screen, keeping the user's facet, query and paging choices intact by using session.
   def link_back_to_catalog(opts={:label=>'Back to Search'})
-    query_params = session[:search].dup || {}
+    query_params = session[:search] ? session[:search].dup : {}
     query_params.delete :counter
     query_params.delete :total
     link_url = catalog_index_path(query_params)
@@ -376,14 +394,26 @@ module ApplicationHelper
 
   def link_to_previous_document(previous_document)
     return if previous_document == nil
-    link_to_document previous_document, :label=>'< Previous', :counter => session[:search][:counter].to_i - 1
+    link_to_document previous_document, :label=>'« Previous', :counter => session[:search][:counter].to_i - 1
   end
 
   def link_to_next_document(next_document)
     return if next_document == nil
-    link_to_document next_document, :label=>'Next >', :counter => session[:search][:counter].to_i + 1
+    link_to_document next_document, :label=>'Next »', :counter => session[:search][:counter].to_i + 1
   end
 
+  # Use case, you want to render an html partial from an XML (say, atom)
+  # template. Rails API kind of lets us down, we need to hack Rails internals 
+  # a bit. code taken from:
+  # http://stackoverflow.com/questions/339130/how-do-i-render-a-partial-of-a-different-format-in-rails
+  def with_format(format, &block)
+    old_format = @template_format
+    @template_format = format
+    result = block.call
+    @template_format = old_format
+    return result
+  end
+  
 
   # This is an updated +link_to+ that allows you to pass a +data+ hash along with the +html_options+
   # which are then written to the generated form for non-GET requests. The key is the form element name
@@ -456,5 +486,34 @@ module ApplicationHelper
     end
     submit_function << "f.submit();"
   end
+  
+  # determines if the given document id is in the folder
+  def item_in_folder?(doc_id)
+    session[:folder_document_ids] && session[:folder_document_ids].include?(doc_id) ? true : false
+  end
+  
+  # puts together a collection of documents into one refworks export string
+  def render_refworks_texts(documents)
+    val = ''
+    documents.each do |doc|
+      if doc.respond_to?(:to_marc)
+        val += doc.export_as_refworks_marc_txt + "\n"
+      end
+    end
+    val
+  end
+  
+  # puts together a collection of documents into one endnote export string
+  def render_endnote_texts(documents)
+    val = ''
+    documents.each do |doc|
+      if doc.respond_to?(:to_marc)
+        val += doc.export_as_endnote + "\n"
+      end
+    end
+    val
+  end
+  
+  
   
 end

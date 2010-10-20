@@ -5,32 +5,34 @@ require 'marc'
 # it depends on the methods provided by AtionController::Base
 # currently, the only method that is used is #params
 class MockSolrHelperContainer
-  
+
   include Blacklight::SolrHelper
   attr_accessor :params
   attr_accessor :facet_limits
-  
+
   # SolrHelper expects a method called #params,
   # within the class that's mixing it in
   def params
     @params ||= {}
   end
-  def facet_limit_for(facet_field)    
+  def facet_limit_for(facet_field)
     facet_limit_hash[facet_field]
   end
   def facet_limit_hash
     @facet_limits ||= {}
   end
+  
+  
 end
 
 
 =begin
-# check the methods that do solr requests. Note that we are not testing if 
-#  solr gives "correct" responses, as that's out of scope (it's a part of 
+# check the methods that do solr requests. Note that we are not testing if
+#  solr gives "correct" responses, as that's out of scope (it's a part of
 #  testing the solr code itself).  We *are* testing if blacklight code sends
-#  queries to solr such that it gets appropriate results. When a user does a search, 
+#  queries to solr such that it gets appropriate results. When a user does a search,
 #  do we get data back from solr (i.e. did we properly configure blacklight code
-#  to talk with solr and get results)? when we do a document request, does 
+#  to talk with solr and get results)? when we do a document request, does
 #  blacklight code get a single document returned?)
 =end
 describe 'Blacklight::SolrHelper' do
@@ -55,15 +57,15 @@ describe 'Blacklight::SolrHelper' do
   # SPECS FOR blacklight.rb contents
   describe "blacklight.rb" do
     describe "solr.yml and/or initializers" do
-    
+
       it "should contain a solr_url" do
-        Blacklight.solr_config[:url].should_not == nil      
+        Blacklight.solr_config[:url].should_not == nil
       end
-    
+
       it "should contain some display fields" do
         Blacklight.config[:show].should_not == nil
       end
-    
+
     end
   end
 
@@ -73,7 +75,7 @@ describe 'Blacklight::SolrHelper' do
       before do
         @produced_params = @solr_helper.solr_search_params
       end
-      it 'should not have a q param' do       
+      it 'should not have a q param' do
         @produced_params[:q].should be_nil
         @produced_params["spellcheck.q"].should be_nil
       end
@@ -81,10 +83,10 @@ describe 'Blacklight::SolrHelper' do
         @produced_params[:per_page].should == 10
       end
       it 'should have default facet fields' do
-        @produced_params[:facets][:fields].should == Blacklight.config[:facet][:field_names]
+        @produced_params[:"facet.field"].should == Blacklight.config[:default_solr_params][:"facet.field"]
       end
       it 'should not use the exact facet array from config defaults' do
-        @produced_params[:facets][:fields].should_not be_equal(Blacklight.config[:facet][:field_names])
+        @produced_params[:"facet.field"].should_not be_equal(Blacklight.config[:facet][:field_names])
       end
       it "should have default qt"  do
         @produced_params[:qt].should == "search"
@@ -102,8 +104,20 @@ describe 'Blacklight::SolrHelper' do
         params["spellcheck.q"].should == ""
       end
     end
-    
-    
+
+    describe "for request params also passed in as argument" do
+      before do
+        @req_params = HashWithIndifferentAccess.new({:q => "some query"})
+        params = @req_params
+      end
+      it "should only have one 'q' key, as symbol" do
+        solr_params = @solr_helper.solr_search_params( @req_params )
+        solr_params.keys.should include(:q)
+        solr_params.keys.should_not include("q")
+      end
+    end
+
+
     describe "for one facet, no query" do
       it "should have proper solr parameters" do
 
@@ -111,7 +125,7 @@ describe 'Blacklight::SolrHelper' do
 
         params[:q].should be_blank
         params["spellcheck.q"].should be_blank
-        params[:facets][:fields].should == Blacklight.config[:facet][:field_names]
+        params[:"facet.field"].should == Blacklight.config[:default_solr_params][:"facet.field"]
 
         @single_facet.each_value do |value|
           params[:fq].should include("{!raw f=#{@single_facet.keys[0]}}#{value}")
@@ -128,7 +142,7 @@ describe 'Blacklight::SolrHelper' do
             params[:fq].should include("{!raw f=#{facet_field}}#{value}"  )
           end
         end
-                
+
       end
     end
 
@@ -145,20 +159,41 @@ describe 'Blacklight::SolrHelper' do
       end
     end
 
-    describe "for a field search in request parameters" do
-      it 'should look up qt from field definition' do
+    describe "solr parameters for a field search from config (subject)" do
+      before do
+        @solr_params = @solr_helper.solr_search_params( @subject_search_params )
+      end
+      it "should look up qt from field definition" do
+        @solr_params[:qt].should == "search"
+      end
+      it "should not include weird keys not in field definition" do
+        @solr_params[:phrase_filters].should be_nil
+        @solr_params[:fq].should be_nil
+        @solr_params[:commit].should be_nil
+        @solr_params[:action].should be_nil
+        @solr_params[:controller].should be_nil
+      end
+      it "should include proper 'q', possibly with LocalParams" do
+        @solr_params[:q].should match(/(\{[^}]+\})?( *)?wome/)
+      end
+      it "should include spellcheck.q, without LocalParams" do
+        @solr_params["spellcheck.q"].should == "wome"
+      end
+      it "should include facet.field from default_solr_params" do
+        @solr_params[:"facet.field"].should == Blacklight.config[:default_solr_params][:"facet.field"]
+      end
+      it "should include spellcheck.dictionary from field def solr_parameters" do
+        @solr_params[:"spellcheck.dictionary"].should == "subject"
+      end
+      it "should add on :solr_local_parameters using Solr LocalParams style" do
         params = @solr_helper.solr_search_params( @subject_search_params )
 
-        params[:qt].should == "subject_search"
-        params[:phrase_filters].should be_nil
-        params[:fq].should be_nil
-        
-        params[:q].should == "wome"
-        params["spellcheck.q"].should == params[:q]
-        params[:facets][:fields].should == Blacklight.config[:facet][:field_names]
-        params[:commit].should be_nil
-        params[:action].should be_nil
-        params[:controller].should be_nil
+        #q == "{!pf=$subject_pf $qf=subject_qf} wome", make sure
+        #the LocalParams are really there
+        params[:q] =~ /^\{!([^}]+)\}/
+        key_value_pairs = $1.split(" ")
+        key_value_pairs.should include("pf=$subject_pf")
+        key_value_pairs.should include("qf=$subject_qf")
       end
     end
     describe "overriding of qt parameter" do
@@ -179,17 +214,17 @@ describe 'Blacklight::SolrHelper' do
         @solr_helper_with_params.params = {:search_field => "test_field", :q => "test query", "facet.field" => "extra_facet"}
       end
       after do
-        # restore search field list to how it was. 
+        # restore search field list to how it was.
         Blacklight.config[:search_fields].delete_if {|hash| hash[:key] == "test_field"}
         #re-memoize
         Blacklight.search_field_list(:reload)
       end
-    
+
       it "should merge parameters from search_field definition" do
         params = @solr_helper_with_params.solr_search_params
 
-        params[:qf].should == "fieldOne^2.3 fieldTwo fieldThree^0.4"        
-        params[:spellcheck].should == 'false'        
+        params[:qf].should == "fieldOne^2.3 fieldTwo fieldThree^0.4"
+        params[:spellcheck].should == 'false'
       end
       it "should merge empty string parameters from search_field definition" do
         params = @solr_helper_with_params.solr_search_params
@@ -199,6 +234,7 @@ describe 'Blacklight::SolrHelper' do
       describe "should respect proper precedence of settings, " do
         before do
           @produced_params = @solr_helper_with_params.solr_search_params(:sort => "extra_params_sort")
+          1+1
         end
 
 
@@ -207,29 +243,76 @@ describe 'Blacklight::SolrHelper' do
         end
 
         it "should fall through to BL general defaults for qt not otherwise specified " do
-          @produced_params[:qt].should == Blacklight.config[:default_qt]
+          @produced_params[:qt].should == Blacklight.config[:default_solr_params][:qt]
         end
-        
+
         it "should take per_page from search field definition where specified" do
           @produced_params[:per_page].should == "55"
         end
 
-        it "should take q from request params" do 
+        it "should take q from request params" do
           @produced_params[:q].should == "test query"
         end
 
         it "should add in extra facet.field from params" do
-          @produced_params[:facets][:fields].should include("extra_facet")                    
+          @produced_params[:"facet.field"].should include("extra_facet")
         end
 
-        it "should Overwrite request params sort with extra_params sort" do 
+        it "should Overwrite request params sort with extra_params sort" do
           @produced_params[:sort].should == "extra_params_sort"
         end
-        
+
       end
     end
+
+    describe "for :solr_local_parameters config" do
+      before do
+        # Hack to test with our own custom config specified here
+        @orig_blacklight = Blacklight
+        Object.instance_eval{ remove_const :Blacklight }
+        Blacklight = @orig_blacklight.clone
+        Blacklight.unmemoize_all
+        Blacklight.instance_variable_set("@config", {}.deep_merge(@orig_blacklight.config))
+
+        Blacklight.config[:search_fields] = [
+          { :display_label => "Author",
+            :qt => "author_qt",
+            :key => "author_key",
+            :solr_local_parameters => {
+              :qf => "$author_qf",
+              :pf => "you'll have \" to escape this"
+            },
+            :solr_parameters => {
+              :qf => "someField^1000",
+              :ps => "2"
+            }
+          }
+        ]
+
+        @solr_helper = MockSolrHelperContainer.new
+        @solr_helper.params = {:search_field => "author_key", :q => "query"}
+        @result = @solr_helper.solr_search_params
+      end
+
+      it "should pass through ordinary params" do
+        @result[:qt].should == "author_qt"
+        @result[:ps].should == "2"
+        @result[:qf].should == "someField^1000"
+      end
+
+      it "should include include local params with escaping" do
+        @result[:q].should include('qf=$author_qf')
+        @result[:q].should include('pf=\'you\\\'ll have \\" to escape this\'')
+      end
+
+      after do
+        Object.instance_eval{ remove_const :Blacklight }
+        Blacklight = @orig_blacklight
+      end
+    end
+
  end
-    
+
   describe "solr_facet_params" do
     before do
       @facet_field = 'format'
@@ -242,8 +325,7 @@ describe 'Blacklight::SolrHelper' do
       @generated_solr_facet_params[:rows].should == 0
     end
     it 'sets facets requested to facet_field argument' do
-      @generated_solr_facet_params[:facets].should be_kind_of(Hash)
-      @generated_solr_facet_params[:facets][:fields].should == @facet_field
+      @generated_solr_facet_params["facet.field".to_sym].should == @facet_field
     end
     it 'defaults offset to 0' do
       @generated_solr_facet_params['facet.offset'].should == 0
@@ -276,33 +358,28 @@ describe 'Blacklight::SolrHelper' do
 
       solr_search_params.each_pair do |key, value|
         # The specific params used for fetching the facet list we
-        # don't care about. 
-        next if [:facets, :rows, 'facet.limit', 'facet.offset', 'facet.sort'].include?(key)
+        # don't care about.
+        next if [:facets, "facet.field".to_sym, :rows, 'facet.limit', 'facet.offset', 'facet.sort'].include?(key)
         # Everything else should match
         solr_facet_params[key].should == value
       end
-      
+
     end
   end
   describe "for facet limit parameters config ed" do
     before(:all) do
        @solr_helper = MockSolrHelperContainer.new
        @solr_helper.params = {:search_field => "test_field", :q => "test query"}
-       @solr_helper.facet_limits = {nil => 20, :subject_facet => 10}
+       @solr_helper.facet_limits = {:some_facet => nil, :subject_facet => 10}
        @generated_params = @solr_helper.solr_search_params
      end
-      
-     it "should include default limit+1 as facet.limit" do      
-       @generated_params[:"facet.limit"].should == (@solr_helper.facet_limit_for(nil) + 1) 
+
+     it "should include specifically configged facet limits +1" do
+        @generated_params[:"f.subject_facet.facet.limit"].should == 11      
      end
-     it "should include specifically configged facet limits" do
-      @solr_helper.facet_limit_hash.each_pair do |facet_field, limit|
-        next if facet_field.nil? # skip default nil key
-        @generated_params[:"f.#{facet_field}.facet.limit"].should == (limit +1)
-      end
-     end
-     it "should not include a facet limit for the 'nil' key in hash" do
-        @generated_params.should_not have_key(:"f..facet.limit")
+     it "should not include a facet limit for a nil key in hash" do
+        @generated_params.should_not have_key(:"f.some_facet.facet.limit")
+        @generated_params.should_not have_key(:"facet.limit")
      end
    end
    describe "get_facet_pagination" do
@@ -314,7 +391,7 @@ describe 'Blacklight::SolrHelper' do
     end
     it 'with a limit set' do
       @facet_paginator.limit.should_not be_nil
-    end    
+    end
    end
 
 # SPECS FOR SEARCH RESULTS FOR QUERY
@@ -325,8 +402,8 @@ describe 'Blacklight::SolrHelper' do
       before(:all) do
         (@solr_response, @document_list) = @solr_helper.get_search_results(:q => @all_docs_query)
       end
-    
-      it 'should have a @response.docs list of the same size as @document_list' do              
+
+      it 'should have a @response.docs list of the same size as @document_list' do
         @solr_response.docs.length.should == @document_list.length
       end
 
@@ -336,7 +413,7 @@ describe 'Blacklight::SolrHelper' do
           solr_document = @document_list[index]
 
           Set.new(mash.keys).should == Set.new(solr_document.keys)
-          
+
           mash.each_key do |key|
             mash[key].should == solr_document[key]
           end
@@ -355,7 +432,7 @@ describe 'Blacklight::SolrHelper' do
     end
 
 
-    
+
     describe "Single Word Query with no Facets" do
       it 'should have results' do
         (solr_response, document_list) = @solr_helper.get_search_results(:q => @single_word_query)
@@ -366,7 +443,7 @@ describe 'Blacklight::SolrHelper' do
 
     describe "Multiple Words Query with No Facets" do
       it 'should have results' do
-      
+
         (solr_response, document_list) = @solr_helper.get_search_results(:q => @mult_word_query)
         solr_response.docs.size.should == document_list.size
         solr_response.docs.size.should > 0
@@ -408,10 +485,10 @@ describe 'Blacklight::SolrHelper' do
     describe "for All Docs Query and One Facet" do
       it 'should have results' do
         (solr_response, document_list) = @solr_helper.get_search_results(:q => @all_docs_query, :f => @single_facet)
-        solr_response.docs.size.should == document_list.size               
+        solr_response.docs.size.should == document_list.size
         solr_response.docs.size.should > 0
       end
-      # TODO: check that number of these results < number of results for all docs query 
+      # TODO: check that number of these results < number of results for all docs query
       #   BUT can't: num docs isn't total, it's the num docs in the single SOLR response (e.g. 10)
     end
 
@@ -438,7 +515,7 @@ describe 'Blacklight::SolrHelper' do
         solr_response.docs.size.should == 0
       end
     end
-    
+
     describe "for default display fields" do
       it "should have a list of field names for index_view_fields" do
         Blacklight.config[:index_fields].should_not be_nil
@@ -450,22 +527,22 @@ describe 'Blacklight::SolrHelper' do
 
 
   end  # Search Results
-  
-  
-# SPECS FOR SEARCH RESULTS FOR FACETS 
+
+
+# SPECS FOR SEARCH RESULTS FOR FACETS
   describe 'Facets in Search Results for All Docs Query' do
 
     before(:all) do
       (solr_response, document_list) = @solr_helper.get_search_results(:q => @all_docs_query)
-      @facets = solr_response.facets      
+      @facets = solr_response.facets
     end
-    
+
     it 'should have more than one facet' do
       @facets.size.should > 1
     end
-    it 'should have all facets specified in initializer' do
-      @facets.each do |facet|
-        Blacklight.config[:facet][:field_names].should include(facet.name)
+    it 'should have all facets specified in initializer' do      
+      Blacklight.config[:default_solr_params][:"facet.field"].each do |field|
+        @facets.find {|f| f.name == field}.should_not be_nil        
       end
     end
     it 'should have at least one value for each facet' do
@@ -503,7 +580,7 @@ describe 'Blacklight::SolrHelper' do
     it 'should have number of results (per page) set in initializer, by default' do
       (solr_response, document_list) = @solr_helper.get_search_results(:q => @all_docs_query)
       solr_response.docs.size.should == document_list.size
-      solr_response.docs.size.should == Blacklight.config[:index][:num_per_page]
+      solr_response.docs.size.should == Blacklight.config[:default_solr_params][:per_page]
     end
 
     it 'should get number of results per page requested' do
@@ -512,11 +589,11 @@ describe 'Blacklight::SolrHelper' do
       solr_response1.docs.size.should == document_list1.size
       solr_response1.docs.size.should == num_results
     end
-    
+
     it 'should skip appropriate number of results when requested - default per page' do
       page = 3
       (solr_response2, document_list2) = @solr_helper.get_search_results(:q => @all_docs_query, :page => page)
-      solr_response2.params[:start].to_i.should ==  Blacklight.config[:index][:num_per_page] * (page-1)
+      solr_response2.params[:start].to_i.should ==  Blacklight.config[:default_solr_params][:per_page] * (page-1)
     end
     it 'should skip appropriate number of results when requested - non-default per page' do
       page = 3
@@ -544,7 +621,7 @@ describe 'Blacklight::SolrHelper' do
       solr_response5.docs.size.should == document_list5.size
       solr_response5.docs.size.should > 0
     end
-    
+
   end # page specs
 
   # SPECS FOR SINGLE DOCUMENT REQUESTS
@@ -560,7 +637,7 @@ describe 'Blacklight::SolrHelper' do
         @solr_helper.get_solr_response_for_doc_id(@bad_id)
       }.should raise_error(Blacklight::SolrHelper::InvalidSolrID)
     end
-        
+
     it "should have a non-nil result for a known id" do
       @document.should_not == nil
     end
@@ -582,8 +659,8 @@ describe 'Blacklight::SolrHelper' do
       Blacklight.config[:show_fields][:field_names][0].should_not == nil
     end
 
-    
-    
+
+
   end
 
 # NOTE: some of these repeated fields could be in a shared behavior, but the
@@ -606,7 +683,7 @@ describe 'Blacklight::SolrHelper' do
     it "should limit search result by facets when supplied" do
       response2.docs.numFound.should_be < response.docs.numFound
     end
-    
+
     it "should not have facets in the response" do
       response.facets.size.should == 0
     end
@@ -615,7 +692,7 @@ describe 'Blacklight::SolrHelper' do
     it 'should have a doc id field' do
       @doc.get(:id).should_not == nil
     end
-    
+
     it 'should have non-nil values for required fields set in initializer' do
       @doc.get(Blacklight.config[:show][:html_title]).should_not == nil
       @doc.get(Blacklight.config[:show][:heading]).should_not == nil
@@ -634,12 +711,14 @@ describe 'Blacklight::SolrHelper' do
     it 'search results for just-poor-enough-query term should have (multiple) spelling suggestions' do
       (solr_response, document_list) = @solr_helper.get_search_results({:q => 'boo'})
       solr_response.spelling.words.should include('bon')
-#      solr_response.spelling.words.should include('bod')  for multiple suggestions
+      solr_response.spelling.words.should include('bod')  #for multiple suggestions
     end
 
     it 'search results for just-poor-enough-query term should have multiple spelling suggestions' do
       (solr_response, document_list) = @solr_helper.get_search_results({:q => 'politica'})
       solr_response.spelling.words.should include('policy') # less freq
+      solr_response.spelling.words.should include('politics') # more freq
+      solr_response.spelling.words.should include('political') # more freq
 =begin
       #  when we can have multiple suggestions
       solr_response.spelling.words.should_not include('policy') # less freq
@@ -649,32 +728,58 @@ describe 'Blacklight::SolrHelper' do
     end
 
     it "title search results for just-poor-enough query term should have spelling suggestions" do
-      (solr_response, document_list) = @solr_helper.get_search_results({:q => 'yehudiyam', :qt => 'title_search'})
-      solr_response.spelling.words.should include('yehudiyim') 
+      (solr_response, document_list) = @solr_helper.get_search_results({:q => 'yehudiyam', :qt => 'search', :"spellcheck.dictionary" => "title"})
+      solr_response.spelling.words.should include('yehudiyim')
     end
 
     it "author search results for just-poor-enough-query term should have spelling suggestions" do
-      (solr_response, document_list) = @solr_helper.get_search_results({:q => 'shirma', :qt => 'author_search'})
-      solr_response.spelling.words.should include('sharma') 
+      (solr_response, document_list) = @solr_helper.get_search_results({:q => 'shirma', :qt => 'search', :"spellcheck.dictionary" => "author"})
+      solr_response.spelling.words.should include('sharma')
     end
 
     it "subject search results for just-poor-enough-query term should have spelling suggestions" do
-      (solr_response, document_list) = @solr_helper.get_search_results({:q => 'wome', :qt => 'subject_search'})
-      solr_response.spelling.words.should include('women') 
+      (solr_response, document_list) = @solr_helper.get_search_results({:q => 'wome', :qt => 'search', :"spellcheck.dictionary" => "subject"})
+      solr_response.spelling.words.should include('women')
     end
 
     it 'search results for multiple terms query with just-poor-enough-terms should have spelling suggestions for each term' do
+     pending
 #     get_spelling_suggestion("histo politica").should_not be_nil
     end
 
   end
-  
+
+  describe "facet_limit_for" do
+    include Blacklight::SolrHelper
+    it "should return specified value for facet_field specified" do
+      facet_limit_for("subject_facet").should == Blacklight.config[:facet][:limits]["subject_facet"]
+    end
+    it "facet_limit_hash should return hash with key being facet_field and value being configured limit" do
+      facet_limit_hash.should == Blacklight.config[:facet][:limits]
+    end    
+    describe "for 'true' configured values" do
+      it "should return nil if no @response available" do
+        facet_limit_for("some_field").should be_nil
+      end
+      it "should get from @response facet.limit if available" do
+        @response = {"responseHeader" => {"params" => {"facet.limit" => 11}}}
+        facet_limit_for("language_facet").should == 10
+      end
+      it "should get from specific field in @response if available" do
+        @response = {"responseHeader" => {"params" => {"facet.limit" => 11,"f.language_facet.facet.limit" => 16}}}
+        facet_limit_for("language_facet").should == 15
+      end
+    end
+  end
+
+
 # TODO:  more complex queries!  phrases, offset into search results, non-latin, boosting(?)
 #  search within query building (?)
 #  search + facets (search done first; facet selected first, both selected)
 
 # TODO: maybe eventually check other types of solr requests
 #  more like this
-#  nearby on shelf 
- 
-end 
+#  nearby on shelf
+
+end
+

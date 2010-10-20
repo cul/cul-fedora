@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 require 'rubygems'
 require 'marc'
@@ -100,57 +102,11 @@ end
       end
     end
     
-    describe 'the search method' do
-      
-      it 'should use the default params from SolrDocument.default_params[:search]' do
-        expected_params = {:facets =>{:fields=>
-           ["format",
-            "language_facet",
-            "lc_1letter_facet",
-            "lc_alpha_facet",
-            "lc_b4cutter_facet",
-            "language_facet",
-            "pub_date",
-            "subject_era_facet",
-            "subject_geo_facet",
-            "subject_topic_facet"]
-           },:q=>"tibet", :qt=>:search, :per_page=>10}
-        response = SolrDocument.search(:q=>'tibet') do |params|
-          params.should == expected_params
-        end
-      end
-      
-      it 'should return docs that are SolrDocument objects' do
-        response = SolrDocument.search(:q=>'tibet')
-        response.docs.each{|d| d.should be_instance_of(SolrDocument) }
-      end
-      
-    end
     
-    describe 'the find_by_id method' do
-      
-      it 'should use the default params from SolrDocument.default_params[:find_by_id]' do
-        expected_params = {:qt=>:document, :rows=>1, :id=>'2008308202'}
-        SolrDocument.find_by_id(:id=>'2008308202') do |params|
-          params.should == expected_params
-        end
-      end
-      
-    end
     
-    describe 'the merge_defaults method; which uses defaults from SolrDocument.default_params' do
-      
-      it 'should not allow blank values to override defaults' do
-        p = SolrDocument.merge_defaults :search, :qt=>''
-        p[:qt].should == :search
-      end
-      
-      it 'should allow non-blank values to override the defaults' do
-        p = SolrDocument.merge_defaults :search, :qt=>'abc'
-        p[:qt].should == 'abc'
-      end
-      
-    end
+
+    
+   
 
  
     

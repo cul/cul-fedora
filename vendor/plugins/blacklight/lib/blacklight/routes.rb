@@ -3,19 +3,15 @@ module Blacklight::Routes
   def self.build map
     
     # Login, Logout, UserSessions
-    map.resource :account, :controller => "users"
-    map.resources :users
-    map.resource :user_session, :protocol => ((defined?(SSL_ENABLED) and SSL_ENABLED) ? 'https' : 'http')
-
+    map.resource :user_sessions, :protocol => ((defined?(SSL_ENABLED) and SSL_ENABLED) ? 'https' : 'http')
     map.login "login", :controller => "user_sessions", :action => "new"
     map.logout "logout", :controller => "user_sessions", :action => "destroy"
 
     # Set the default controller:
     map.root :controller => 'catalog', :action=>'index'
-    
     map.resources :bookmarks, :collection => {:clear => :delete}
-    
-    
+    map.resource :user
+
     map.catalog_facet "catalog/facet/:id", :controller=>'catalog', :action=>'facet'
 
     map.resources :search_history, :collection => {:clear => :delete}
@@ -26,13 +22,16 @@ module Blacklight::Routes
       # /catalog/:id/image <- for ajax cover requests
       # /catalog/:id/status
       # /catalog/:id/availability
-      :member=>{:image=>:get, :status=>:get, :availability=>:get, :citation=>:get, :send_email_record=>:post, :email=>:get, :sms=>:get, :librarian_view=>:get},
+      :member=>{:image=>:get, :status=>:get, :availability=>:get, :librarian_view=>:get},
       # /catalog/map
-      :collection => {:map => :get, :opensearch=>:get}
+      :collection => {:map => :get, :opensearch=>:get, :citation=>:get, :email=>:get, :sms=>:get, :endnote=>:get, :send_email_record=>:post}
     )
+    
 
     map.feedback 'feedback', :controller=>'feedback', :action=>'show'
     map.feedback_complete 'feedback/complete', :controller=>'feedback', :action=>'complete'
+    
+    map.resources :folder, :only => [:index, :create, :destroy], :collection => {:clear => :delete }
     
   end
   

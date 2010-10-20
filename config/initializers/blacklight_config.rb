@@ -25,34 +25,9 @@ Blacklight.configure(:shared) do |config|
     document.key?( :marc_display  )
   end
 
+
+
   
-  # default params for the SolrDocument.search method
-  SolrDocument.default_params[:search] = {
-    :qt=>:search,
-    :per_page => 10,
-    :facets => {:fields=>
-      ["format",
-        "language_facet",
-        "lc_1letter_facet",
-        "lc_alpha_facet",
-        "lc_b4cutter_facet",
-        "language_facet",
-        "pub_date",
-        "subject_era_facet",
-        "subject_geo_facet",
-        "subject_topic_facet",
-        "lib_repo_facet",
-        "lib_date_facet",
-        "lib_name_facet",
-        "lib_format_facet",
-        "lib_project_facet",
-        "lib_collection_facet",
-        "subject_topic_facet"]
-    }  
-  }
-  
-  # default params for the SolrDocument.find_by_id method
-  SolrDocument.default_params[:find_by_id] = {:qt => :document}
   
   
   ##############################
@@ -81,7 +56,7 @@ Blacklight.configure(:shared) do |config|
   # for human reading/writing, kind of like search_fields. Eg,
   # config[:facet] << {:field_name => "format", :label => "Format", :limit => 10}
   config[:facet] = {
-    :field_names => [
+    :field_names => (facet_fields = [
       "lib_project_facet",
       "lib_name_facet",
       "lib_date_facet",
@@ -98,7 +73,7 @@ Blacklight.configure(:shared) do |config|
       "lc_1letter_facet",
       "subject_geo_facet",
       "subject_era_facet"
-    ],
+    ]),
     :labels => {
       "lib_project_facet"              => "Project",
       "lib_name_facet"            => "Names",
@@ -132,6 +107,13 @@ Blacklight.configure(:shared) do |config|
       "collection_h" => true
     }
   }
+
+  # Have BL send all facet field names to Solr, which has been the default
+  # previously. Simply remove these lines if you'd rather use Solr request
+  # handler defaults, or have no facets.
+  config[:default_solr_params] ||= {}
+  config[:default_solr_params][:"facet.field"] = facet_fields
+
 
   # solr fields to be displayed in the index (search results) view
   #   The ordering of the field names is the order of the display 
@@ -213,14 +195,72 @@ Blacklight.configure(:shared) do |config|
     }
   }
 
-
-  # "fielded" search configuration. Used by pulldown among other places.
+# "fielded" search configuration. Used by pulldown among other places.
   # For supported keys in hash, see rdoc for Blacklight::SearchFields
+  #
+  # Search fields will inherit the :qt solr request handler from
+  # config[:default_solr_parameters], OR can specify a different one
+  # with a :qt key/value. Below examples inherit, except for subject
+  # that specifies the same :qt as default for our own internal
+  # testing purposes.
+  #
+  # The :key is what will be used to identify this BL search field internally,
+  # as well as in URLs -- so changing it after deployment may break bookmarked
+  # urls.  A display label will be automatically calculated from the :key,
+  # or can be specified manually to be different. 
   config[:search_fields] ||= []
-  config[:search_fields] << {:display_label => 'All Fields', :qt => 'search'}
-  config[:search_fields] << {:display_label => 'Title', :qt => 'title_search'}
-  config[:search_fields] << {:display_label =>'Author', :qt => 'author_search'}
-  config[:search_fields] << {:display_label => 'Subject', :qt=> 'subject_search'}
+
+  # This one uses all the defaults set by the solr request handler. Which
+  # solr request handler? The one set in config[:default_solr_parameters][:qt],
+  # since we aren't specifying it otherwise. 
+  config[:search_fields] << {
+    :key => "all_fields",  
+    :display_label => 'All Fields'   
+  }
+
+  # Now we see how to over-ride Solr request handler defaults, in this
+  # case for a BL "search field", which is really a dismax aggregate
+  # of Solr search fields. 
+  config[:search_fields] << {
+    :key => 'title',     
+    # solr_parameters hash are sent to Solr as ordinary url query params. 
+    :solr_parameters => {
+      :"spellcheck.dictionary" => "title"
+    },
+    # :solr_local_parameters will be sent using Solr LocalParams
+    # syntax, as eg {! qf=$title_qf }. This is neccesary to use
+    # Solr parameter de-referencing like $title_qf.
+    # See: http://wiki.apache.org/solr/LocalParams
+    :solr_local_parameters => {
+      :qf => "$title_qf",
+      :pf => "$title_pf"
+    }
+  }
+  config[:search_fields] << {
+    :key =>'author',     
+    :solr_parameters => {
+      :"spellcheck.dictionary" => "author" 
+    },
+    :solr_local_parameters => {
+      :qf => "$author_qf",
+      :pf => "$author_pf"
+    }
+  }
+
+  # Specifying a :qt only to show it's possible, and so our internal automated
+  # tests can test it. In this case it's the same as 
+  # config[:default_solr_parameters][:qt], so isn't actually neccesary. 
+  config[:search_fields] << {
+    :key => 'subject', 
+    :qt=> 'search',
+    :solr_parameters => {
+      :"spellcheck.dictionary" => "subject"
+    },
+    :solr_local_parameters => {
+      :qf => "$subject_qf",
+      :pf => "$subject_pf"
+    }
+  }
   
   # "sort results by" select (pulldown)
   # label in pulldown is followed by the name of the SOLR field to sort by and

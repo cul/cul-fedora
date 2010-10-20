@@ -18,7 +18,8 @@ describe ApplicationController do
 
         controller.stylesheet_links.should include(["yui", "jquery/ui-lightness/jquery-ui-1.8.1.custom.css", "application", {:media=>"all", :plugin=>:blacklight}])
       end
-    end        
+    end
   end
 
 end
+
