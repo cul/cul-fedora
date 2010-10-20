@@ -1,4 +1,5 @@
 module CatalogHelper
+  include Blacklight::SolrHelper
 
 
   def build_resource_list(document)
@@ -49,6 +50,37 @@ module CatalogHelper
     hc = HTTPClient.new
     res = JSON.parse(hc.get_content(doc_object_method(doc,method)))
 
+  end
+
+  def get_aggregator_count(doc)
+    json = doc_json_method(doc, "/ldpd:sdef.Aggregator/getSize?format=json")
+    if json
+      return json["results"][0]["count"]
+    else
+      return 0
+    end
+  end
+
+  def get_fake_doc(pid,type)
+    pid = pid.gsub(/^info\:fedora\/(.+)/,'\1')
+    return {:id=>pid,Blacklight.config[:show][:display_type]=>type}
+  end
+
+  def get_first_member(doc, imageOnly=True)
+    query = "{!raw f=internal_h}#{doc[:internal_h]}"
+    _resp = get_search_results({:fq=>query,:qt=>"search"})
+    logger.info _resp
+    docs = _resp[1]
+    for doc in docs
+      if imageOnly
+        if doc[:format] == "image"
+          return [doc,docs.length]
+        end
+      else
+        return [doc,docs.length]
+      end
+    end
+    return [false,docs.length]
   end
 
   def get_metadata_list(doc)

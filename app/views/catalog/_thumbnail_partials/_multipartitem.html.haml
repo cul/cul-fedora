@@ -1,1 +1,6 @@
-%span="multipart item thumbnail"
+- fdata = get_first_member(document,true)
+%h4.index_title="multipart - #{fdata[1]} items"
+- if fdata[0]
+  = render_document_partial(fdata[0], "thumbnail")
+- else
+  %span="no thumbnail"

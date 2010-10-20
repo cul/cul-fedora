@@ -1,6 +1,6 @@
 %div.yui-gf
   %div.yui-u.first
-    = render_document_partial(document, "thumbnail")
+    = render_document_partial(document, :thumbnail)
   %div.yui-u
     %dl.defList
       - index_field_names.select { |f| document[f] }.each do |solr_fname|
