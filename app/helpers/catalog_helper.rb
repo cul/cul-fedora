@@ -83,6 +83,17 @@ module CatalogHelper
     return [false,docs.length]
   end
 
+  def get_rows(member_list, row_length)
+#    indexes = ((0...members.length).collect{|x| ((x % row_length)==0?x:nil}).compact
+    indexes = []
+    (0...member_list.length).collect {|x| if (x % row_length)==0 then  indexes.push x end}
+    rows = []
+    for index in indexes
+      rows.push [index,index+1,index+2].collect {|x| member_list.at(x)?x:nil}
+    end
+    rows
+  end
+
   def get_metadata_list(doc)
 
     json = doc_json_method(doc, "/ldpd:sdef.Core/describedBy?format=json")["results"]

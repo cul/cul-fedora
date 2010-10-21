@@ -2,12 +2,13 @@
 - if document["object_display"]
  %h3 Member Items
  %div#imageMembers
-  - ((0...members_list.length).collect {|x| ((x % 3) == 0)?x:nil}).compact.each do |i|
-   %div{:class=>["yui-gb", (i==0?"first":false)]}
-    - (i...i+3).each do |j|
-     %div{:class=>["yui-u", (j==0?"first":false)]}
-      - if members_list.at(j)
+  - rows = get_rows(members_list,3)
+  - rows.each do |row|
+   %div{:class=>["yui-gb", (row==rows.first)?"first":false]}
+    - row.each do |j|
+     %div{:class=>["yui-u", (j==row.first)?"first":false]}
+      - if !j.nil?
        - member = members_list[j]
        %p=member["member"]
        - if member["dctype"] == "Image"
-        %img{:src=>"#{doc_object_method(get_fake_doc(member["member"],"image"),'/ldpd:sdef.Image/getThumbnail')}",:class=>"thumbnail"}
+        %img{:src=>"#{doc_object_method(get_fake_doc(member["member"],"image"),'/ldpd:sdef.Image/getThumbnail')}",:class=>"gallery"}

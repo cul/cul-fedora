@@ -247,6 +247,7 @@ font-weight:bold;
 /* Result List (http://www.quirksmode.org/css/clearing.html) */
 h3.index_title {clear: both; margin: 0px; padding: 0px; width: 100%;}
 img.thumbnail {width: 90%;}
+img.gallery {width: 80%;}
 
 dl {margin: 0px; padding: 0px;}
 dl.defList {overflow: auto; padding: 0.5em 0;width: 100%;}
