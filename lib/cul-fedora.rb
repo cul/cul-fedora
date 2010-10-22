@@ -1,8 +1,10 @@
 require "httpclient"
 require "nokogiri"
-require "active_support"
+require "activesupport"
 require "rsolr"
 require "rsolr-ext"
+require "open3"
+
 
 require "cul-fedora/item"
 require "cul-fedora/server"

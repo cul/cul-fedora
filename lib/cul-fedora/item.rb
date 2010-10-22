@@ -197,6 +197,8 @@ module Cul
               add_field.call("geographic_area", geo)
               add_field.call("geographic_area_search", geo)
             end
+
+            add_field.call("export_as_mla_citation_txt","test")
           end
 
 
@@ -228,7 +230,13 @@ module Cul
               end
 
               File.delete(resource_file_name)
+            
+            
+            
             end
+
+
+
           end
 
         rescue Exception => e
