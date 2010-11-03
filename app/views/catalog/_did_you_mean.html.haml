@@ -1,0 +1,12 @@
+-# RSolr spelling is broken, trying to work around
+- words = get_suggestions(@response[:spellcheck])
+- if @response.response[:numFound] <= Blacklight.config[:spell_max] and words.size > 0
+  %div#spell
+    %h4.suggest
+      %i
+        ="Did you mean to type"
+        - words.each_with_index do |word,index|
+          - if index > 0 
+            =", or "
+          = link_to_query(word)
+        ="?"

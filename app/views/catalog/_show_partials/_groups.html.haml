@@ -1,0 +1,11 @@
+- thumbnail ||= false
+- groups = get_groups(document)
+%h3 Parent Information
+- if groups.length > 0
+  .group-list
+    %ul
+      - groups.each do  |g|
+        %li= link_to_document(g)
+- else
+  .group-list
+    %p No groups found

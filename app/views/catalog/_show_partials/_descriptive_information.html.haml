@@ -20,6 +20,7 @@
 .metadata-list
   = render :partial => "catalog/_show_partials/metadata", :collection => metadata_list, :locals => {:document => document}
 
+= render :partial => "catalog/_show_partials/groups", :locals => {:document => document}
 
 %h3 Find any errors?
 %div

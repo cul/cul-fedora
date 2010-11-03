@@ -66,14 +66,12 @@ module CatalogHelper
     return {"id"=>pid,Blacklight.config[:show][:display_type]=>type}
   end
 
-  def get_first_member(doc, imageOnly=True)
-    query = "{!raw f=internal_h}#{doc[:internal_h]}"
-    _resp = get_search_results({:fq=>query,:qt=>"search"})
-    logger.info _resp
-    docs = _resp[1]
-    for doc in docs
+  def get_first_member(document, imageOnly=True)
+    docs = get_members(document)
+    for doc in docs:
+      logger.info "#{doc["id"]}  #{doc["format"]}"
       if imageOnly
-        if doc[:format] == "image"
+        if doc["format"] ==  "image"
           return [doc,docs.length]
         end
       else
@@ -81,6 +79,63 @@ module CatalogHelper
       end
     end
     return [false,docs.length]
+  end
+
+  def get_members(document)
+    idquery = document["id"]
+    if document["internal_h"]
+      facet_prefix = document["internal_h"][0]
+    else
+      resp, docs = get_solr_response_for_field_values("id",document["id"])
+      facet_prefix = docs[0]["internal_h"][0]
+    end
+    logger.info idquery
+    logger.info facet_prefix
+    search_field_def = Blacklight.search_field_def_for_key(:"internal_h")
+    params = solr_search_params().dup()
+    params[:qt] = search_field_def[:qt] if search_field_def
+    params[:fq]= "{!raw f=internal_h}#{facet_prefix}"
+    resp = Blacklight.solr.find(params)
+    docs = resp.docs
+    docs.delete_if {|doc| doc["id"].eql? idquery}
+    logger.info "got #{docs.length} docs"
+    docs
+  end
+
+  def get_solr_params_for_field_values(field, values, extra_controller_params={})
+    value_str = "(\"" + values.to_a.join("\" OR \"") + "\")"
+    solr_params = {
+      :qt => "standard",   # need boolean for OR
+      :q => "#{field}:#{value_str}",
+      'fl' => "*",
+      'facet' => 'false',
+      'spellcheck' => 'false'
+    }
+  end
+  def get_groups(document)
+    idquery = document["id"]
+    if document["internal_h"]
+      internals = document["internal_h"].dup
+    else
+      resp, docs = get_solr_response_for_field_values("id",document["id"])
+      internals = docs[0]["internal_h"].dup
+    end
+    gids = internals.collect { |g|
+      _parts = g.split(/\//,-1)
+      if _parts.length > 2:
+        _parts[-3].gsub(/:/,'\:')
+      else
+        nil
+      end
+    }
+    gids.compact!
+    if gids.length > 0
+      search_params = get_solr_params_for_field_values("pid_t",gids)
+      resp = Blacklight.solr.find(search_params)
+      return resp.docs
+    else
+      return []
+    end
   end
 
   def get_rows(member_list, row_length)
