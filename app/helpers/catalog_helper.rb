@@ -86,16 +86,15 @@ module CatalogHelper
     if document["internal_h"]
       facet_prefix = document["internal_h"][0]
     else
-      resp, docs = get_solr_response_for_field_values("id",document["id"])
+      resp, docs = get_independent_solr_response_for_field_values("id",document["id"])
       facet_prefix = docs[0]["internal_h"][0]
     end
     logger.info idquery
     logger.info facet_prefix
     search_field_def = Blacklight.search_field_def_for_key(:"internal_h")
-    params = solr_search_params().dup()
-    params[:qt] = search_field_def[:qt] if search_field_def
-    params[:fq]= "{!raw f=internal_h}#{facet_prefix}"
-    resp = Blacklight.solr.find(params)
+    _params = get_solr_params_for_field_values("internal_h",facet_prefix)
+    _params[:qt] = search_field_def[:qt] if search_field_def
+    resp = Blacklight.solr.find(_params)
     docs = resp.docs
     docs.delete_if {|doc| doc["id"].eql? idquery}
     logger.info "got #{docs.length} docs"
@@ -111,6 +110,11 @@ module CatalogHelper
       'facet' => 'false',
       'spellcheck' => 'false'
     }
+  end
+  def get_independent_solr_response_for_field_values(field, values, extra_controller_params={})
+    _params = get_solr_params_for_field_values(field, values, extra_controller_params)
+    resp = Blacklight.solr.find(_params)
+    [resp, resp.docs]
   end
   def get_groups(document)
     idquery = document["id"]
