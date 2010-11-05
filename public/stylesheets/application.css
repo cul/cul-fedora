@@ -445,3 +445,9 @@ Search Parameters
 
 
 .hide {display:none}
+
+div.item_type {margin-bottom:0.5em}
+span.item_type {color:#300; background-color:#ffc;font-size:0.8em;border:solid gray thin;}
+span.index_title {font-weight: bold}
+span.from_groups {font-weight:bold;margin-left:1em;}
+span.from_groups a {font-weight:normal}

@@ -195,7 +195,9 @@ module CatalogHelper
 
     return metadata unless xml
     
-    details += add_mods_details("Identifier:" ,xml.at_css("identifier"))
+    xml.css("identifier").each do |id_node|
+      details << ["Identifier:" , id_node] unless id_node == ""
+    end
     xml.css("name").each do |name_node|
       name = parse_mods_name(name_node)
       details << ["Name:", name] unless name == ""

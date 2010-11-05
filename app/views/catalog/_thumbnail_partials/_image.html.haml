@@ -1,1 +1,5 @@
+- nolabel ||= false
+- if !nolabel
+  %div.item_type
+    %span.item_type="PART"
 %img{:src=>"#{doc_object_method(document,'/ldpd:sdef.Image/getThumbnail')}",:class=>"thumbnail"} 

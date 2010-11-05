@@ -1,6 +1,12 @@
 - fdata = get_first_member(document,true)
-%h4.index_title="multipart - #{fdata[1]} items"
-- if fdata[0]
-  = render_document_partial(fdata[0], :thumbnail)
+- label = (fdata[1]==0)?"EMPTY":(fdata[1]==1)?"SINGLE PART":"MULTIPART"
+%div.item_type
+  %span.item_type="#{label} ITEM"
+- if fdata[1] > 0
+  - if fdata[1] == 1
+    - # render_document_partial(fdata[0], :thumbnail)
+    = render :partial=>"catalog/_thumbnail_partials/#{fdata[0][:format]}", :locals=>{:document=>fdata[0],:nolabel=>true}
+  - else
+    %span="multipart icon"
 - else
-  %span="no thumbnail"
+  %span="empty - no thumbnail"
