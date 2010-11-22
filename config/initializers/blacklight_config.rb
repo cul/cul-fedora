@@ -98,8 +98,18 @@ Blacklight.configure(:shared) do |config|
     # limit value is the actual number of items you want _displayed_,
     # #solr_search_params will do the "add one" itself, if neccesary.
     :limits => {
-      nil => 10,
-      "subject_facet" => 20
+      "lib_project_facet"    => 10,
+      "lib_name_facet"       => 10,
+      "lib_date_facet"       => 10,
+      "lib_format_facet"     => 10,
+      "lib_collection_facet" => 10,
+      "lib_repo_facet"       => 10,
+      "format_h"             => 10,
+      "collection_h"         => 10,
+      "date_created_h"       => 10,
+      "subject_topic_facet"  => 10,
+      "subject_era_facet"    => 10,
+      "subject_geo_facet"    => 10
     },
     :hierarchy => {
       "format_h" => true,
@@ -120,13 +130,17 @@ Blacklight.configure(:shared) do |config|
   config[:index_fields] = {
     :field_names => [
       "title_display",
+      "lib_name_facet",
+      "lib_repo_facet",
+      "lib_collection_facet",
       "title_vern_display",
       "author_display",
       "author_vern_display",
-      "lib_format_display",
+      "lib_format_facet",
       "format",
-      "lib_collection_display",
-      "lib_repo_display",
+      "clio_s",
+      "extent_t",
+      "lib_project_facet",
       "language_facet",
       "published_display",
       "object_display",
@@ -137,10 +151,14 @@ Blacklight.configure(:shared) do |config|
       "title_vern_display"      => "Title:",
       "author_display"          => "Author:",
       "author_vern_display"     => "Author:",
-      "lib_format_display"                  => "Format:",
+      "lib_format_facet"                  => "Format:",
       "format"                  => "Routing:",
-      "lib_collection_display"  => "Collection:",
-      "lib_repo_display"  => "Repository:",
+      "clio_s"                  => "CLIO Id:",
+      "lib_collection_facet"  => "Collection:",
+      "lib_project_facet"  => "Project:",
+      "lib_name_facet"  => "Names:",
+      "lib_repo_facet"  => "Repository:",
+      "extent_t"  => "Extent:",
       "language_facet"          => "Language:",
       "published_display"       => "Published:",
       "object_display"          => "In Fedora:",
@@ -259,6 +277,19 @@ Blacklight.configure(:shared) do |config|
     :solr_local_parameters => {
       :qf => "$subject_qf",
       :pf => "$subject_pf"
+    }
+  }
+  
+  config[:search_fields] << {
+    :key => 'clio', 
+    :display_label => 'CLIO ID',
+    :qt=> 'search',
+    :solr_parameters => {
+      :"spellcheck.dictionary" => "default"
+    },
+    :solr_local_parameters => {
+      :qf=>"clio_s",
+      :pf=>""
     }
   }
   

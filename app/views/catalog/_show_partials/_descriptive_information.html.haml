@@ -1,13 +1,13 @@
 - thumbnail ||= false
+- title ||= false
+- groups ||= false
 - metadata_list = get_metadata_list(document)
 %h3 Descriptive Information
 
-
 %dl.defList
-  - document_show_fields.select { |f| document[f] }.each do |solr_fname|
+  - document_show_fields.select { |f| document[f] && (title || !f.include?("title")) }.each do |solr_fname|
     %dt= document_show_field_labels[solr_fname]
     %dd= h(document[solr_fname].listify.join("<br/>"))
-
 
 
 - if thumbnail
@@ -20,7 +20,8 @@
 .metadata-list
   = render :partial => "catalog/_show_partials/metadata", :collection => metadata_list, :locals => {:document => document}
 
-= render :partial => "catalog/_show_partials/groups", :locals => {:document => document}
+- if groups
+  = render :partial => "catalog/_show_partials/groups", :locals => {:document => document}
 
 %h3 Find any errors?
 %div

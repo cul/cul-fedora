@@ -1,6 +1,6 @@
 - members_list = get_members(document)
-- if document["object_display"]
- %h3 Member Items
+- if members_list.length > 1
+ %h3="#{members_list.length} Member Items"
  %div#imageMembers
   - rows = get_rows(members_list,3)
   - rows.each do |row|
@@ -11,4 +11,9 @@
        - member = members_list[j]
        %p=link_to_document(member)
        - if member["format"] == "image"
-        = render_document_partial(members_list[j], :thumbnail)
+        = render :partial => "catalog/_thumbnail_partials/image", :locals => {:document => member, :nolabel=>true}
+- else
+ - if members_list.length == 1
+  %h3 Member Item
+  - member = members_list[0]
+  = render :partial => "catalog/_screen_partials/"+member["format"], :locals => {:document => member, :nolabel=>true}

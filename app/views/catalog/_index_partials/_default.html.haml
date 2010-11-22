@@ -1,1 +1,7 @@
-= render :partial => "index_descriptive_information", :locals => {:document => document}
+%div.yui-gf
+  %div.yui-u.first
+    = render_document_partial(document, :thumbnail)
+  %div.yui-u
+    %dl.defList
+      %span.index_title
+        = link_to_clio(document)

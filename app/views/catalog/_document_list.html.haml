@@ -5,14 +5,7 @@
       
       .yui-ge.documentHeader
         .yui-u.first
-          %span.index_title
-            = (counter + 1 + @response.params[:start].to_i).to_s + "." 
-            = link_to_document document, :label=>document_show_link_field, :counter => (counter + 1 + @response.params[:start].to_i)
-          - groups = get_groups(document)
-          - if groups.length > 0
-            %span.index_title
-              - _links = groups.collect {|g| link_to_document(g,:label=>document_show_link_field)}
-              %span.from_groups="From: #{_links.join(',')}"
+          = render_document_partial_with_locals document, :index_title, {:counter=>counter}
         .yui-u.documentFunctions
           = render :partial=>'bookmark_control', :locals=>{:document=>document}
           = render :partial=>'folder_control', :locals =>{:document=> document, :display =>'button'}

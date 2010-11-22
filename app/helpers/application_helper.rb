@@ -68,4 +68,14 @@ module ApplicationHelper
     end
     render
   end
+  def render_document_partial_with_locals(doc, action_name, locals={})
+    format = document_partial_name(doc)
+    locals = locals.merge({:document=>doc})
+    begin
+      render :partial=>"catalog/_#{action_name}_partials/#{format}", :locals=>locals
+    rescue ActionView::MissingTemplate
+      render :partial=>"catalog/_#{action_name}_partials/default", :locals=>locals
+    end
+  end
+
 end

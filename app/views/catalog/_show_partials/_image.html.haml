@@ -1,3 +1,8 @@
 // default partial to display solr document fields in catalog show view
-= render :partial => "catalog/_show_partials/descriptive_information", :locals => {:document => document, :thumbnail => true}
+= render :partial => "catalog/_show_partials/groups", :locals => {:document => document}
+- metadata_list = get_metadata_list(document)
+.metadata-list
+  = render :partial => "catalog/_show_partials/metadata", :collection => metadata_list, :locals => {:document => document}
+
+= render :partial => "catalog/_screen_partials/image", :locals => {:document => document}
 = render :partial => "catalog/_show_partials/image/display_derivatives", :locals => {:document => document}

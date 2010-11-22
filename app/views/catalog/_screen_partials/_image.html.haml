@@ -1,0 +1,5 @@
+- resource_list = build_resource_list(document)
+- web_resources = resource_list.select { |x| !(x[:mime_type].include?("tif"))}
+- web_resources.sort {|x,y| x[:width].to_i <=> y[:width].to_i}
+- if document["object_display"] and web_resources.length > 0
+  %img{:src=>web_resources.last[:show_path],:style=>"width:100%"}

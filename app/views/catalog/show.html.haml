@@ -1,0 +1,38 @@
+- @page_title = "#{document_show_html_title} - #{application_name}"
+- extra_head_content << render_link_rel_alternates
+- _searched = !(session[:search][:q].to_s.empty? and session[:search][:f].to_s.empty?)
+%div.show
+  - if _searched
+    = render 'constraints', :localized_params=>session[:search]
+  - if (_searched)
+    %div.pageEntriesInfo
+      - if (session[:search][:counter].to_i == 0)
+        This item was not found in your active search
+        = link_to "Clear&nbsp;active&nbsp;search&thinsp;", catalog_index_path, :id=>"startOverLink"
+      - else
+        = item_page_entry_info
+        = link_to "Start&nbsp;over&thinsp;", catalog_index_path, :id=>"startOverLink"
+    = render 'previous_next_doc'
+
+
+- sidebar_items << capture do
+  %p= link_back_to_catalog
+- # this should be in a partial
+%div#document
+  %div(:id="doc_#{@document[:id]}")
+    %div#show_folder_control
+      = render :partial=>'folder_control', :locals=>{:document=>@document}
+    = render_document_heading
+    %div.tools
+      = render :partial => 'show_tools'
+    %div.document
+      = render_document_partial @document, :show
+
+= render :partial=>'solr_request'
+
+
+- if @document.respond_to?(:export_as_openurl_ctx_kev)
+  -# COinS, for Zotero among others. 
+  -# This document_partial_name(@document) business is not quite right,
+  -# but has been there for a while. 
+  %span.Z3988(title="#{@document.export_as_openurl_ctx_kev(document_partial_name(@document))}")

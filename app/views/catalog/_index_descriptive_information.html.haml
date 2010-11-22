@@ -3,9 +3,6 @@
     = render_document_partial(document, :thumbnail)
   %div.yui-u
     %dl.defList
-      - document.each do |df,dv|
-        %dt= df
-        %dd= h(dv.listify.join("<br/>"))
       - index_field_names.select { |f| document[f] }.each do |solr_fname|
         %dt= index_field_labels[solr_fname]
         %dd= h(document[solr_fname].listify.join("<br/>"))

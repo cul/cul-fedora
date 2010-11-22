@@ -1,6 +1,16 @@
 module CatalogHelper
   include Blacklight::SolrHelper
 
+  def render_document_partial_with_locals(doc, action_name, locals={})
+    format = document_partial_name(doc)
+    locals = locals.merge({:document=>doc})
+    begin
+      render :partial=>"catalog/_#{action_name}_partials/#{format}", :locals=>locals
+    rescue ActionView::MissingTemplate
+      render :partial=>"catalog/_#{action_name}_partials/default", :locals=>locals
+    end
+  end
+
 
   def build_resource_list(document)
     obj_display = (document["object_display"] || []).first
@@ -19,6 +29,8 @@ module CatalogHelper
         images.each do |image|
           res = {}
           res[:dimensions] = image["imageWidth"] + " x " + image["imageHeight"]
+          res[:width] = image["imageWidth"]
+          res[:height] = image["imageHeight"]
           res[:mime_type] = image["type"]
           res[:file_size] = image["fileSize"].to_i
           res[:size] = (image["fileSize"].to_i / 1024).to_s + " Kb"
@@ -94,6 +106,7 @@ module CatalogHelper
     search_field_def = Blacklight.search_field_def_for_key(:"internal_h")
     _params = get_solr_params_for_field_values("internal_h",facet_prefix)
     _params[:qt] = search_field_def[:qt] if search_field_def
+    _params[:per_page] = 100
     resp = Blacklight.solr.find(_params)
     docs = resp.docs
     docs.delete_if {|doc| doc["id"].eql? idquery}
@@ -375,5 +388,12 @@ module CatalogHelper
 
   def resolve_fedora_uri(uri)
     FEDORA_CONFIG[:riurl] + "/get" + uri.gsub(/info\:fedora/,"")
+  end
+  def link_to_clio(document)
+    if document["clio_s"] and document["clio_s"].length > 0
+      "<a href=\"http://clio.cul.columbia.edu:7018/vwebv/holdingsInfo?bibId=#{document["clio_s"][0]}\">More information in CLIO</a>"
+    else
+      ""
+    end
   end
 end

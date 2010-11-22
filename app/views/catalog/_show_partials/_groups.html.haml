@@ -1,11 +1,8 @@
-- thumbnail ||= false
 - groups = get_groups(document)
-%h3 Parent Information
 - if groups.length > 0
-  .group-list
-    %ul
-      - groups.each do  |g|
-        %li= link_to_document(g)
+  %dl.defList
+    %dt="From:"
+    %dd= groups.collect {|x| link_to_document(x)}.join(", ")
 - else
-  .group-list
+  .hide
     %p No groups found
