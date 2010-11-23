@@ -3,5 +3,5 @@
   - # at left for screen reader accessibility. We use CSS to restore
   - # a more conventional next-on-right. 
   %h2="Results navigation"
-  = will_paginate @response.docs, :page_links => false, :container => false
+  = will_paginate @response['response']['docs'], :page_links => false, :container => false
   = will_paginate @response.docs, :next_label => '', :previous_label => '', :class => "page_links"

@@ -123,6 +123,7 @@ module CatalogHelper
       'facet' => 'false',
       'spellcheck' => 'false'
     }
+    solr_params.merge(extra_controller_params)
   end
   def get_independent_solr_response_for_field_values(field, values, extra_controller_params={})
     _params = get_solr_params_for_field_values(field, values, extra_controller_params)

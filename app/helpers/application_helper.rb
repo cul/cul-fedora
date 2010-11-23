@@ -1,15 +1,4 @@
-#
-# Methods added to this helper will be available to all templates in the application.
-#
-
-require "#{Blacklight.root}/app/helpers/application_helper.rb"
-
-
 module ApplicationHelper
-
-
-
-
 
   # RSolr presumes one suggested word, this is a temporary fix
   def get_suggestions(spellcheck)
