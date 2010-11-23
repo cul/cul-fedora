@@ -1,3 +1,4 @@
+require 'vendor/plugins/blacklight/app/helpers/catalog_helper.rb'
 module CatalogHelper
   include Blacklight::SolrHelper
 

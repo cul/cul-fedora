@@ -1,3 +1,4 @@
+require 'vendor/plugins/blacklight/app/helpers/application_helper.rb'
 module ApplicationHelper
 
   # RSolr presumes one suggested word, this is a temporary fix
