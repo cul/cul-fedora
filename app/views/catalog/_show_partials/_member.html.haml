@@ -1,0 +1,11 @@
+= link_to_document(document)
+%div.yui-gf
+  %div.yui-u.first
+    = render_document_partial(document, :thumbnail)
+  %div.yui-u
+    %div.yui-u.first
+      %dl.defList
+        %span.index_title
+          = link_to_clio(document)
+    %div.yui-u
+      = render :partial => "catalog/_show_partials/image/display_derivatives", :locals => {:document => document}

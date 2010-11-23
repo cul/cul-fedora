@@ -206,10 +206,13 @@ module CatalogHelper
     details = [] 
     metadata[:details] = []
     xml = metadata[:xml].at_css("mods")
-
+    ns = {'mods'=>'http://www.loc.gov/mods/v3'}
     return metadata unless xml
     
-    xml.css("identifier").each do |id_node|
+    xml.xpath("//mods:identifier[@type='CLIO']",ns).each do |id_node|
+      details << ["In CLIO:" , link_to_clio({'clio_s'=>[id_node.text]},id_node.text)] unless id_node == ""
+    end
+    xml.xpath("//mods:identifier[@type!='CLIO']",ns).each do |id_node|
       details << ["Identifier:" , id_node] unless id_node == ""
     end
     xml.css("name").each do |name_node|
@@ -390,9 +393,9 @@ module CatalogHelper
   def resolve_fedora_uri(uri)
     FEDORA_CONFIG[:riurl] + "/get" + uri.gsub(/info\:fedora/,"")
   end
-  def link_to_clio(document)
+  def link_to_clio(document,link_text="More information in CLIO")
     if document["clio_s"] and document["clio_s"].length > 0
-      "<a href=\"http://clio.cul.columbia.edu:7018/vwebv/holdingsInfo?bibId=#{document["clio_s"][0]}\">More information in CLIO</a>"
+      "<a href=\"http://clio.cul.columbia.edu:7018/vwebv/holdingsInfo?bibId=#{document["clio_s"][0]}\">#{link_text}</a>"
     else
       ""
     end

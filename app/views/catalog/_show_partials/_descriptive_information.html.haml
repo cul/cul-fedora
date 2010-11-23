@@ -1,13 +1,18 @@
 - thumbnail ||= false
 - title ||= false
 - groups ||= false
+- index_data ||= false
 - metadata_list = get_metadata_list(document)
-%h3 Descriptive Information
+- if index_data
+  %h3 Descriptive Information
 
-%dl.defList
-  - document_show_fields.select { |f| document[f] && (title || !f.include?("title")) }.each do |solr_fname|
-    %dt= document_show_field_labels[solr_fname]
-    %dd= h(document[solr_fname].listify.join("<br/>"))
+  %dl.defList
+    - if document['clio_s']
+      %dt="In CLIO"
+      %dd=link_to_clio(document)
+    - document_show_fields.select { |f| document[f] && (title || !f.include?("title") || f == 'clio_s') }.each do |solr_fname|
+      %dt= document_show_field_labels[solr_fname]
+      %dd= h(document[solr_fname].listify.join("<br/>"))
 
 
 - if thumbnail
@@ -22,11 +27,4 @@
 
 - if groups
   = render :partial => "catalog/_show_partials/groups", :locals => {:document => document}
-
-%h3 Find any errors?
-%div
-  If you have any problems or concerns with this resource, please
-  - reporter = current_user ? current_user.wind_login : "conduit_api"
-  - description = "Browser User-Agent: #{request.headers['User-Agent']}\r\nPage: #{request.url}\r\n"
-  = link_to "create an issue", "https://issues.cul.columbia.edu/secure/CreateIssueDetails!init.jspa?pid=10171&issuetype=9&summary=#{CGI::escape("Issue with " + document['title_t'].first.to_s)}&reporter=#{reporter}&description=#{CGI::escape(description)}&priority=2"
 

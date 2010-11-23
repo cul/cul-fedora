@@ -1,19 +1,14 @@
 - members_list = get_members(document)
 - if members_list.length > 1
- %h3="#{members_list.length} Member Items"
- %div#imageMembers
-  - rows = get_rows(members_list,3)
-  - rows.each do |row|
-   %div{:class=>["yui-gb", (row==rows.first)?"first":false]}
-    - row.each do |j|
-     %div{:class=>["yui-u", (j==row.first)?"first":false]}
-      - if !j.nil?
-       - member = members_list[j]
-       %p=link_to_document(member)
-       - if member["format"] == "image"
-        = render :partial => "catalog/_thumbnail_partials/image", :locals => {:document => member, :nolabel=>true}
+  %h3="#{members_list.length} Member Items"
+  %div#imageMembers
+    - members_list.each do |member|
+      = render :partial => "catalog/_show_partials/member", :locals => {:document => member}
+  - #rows = get_rows(members_list,3)
+  - #rows.each do |row|
+  - # %div{:class=>["yui-gb", (row==rows.first)?"first":false]}
 - else
- - if members_list.length == 1
-  %h3 Member Item
-  - member = members_list[0]
-  = render :partial => "catalog/_screen_partials/"+member["format"], :locals => {:document => member, :nolabel=>true}
+  - if members_list.length == 1
+    %hr
+    - member = members_list[0]
+    = render :partial => "catalog/_show_partials/member", :locals => {:document => member}
