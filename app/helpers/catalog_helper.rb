@@ -136,8 +136,12 @@ module CatalogHelper
     if document["internal_h"]
       internals = document["internal_h"].dup
     else
-      resp, docs = get_solr_response_for_field_values("id",document["id"])
-      internals = docs[0]["internal_h"].dup
+      resp, docs = get_solr_response_for_field_values("id",document["id"],{:per_page=>'100'})
+      if docs[0]
+        internals = docs[0]["internal_h"].dup
+      else
+        internals = []
+      end
     end
     gids = internals.collect { |g|
       _parts = g.split(/\//,-1)
