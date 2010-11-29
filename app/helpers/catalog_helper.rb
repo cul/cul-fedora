@@ -189,7 +189,7 @@ module CatalogHelper
         filename = res[:id].gsub(/\:/,"")
         filename += "_" + res[:title].downcase
         filename += ".xml"
-           res[:show_url] = fedora_content_path(:show_pretty, res[:id], block, filename)
+           res[:show_url] = fedora_content_path(:show_pretty, res[:id], block, filename) + '?print_binary_octet=true'
         res[:download_url] = fedora_content_path(:download, res[:id], block, filename)
         res[:direct_link] = FEDORA_CONFIG[:riurl] + "/get/" + res[:id] + "/" + block
         res[:type] = block == "DC"  ? "DublinCore" : "unknown"

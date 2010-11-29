@@ -12,7 +12,7 @@ class DownloadController < ApplicationController
     when "download"
       h_cd = "attachment; " + h_cd 
     when "show_pretty"
-      if h_ct.include?("xml")
+      if h_ct.include?("xml") || params[:print_binary_octet]
         
         xsl = Nokogiri::XSLT(File.read(RAILS_ROOT + "/app/stylesheets/pretty-print.xsl"))
         xml = Nokogiri(cl.get_content(url))
