@@ -1,11 +1,11 @@
-= link_to_document(document)
-%div.yui-gf
-  %div.yui-u.first
-    = render_document_partial(document, :thumbnail)
-  %div.yui-u
+- metadata_list = get_metadata_list(document)
+%div.member-item
+  %h3= link_to_document(document)
+  %div.yui-gf
     %div.yui-u.first
-      %dl.defList
-        %span.index_title
-          = link_to_clio(document)
+      = render_document_partial(document, :thumbnail)
     %div.yui-u
+      %div.index_title
+        = link_to_clio(document)
+      - # render :partial => "catalog/_show_partials/metadata", :collection => metadata_list, :locals => {:document => document, :display => false}
       = render :partial => "catalog/_show_partials/image/display_derivatives", :locals => {:document => document}

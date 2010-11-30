@@ -1,0 +1,34 @@
+!!!
+%html{:xmlns=>"http://www.w3.org/1999/xhtml"}
+
+  %head
+    %meta{"http-equiv"=>"Content-Type","content"=>"text/html; charset=utf-8"}
+    %title=(@page_title || application_name)
+    %link{:href=>url_for(:controller=>'catalog',:action => 'opensearch', :format => 'xml', :only_path => false), :title=>application_name, :type=>"application/opensearchdescription+xml", :rel=>"search"}
+    
+    = render_head_content
+    -  javascript_tag.each do
+      = yield(:jstemplates)
+  - bparms = {}
+  - if params[:q].to_s.empty? and params[:f].to_s.empty? and params[:id].nil?
+    - bparms[:onload]="$('input#q').focus();"
+  %body{bparms}
+    %div#doc4.yui-t2
+      %div#hd
+        %div.yui-g
+          %div.yui-u.first
+            %h1.site_title
+              = link_to application_name, root_path
+              - if (params[:controller] == "catalog" and !params[:id])
+                %span#results_text="Search Results"
+          %div.yui-u
+            = render :partial=>'/user_util_links'
+  
+      %div#bd
+        %div#yui-main
+          %div.yui-b
+            = render :partial=>'/flash_msg'
+            = yield
+        %div.yui-b.sidebar
+          = sidebar_items.join('')
+      %div#ft= @footer

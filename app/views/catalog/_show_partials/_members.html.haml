@@ -1,7 +1,7 @@
 - members_list = get_members(document)
 - if members_list.length > 1
   %h3="#{members_list.length} Member Items"
-  %div#imageMembers
+  %div#member-items
     - members_list.each do |member|
       = render :partial => "catalog/_show_partials/member", :locals => {:document => member}
   - #rows = get_rows(members_list,3)

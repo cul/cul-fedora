@@ -1,4 +1,4 @@
-
+- display |= false
 .metadata
   .title_row.yui-gc
     .title.yui-u.first
@@ -8,5 +8,5 @@
     .links.yui-u
       = link_to "Show", metadata[:show_url] 
       = link_to "Download", metadata[:download_url] 
-
-  = render :partial => "catalog/_show_partials/metadata_#{metadata[:type].underscore}", :locals => {:metadata => metadata}
+  - if display
+    = render :partial => "catalog/_show_partials/metadata_#{metadata[:type].underscore}", :locals => {:metadata => metadata}
