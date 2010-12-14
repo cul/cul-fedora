@@ -1,0 +1,16 @@
+.index_title { font-weight: bold; }
+div.title_row {
+  padding-top:1.0em;
+}
+div.title_data {
+font-weight: bold;
+}
+div.item_type {margin-bottom:0.5em}
+span.item_type {color:#300; background-color:#ffc;font-size:0.8em;border:solid gray thin;}
+span.from_groups {font-weight:bold;margin-left:1em;}
+span.from_groups a {font-weight:normal}
+span.index_metadata {font-weight:normal}
+div#member-items {
+}
+div#member-items table#imageMembers {
+}

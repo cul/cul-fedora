@@ -1,7 +1,4 @@
 %div.yui-gf
   %div.yui-u.first
-    = render_document_partial(document, :thumbnail)
+    = render :partial=>"catalog/_thumbnail_partials/#{document[:format]}", :locals=>{:document=>document,:label=>true}
   %div.yui-u
-    %dl.defList
-      %span.index_title
-        = link_to_clio(document)

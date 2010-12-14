@@ -227,7 +227,7 @@ module CatalogHelper
 
     end
 
-    xml.css("titleInfo").each do |node|
+    xml.xpath("/mods:mods/mods:titleInfo",ns).each do |node|
       key = case node.attributes["type"]
       when "translated"
         "Title, translated:"
@@ -242,9 +242,9 @@ module CatalogHelper
 
 
 
-    xml.css("originInfo").each do |origin_node|
+    xml.xpath("/mods:mods/mods:originInfo",ns).each do |origin_node|
       
-      details += add_mods_details("Place:", origin_node.css('place>placeTerm[type^="text"]'))
+      # details += add_mods_details("Place:", origin_node.css('place>placeTerm[type^="text"]'))
     
       details += add_mods_details("Publisher:", origin_node.css("publisher"))
      
@@ -257,9 +257,9 @@ module CatalogHelper
       details += add_mods_details("Edition:", origin_node.css("edition"))
     end
 
-    details += add_mods_details("Resource type:", xml.css("typeOfResource"))
-    details += add_mods_details("Phys. Desc:", xml.css("physicalDescription>extent"))
-    details += add_mods_details("Abstract:", xml.at_css("abstract"))
+    # details += add_mods_details("Resource type:", xml.css("typeOfResource"))
+    # details += add_mods_details("Phys. Desc:", xml.css("physicalDescription>extent"))
+    # details += add_mods_details("Abstract:", xml.at_css("abstract"))
 
     notes = []
     xml.css("note").each do |note_node|
@@ -284,7 +284,7 @@ module CatalogHelper
       end
     end
 
-    details << ["Subject(s):", subjects.join(" -- ")]
+    # details << ["Subject(s):", subjects.join(" -- ")]
 
     details += add_mods_details("Access condition:", xml.css("accessCondition"))
 
@@ -295,9 +295,9 @@ module CatalogHelper
     end
 
     xml.css("relatedItem").each do |related_node|
-      title = if related_node.attributes["displayLabel"] == "Collection"
+      title = if related_node.attributes["displayLabel"].value == "Collection"
         "Collection"
-      elsif related_node.attributes["displayLabel"] == "Project"
+      elsif related_node.attributes["displayLabel"].value == "Project"
         "Project"
       else
         "Related Item"
@@ -316,7 +316,6 @@ module CatalogHelper
     details += add_mods_details("Record created:", xml.css("recordCreationDate"))
     details += add_mods_details("Record changed:", xml.css("recordChangeDate"))
 
-    
     metadata[:details] = details
     
     return metadata

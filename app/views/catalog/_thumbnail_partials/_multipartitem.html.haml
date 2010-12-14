@@ -5,7 +5,7 @@
 - if fdata[1] > 0
   - if fdata[1] == 1
     - # render_document_partial(fdata[0], :thumbnail)
-    = render :partial=>"catalog/_thumbnail_partials/#{fdata[0][:format]}", :locals=>{:document=>fdata[0],:nolabel=>true}
+    = render :partial=>"catalog/_thumbnail_partials/#{fdata[0][:format]}", :locals=>{:document=>fdata[0],:label=>false}
   - else
     %img{:src=>"images/crystal/kmultiple.png",:style=>"width:100px"}
 - else

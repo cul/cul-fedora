@@ -9,4 +9,4 @@
       = link_to "Show", metadata[:show_url] 
       = link_to "Download", metadata[:download_url] 
   - if display
-    = render :partial => "catalog/_show_partials/metadata_#{metadata[:type].underscore}", :locals => {:metadata => metadata}
+    = render :partial => "catalog/_show_partials/metadata_#{metadata[:type].underscore}", :locals => {:metadata => metadata, :document=>document}

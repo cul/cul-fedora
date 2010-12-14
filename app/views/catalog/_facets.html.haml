@@ -1,0 +1,6 @@
+- # main container for facets/limits menu
+%div#facets.facets
+  %h2="Limit your search"
+  - facet_field_names.each do |solr_fname|
+    %div.facet_limit
+      = render_facet_limit(solr_fname)
