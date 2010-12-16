@@ -1,5 +1,9 @@
 - label ||= false
-- counter = (counter.nil?)?0:counter + @response[:start] + 1
+- counter ||= nil
+- if !(counter.nil?)
+  - counter = counter.to_i  + @response[:start].to_i + 1
+- else
+  - counter = nil
 - href ||= url_to_document(document)
 - onclick ||= onclick_to_document(document,counter,true)
 - if label
