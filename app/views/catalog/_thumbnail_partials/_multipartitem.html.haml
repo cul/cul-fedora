@@ -1,6 +1,6 @@
 - fdata = get_first_member(document,true)
 - label = (fdata[1]==0)?"EMPTY":(fdata[1]==1)?"SINGLE PART":"MULTIPART"
-- counter = (counter.nil?)?(counter + 1 + @response.params[:start].to_i):nil
+- counter = (counter.nil?)?0:(counter + 1 + @response.params[:start].to_i)
 
 %div.item_type
   %span.item_type="#{label} ITEM"
