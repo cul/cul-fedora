@@ -207,8 +207,8 @@ font-weight:bold;
   text-align: center;
 }
 
-#startOverLink{display:block; position:absolute; top:50%; right:0.66em; margin-top:-12px; padding:0 7px 3px 12px; line-height:22px; text-decoration:none; color:#fff; background:url(../images/start_over.gif) no-repeat center center; border-bottom: none;}
 
+#backToSearchLink{display:block; position:absolute; top:50%; left:0.66em; margin-top:-12px; padding:0 0px 3px 0px; line-height:22px; text-decoration:none; color:#fff; background:url(../images/start_over.gif) no-repeat center center; border-bottom: none;font-size:80%;}
 
 #sortAndPerPage {
   background-color: #F0F0F0;
@@ -229,11 +229,17 @@ font-weight:bold;
   border-radius: 0 0 4px 4px;
   -webkit-border-radius: 0 0 4px 4px;
   margin-bottom: 1.5em;
-  overflow: auto; /* to make it expand to hold floated children */
+  overflow: hidden;
 }
 
+#previousNextDocument div {
+  margin-bottom: 0em;
+  padding: 0em;
+}
+#previousNextDocument .back {
+  text-align: center;
+}
 #previousNextDocument .next {
-  float: right;
 }
 
 /* Search Results */
@@ -390,6 +396,23 @@ Search Parameters
   position: static;
   margin-top: 0;
 }
+
+#startOverLink{
+  display:block;
+  position:relative;
+  font-weight:normal;
+ /* right:0.66em;*/
+  top:50%;
+  float:right;
+  /*margin-top:-12px;*/
+  padding:12px 7px 3px 12px;
+  line-height:22px;
+  text-decoration:none;
+  color:#fff;
+  background:url(../images/start_over.gif) no-repeat center center;
+  border-bottom: none;
+}
+
 .show #appliedParams {
   /* it's the top, give it a top border with corners */
   border-top: 1px solid #AAAAAA;

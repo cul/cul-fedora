@@ -1,12 +1,15 @@
 - fdata = get_first_member(document,true)
 - label = (fdata[1]==0)?"EMPTY":(fdata[1]==1)?"SINGLE PART":"MULTIPART"
+- counter = (counter.nil?)?(counter + 1 + @response.params[:start].to_i):nil
+
 %div.item_type
   %span.item_type="#{label} ITEM"
 - if fdata[1] > 0
   - if fdata[1] == 1
     - # render_document_partial(fdata[0], :thumbnail)
-    = render :partial=>"catalog/_thumbnail_partials/#{fdata[0][:format]}", :locals=>{:document=>fdata[0],:label=>false}
+    = render :partial=>"catalog/_thumbnail_partials/#{fdata[0][:format]}", :locals=>{:document=>fdata[0],:label=>false,:href=>url_to_document(document),:onclick=>onclick_to_document(document,counter,true)}
   - else
-    %img{:src=>"images/crystal/kmultiple.png",:style=>"width:100px"}
+    %a{:href=>url_to_document(document), :onclick=>onclick_to_document(document,counter,true)}
+      %img{:src=>"images/crystal/kmultiple.png",:style=>"width:100px"}
 - else
   %span="empty - no thumbnail"

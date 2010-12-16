@@ -404,4 +404,5 @@ module CatalogHelper
       ""
     end
   end
+
 end

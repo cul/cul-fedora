@@ -1,5 +1,9 @@
 - label ||= false
+- counter = (counter.nil?)?counter + @response[:start] + 1:nil
+- href ||= url_to_document(document)
+- onclick ||= onclick_to_document(document,counter,true)
 - if label
   %div.item_type
     %span.item_type="PART"
-%img{:src=>"#{doc_object_method(document,'/ldpd:sdef.Image/getThumbnail')}",:class=>"thumbnail"} 
+%a{:href=>href,:onclick=>onclick}
+  %img{:src=>"#{doc_object_method(document,'/ldpd:sdef.Image/getThumbnail')}",:class=>"thumbnail"} 

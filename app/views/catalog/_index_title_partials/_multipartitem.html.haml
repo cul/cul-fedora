@@ -1,8 +1,9 @@
 %span.index_title
+  - _counter = (counter + 1 + @response.params[:start].to_i)
   - if counter
-    = (counter + 1 + @response.params[:start].to_i).to_s
+    = _counter
   = "."
-  = link_to_document document, :label=>document_show_link_field, :counter => (counter + 1 + @response.params[:start].to_i)
+  = link_to_document document, :label=>document_show_link_field, :counter => _counter
   - if !(document[document_show_link_field][0][-1] == '.')
     = "."
   - groups = get_groups(document)

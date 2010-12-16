@@ -10,4 +10,4 @@
           = render :partial=>'bookmark_control', :locals=>{:document=>document}
           = render :partial=>'folder_control', :locals =>{:document=> document, :display =>'button'}
           = link_to_clio(document,"Also in CLIO")
-      = render_document_partial document, :index
+      = render_document_partial_with_locals document, :index, {:counter=>counter}

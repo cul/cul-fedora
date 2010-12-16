@@ -26,9 +26,15 @@
   
       %div#bd
         %div#yui-main
-          %div.yui-b
-            = render :partial=>'/flash_msg'
-            = yield
-        %div.yui-b.sidebar
-          = sidebar_items.join('')
+          - if params[:action] == 'show'
+            %div
+              = render :partial=>'/flash_msg'
+              = yield
+          - else
+            %div.yui-b
+              = render :partial=>'/flash_msg'
+              = yield
+        - if sidebar_items.length > 0
+          %div.yui-b.sidebar
+            = sidebar_items.join('')
       %div#ft= @footer

@@ -68,4 +68,22 @@ module ApplicationHelper
     end
   end
 
+  def url_to_document(doc)
+    catalog_path(doc[:id])
+  end
+  def onclick_to_document(url, counter = nil, results_view = true)
+    _opts = {:method=>:put,:data=>{:counter=>counter,:results_view=>results_view},:class=>nil}
+    _opts = _opts.stringify_keys
+    convert_options_to_javascript_with_data!(_opts,url)
+    _opts["onclick"]
+  end
+  # url_back_to_catalog(:label=>'Back to Search')
+  # Create a url pointing back to the index screen, keeping the user's facet, query and paging choices intact by using session.
+  def url_back_to_catalog(opts={:label=>'Back to Search'})
+    query_params = session[:search] ? session[:search].dup : {}
+    query_params.delete :counter
+    query_params.delete :total
+    return catalog_index_path(query_params)
+  end
+
 end
