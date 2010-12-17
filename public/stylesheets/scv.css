@@ -14,3 +14,19 @@ div#member-items {
 }
 div#member-items table#imageMembers {
 }
+#startOverButton{
+  display:block;
+  position:relative;
+  /* position:absolute; */
+  font-weight:normal;
+  /* top:0px; */
+  float:right;
+  margin-top:-1em;
+  padding: 0 7px 3px 12px;
+  line-height:22px;
+  text-decoration:none;
+  color:#fff;
+  background:url(../images/start_over.gif) no-repeat center center;
+  border-bottom: none;
+}
+

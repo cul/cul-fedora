@@ -399,13 +399,11 @@ Search Parameters
 
 #startOverLink{
   display:block;
-  position:relative;
+  position:absolute;
   font-weight:normal;
- /* right:0.66em;*/
-  top:50%;
   float:right;
-  /*margin-top:-12px;*/
-  padding:12px 7px 3px 12px;
+  margin-top:1em;
+  padding: 0 7px 3px 12px;
   line-height:22px;
   text-decoration:none;
   color:#fff;
