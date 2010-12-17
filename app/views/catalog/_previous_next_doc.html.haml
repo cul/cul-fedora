@@ -1,0 +1,9 @@
+- if @previous_document || @next_document
+  %div#previousNextDocument.yui-gb
+    %div.yui-u.first
+      = link_to_previous_document(@previous_document) || "&nbsp;"
+    %div.yui-u.back
+      %a{:href=>url_back_to_catalog}
+        = "Back to Search Results"
+    %div.yui-u
+      = link_to_next_document(@next_document) || "&nbsp;"
