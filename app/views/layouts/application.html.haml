@@ -17,8 +17,11 @@
       %div#hd
         %div.yui-g
           %div.yui-u.first
-            %h1.site_title
-              = link_to application_name, root_path
+            %h1.site_banner
+              - _link = url_for root_path
+              %a{:href=>_link}
+                = "Columbia University Libraries Staff Collection Viewer Prototype"
+              - # link_to application_name, root_path
               - if (params[:controller] == "catalog" and !params[:id])
                 %span#results_text="Search Results"
           %div.yui-u
