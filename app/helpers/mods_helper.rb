@@ -7,107 +7,103 @@ module ModsHelper
     xml = metadata[:xml].at_css("mods")
     return metadata unless xml
     ns = Namespace
-    # title, untyped
-    xml.xpath("/mods:mods/mods:titleInfo",ns).each do |node|
-      key = case node.attributes["type"]
-      when nil
-        if node.attributes["displayLabel"].nil?
-          "Title:"
-        else
-          "Title / #{node.attributes["displayLabel"]}:"
-        end
-      else
-        "Title / #{node.attributes["type"]}:"
-      end
-
-      details << [key, parse_mods_title(node)]
+    # names
+    xml.xpath("/mods:mods/mods:name",ns).each do |node|
+      name = parse_mods_name(node)
+      name ||= ""
+      details << ["Name:", name] unless name == ""
     end
+    # title, untyped
     # title, typed
     # title, displaylabel
-    # form and extent
-    xml.xpath("/mods:mods/mods:physicalDescription",ns).each do |node|
-      node.css("extent").each do |extent|
-        details << ["Extent:",extent.text]
-      end
-      node.xpath("./mods:form[@authority!='marcform']",ns).each do |form|
-          details << ["Form:",form.text]
-      end
+    xml.xpath("/mods:mods/mods:titleInfo",ns).each do |node|
+      details << [get_mods_title_label(node), parse_mods_title(node)]
     end
-    # date
-    # physicalLocation
-    details += add_mods_details("Repository:", xml.xpath("/mods:mods/mods:location/mods:physicalLocation[@authority!='marcorg']",ns))
-    # collection title
+    # form
+    xml.xpath("/mods:mods/mods:physicalDescription/mods:form[@authority!='marcform']",ns).each do |node|
+      details << ["Form:",node.text]
+    end
     # type
     xml.xpath("/mods:mods/mods:typeOfResource",ns).each do |type_node|
           details << ["Type:",type_node.text]
     end
-    # project
-    # project url
+    # extent
+    xml.xpath("/mods:mods/mods:physicalDescription/mods:extent",ns).each do |node|
+      details << ["Extent:",node.text]
+    end
+    # place
+    xml.xpath("/mods:mods/mods:originInfo/mods:place/mods:placeTerm[@type='text']",ns).each do |node|
+      details << ["Place:",node.text]
+    end
+    # publisher
+    xml.xpath("/mods:mods/mods:originInfo/mods:publisher",ns).each do |node|
+      details << ["Publisher:",node.text]
+    end
+    # date
+    xml.xpath("/mods:mods/mods:originInfo",ns).each do |node|
+      node.xpath("./mods:dateCreated",ns).each do |date|
+        value = get_mods_date_details(date)
+        if date.attributes["point"]
+          details << ["Date / #{date.attr("point")}:",value]
+        else
+          details << ["Date:",value]
+        end
+      end
+      node.xpath("./mods:dateIssued",ns).each do |date|
+        value = get_mods_date_details(date)
+        if date.attributes["point"]
+          details << ["Date / #{date.attr("point")}:",value]
+        else
+          details << ["Date:",value]
+        end
+      end
+    end
     # notes
     notes = []
-    xml.css("note").each do |note_node|
-      if note_node.attributes["displayLabel"] == "Provenance"
-        details << ["Provenance:", note_node.content]
+    xml.css("note").each do |node|
+      if node.attributes["displayLabel"] == "Provenance"
+        details << ["Provenance:", node.content]
       else
-        notes << note_node.content
+        notes << node.content
       end
     end
     details << ["Note:", notes.join(" -- ")] unless notes.empty?
+    # URL (external)
+    xml.xpath("/mods:mods/mods:location/mods:url",ns).each do |node|
+      details << ["URL:", link_to(node.content.to_s, node.content, :target => "blank")]
+    end
+    # physicalLocation
+    details += add_mods_details("Repository:", xml.xpath("/mods:mods/mods:location/mods:physicalLocation[@authority!='marcorg']",ns))
+    details += add_mods_details("Sublocation:", xml.xpath("/mods:mods/mods:location/mods:physicalLocation/mods:shelfLocator",ns))
+    # collection, project, project url
+    xml.xpath("/mods:mods/mods:relatedItem[@type='host']/mods:titleInfo",ns).each do |node|
+      if node.xpath("..").first.attributes["displayLabel"]
+        label = node.xpath("..").first.attr("displayLabel").sub(/./) {|s| s.upcase}
+        label += ":"
+        value = parse_mods_title(node)
+        if node.xpath("../mods:location/mods:url",ns).first
+          value = link_to(value,node.xpath("../mods:location/mods:url",ns).first.text, :target=>"blank")
+        end
+        details << [label, value]
+      end
+    end
     # access condition
     details += add_mods_details("Access condition:", xml.css("accessCondition"))
     # record created / changed
     details += add_mods_details("Record created:", xml.css("recordCreationDate"))
     details += add_mods_details("Record changed:", xml.css("recordChangeDate"))
     # record IDs
-    xml.xpath("/mods:mods/mods:identifier",ns).each do |id_node|
-      case id_node.attributes["type"]
+    xml.xpath("/mods:mods/mods:identifier",ns).each do |node|
+      case node.attr("type")
         when "local"
-          details << ["Record ID:" ,id_node.text] unless id_node == ""
+          details << ["Record ID:" ,node.text] unless node == ""
         when "CLIO"
-          details << ["In CLIO:" , link_to_clio({'clio_s'=>[id_node.text]},id_node.text)] unless id_node == ""
+          details << ["In CLIO:" , link_to_clio({'clio_s'=>[node.text]},node.text)] unless node == ""
         else
-          details << ["Identifier:", id_node.text]
+          details << ["Identifier:", node.text]
       end
     end
     # fedora url
-    # names?
-    xml.css("name").each do |name_node|
-      name = parse_mods_name(name_node)
-      details << ["Name:", name] unless name == ""
-    end
-
-
-    xml.xpath("/mods:mods/mods:originInfo",ns).each do |origin_node|
-      details += add_mods_details("Publisher:", origin_node.css("publisher"))
-      details += add_mods_date_details("Date Created:", origin_node.css("dateCreated"))
-      details += add_mods_date_details("Date Issued:", origin_node.css("dateIssued"))
-      details += add_mods_date_details("Copyright Date:", origin_node.css("copyrightDate"))
-      details += add_mods_details("Edition:", origin_node.css("edition"))
-    end
-
-
-
-    xml.css("location>url").each do |url_node|
-      details << ["URL:", link_to(url_node.content.to_s, url_node.content, :target => "blank")]
-    end
-    xml.css("relatedItem").each do |related_node|
-      title = if related_node.attributes["displayLabel"].value == "Collection"
-        "Collection"
-      elsif related_node.attributes["displayLabel"].value == "Project"
-        "Project"
-      else
-        false
-      end
-      if title
-        related_node.css("titleInfo").each do |title_node|
-          details << [title + ":", parse_mods_title(title_node)]
-        end
-      end
-
-      related_node.css("location>url").each do |url_node|
-        details << [title + " URL:", link_to(url_node.content.to_s, url_node.content, :target => "blank")]
-      end
-    end
 
     metadata[:details] = details
 
@@ -115,6 +111,16 @@ module ModsHelper
 
   end
 
+
+  def get_mods_title_label(node)
+    if node.attributes["type"]:
+      "Title / #{node.attributes["type"]}:"
+    elsif node.attributes["displayLabel"]
+      "Title / #{node.attributes["displayLabel"]}:"
+    else
+      "Title:"
+    end
+  end
 
   def parse_mods_title(node)
 
@@ -150,28 +156,12 @@ module ModsHelper
   end
 
 
-  def add_mods_date_details(title, nodes)
-    before_date = nil
-    end_date = nil
-
-    nodes.each do |date_node|
-      date_value = format_date_if_possible(date_node.content)
-      date_value += " (inferred)" if date_node.attributes["qualifier"] == "inferred"
-
-
-      if date_node.attributes.has_key?("point") && date_node.attributes["point"] == "end"
-        end_date = " to " + date_value
-      else
-        before_date = date_value
-      end
-
-    end
-
-    if before_date || end_date
-      [[title, (before_date.to_s + end_date.to_s).strip]]
-    else
-      []
-    end
+  def get_mods_date_details(date_node)
+    date_value = format_date_if_possible(date_node.content)
+    date_value += " (inferred)" if date_node.attributes["qualifier"] == "inferred"
+    date_value += " (approx.)" if date_node.attributes["qualifier"] == "approximate"
+    date_value += " ?" if date_node.attributes["qualifier"] == "questionable"
+    date_value
   end
 
   def format_date_if_possible(date, format = :long)
