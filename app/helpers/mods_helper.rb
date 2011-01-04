@@ -73,8 +73,9 @@ module ModsHelper
       details << ["URL:", link_to(node.content.to_s, node.content, :target => "blank")]
     end
     # physicalLocation
-    details += add_mods_details("Repository:", xml.xpath("/mods:mods/mods:location/mods:physicalLocation[@authority!='marcorg']",ns))
-    details += add_mods_details("Sublocation:", xml.xpath("/mods:mods/mods:location/mods:physicalLocation/mods:shelfLocator",ns))
+    nodes = xml.xpath("/mods:mods/mods:location/mods:physicalLocation",ns) - xml.xpath("/mods:mods/mods:location/mods:physicalLocation[@authority='marcorg']",ns)
+    details += add_mods_details("Repository:", nodes)
+    details += add_mods_details("Sublocation:", xml.xpath("/mods:mods/mods:location/mods:shelfLocator",ns))
     # collection, project, project url
     xml.xpath("/mods:mods/mods:relatedItem[@type='host']/mods:titleInfo",ns).each do |node|
       if node.xpath("..").first.attributes["displayLabel"]
