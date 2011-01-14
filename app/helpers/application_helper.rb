@@ -1,4 +1,4 @@
-require 'vendor/plugins/blacklight/app/helpers/application_helper.rb'
+require_dependency 'vendor/plugins/blacklight/app/helpers/application_helper.rb'
 module ApplicationHelper
   def application_name
     "Columbia University Libraries <i>Staff Collection Viewer</i> Prototype"
@@ -73,10 +73,11 @@ module ApplicationHelper
   def url_to_document(doc)
     catalog_path(doc[:id])
   end
-  def onclick_to_document(url, counter = nil, results_view = true)
-    _opts = {:method=>:put,:data=>{:counter=>counter,:results_view=>results_view},:class=>nil}
+  def onclick_to_document(document, formdata = {})
+    data = {:counter => nil, :results_view => true}.merge(formdata)
+    _opts = {:method=>:put,:data=>data,:class=>nil}
     _opts = _opts.stringify_keys
-    convert_options_to_javascript_with_data!(_opts,url)
+    convert_options_to_javascript_with_data!(_opts,url_to_document(document))
     _opts["onclick"]
   end
   # url_back_to_catalog(:label=>'Back to Search')
@@ -87,5 +88,15 @@ module ApplicationHelper
     query_params.delete :total
     return catalog_index_path(query_params)
   end
+def link_to_previous_document(doc)
+    return if doc == nil
+    label="\xe3\x80\x8a Previous"
+    link_to_with_data label, catalog_path(doc[:id]), {:method=>:put, :class=>"previous", :data=>{:label=>label, :counter => session[:search][:counter].to_i - 1, :display_members =>session[:search][:display_members]}}
+  end
 
+  def link_to_next_document(doc)
+    return if doc == nil
+    label="Next \xe3\x80\x8b"
+    link_to_with_data label, catalog_path(doc[:id]), {:method=>:put, :class=>"next", :data=>{:label=>label, :counter => session[:search][:counter].to_i + 1, :display_members =>session[:search][:display_members]}}
+  end
 end

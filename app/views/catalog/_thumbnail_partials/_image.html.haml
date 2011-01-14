@@ -5,7 +5,7 @@
 - else
   - counter = nil
 - href ||= url_to_document(document)
-- onclick ||= onclick_to_document(document,counter,true)
+- onclick ||= onclick_to_document(document,{:counter=>counter,:results_view=>nil,:_method=>:put})
 - if label
   %div.item_type
     %span.item_type="PART"

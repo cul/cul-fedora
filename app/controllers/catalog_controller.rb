@@ -62,7 +62,8 @@ class CatalogController < ApplicationController
   
   # updates the search counter (allows the show view to paginate)
   def update
-    session[:search][:counter] = params[:counter]
+    session[:search][:counter] = params[:counter] unless session[:search][:counter] == params[:counter]
+    session[:search][:display_members] = params[:display_members] unless session[:search][:display_members] == params[:display_members]
     redirect_to :action => "show"
   end
   

@@ -1,0 +1,16 @@
+.detail
+  .items.yui-gf
+    .label.yui-u.first="Title:"
+    .value.yui-u=link_to_document document
+  - document[:identifier_s].each do |value|
+    .items.yui-gf
+      .label.yui-u.first= "ID:"
+      .value.yui-u= value
+  - if document[:access_condition_s]
+    - document[:access_condition_s].each do |value|
+      .items.yui-gf
+        .label.yui-u.first= "Access:"
+        .value.yui-u= value
+  .items.yui-gf
+    .label.yui-u.first="Fedora URL:"
+    .value.yui-u=link_to document[:pid_t], document[:object_display]

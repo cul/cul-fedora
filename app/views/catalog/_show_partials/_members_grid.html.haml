@@ -1,0 +1,15 @@
+- members ||= []
+- if members.length > 1
+  %div#member-items
+    - rows = get_rows(members,3)
+    - rows.each do |row|
+      %div{:class=>["yui-gb", "row", (row==rows.first)?"first":false]}
+        - row.each do |index|
+          - if index != nil
+            %div{:class=>["yui-u", "cell", (index==row.first)?"first":false]}
+              = render_document_partial(members[index], :thumbnail)
+- else
+  - if members.length == 1
+    %hr
+    - member = members[0]
+    = render :partial => "catalog/_show_partials/member", :locals => {:document => member}

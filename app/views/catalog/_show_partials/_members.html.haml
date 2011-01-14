@@ -1,14 +1,24 @@
 - members_list = get_members(document)
+- counter ||= session[:search][:counter]
+- display_members = session[:search][:display_members]
+- display_members ||= "list"
+- display_params = {:label=>Blacklight.config[:index][:show_link].to_sym, :counter => counter, :results_view => true}
+- html_opts = {:method=>:put,:class=>"uiButton"}
 - if members_list.length > 1
   %h3="#{members_list.length} Member Items"
-  %div#member-items
-    - members_list.each do |member|
-      = render :partial => "catalog/_show_partials/member", :locals => {:document => member}
-  - #rows = get_rows(members_list,3)
-  - #rows.each do |row|
-  - # %div{:class=>["yui-gb", (row==rows.first)?"first":false]}
+  %div#member-display
+    %div.left
+      - if display_members == "grid"
+        - display_params.merge!(:display_members=>:list)
+        = link_to_with_data("List",catalog_path(document[:id]),html_opts.merge(:data=>display_params))
+      - else
+        %em="List"
+    %div.right
+      - if display_members == "grid"
+        %em="Grid"
+      - else
+        - display_params.merge!(:display_members=>:grid)
+        = link_to_with_data("Grid",catalog_path(document[:id]),html_opts.merge(:data=>display_params))
+  = render :partial => "catalog/_show_partials/members_#{display_members}", :locals => {:members => members_list}
 - else
-  - if members_list.length == 1
-    %hr
-    - member = members_list[0]
-    = render :partial => "catalog/_show_partials/member", :locals => {:document => member}
+  = render :partial => "catalog/_show_partials/member",:locals => {:document=>members_list.first}
