@@ -2,7 +2,7 @@
 - counter ||= session[:search][:counter]
 - display_members = session[:search][:display_members]
 - display_members ||= "list"
-- display_params = {:label=>Blacklight.config[:index][:show_link].to_sym, :counter => counter, :results_view => true}
+- display_params = {:label=>Blacklight.config[:index][:show_link].to_sym, :counter => counter, :results_view => nil}
 - html_opts = {:method=>:put,:class=>"uiButton"}
 - if members_list.length > 1
   %h3="#{members_list.length} Member Items"
