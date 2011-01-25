@@ -4,6 +4,9 @@ module ModsHelper
   def extract_mods_details(metadata)
     details = []
     metadata[:details] = []
+    if metadata[:xml].nil?
+      return metadata
+    end
     xml = metadata[:xml].at_css("mods")
     return metadata unless xml
     ns = Namespace

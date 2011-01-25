@@ -1,4 +1,5 @@
 require 'vendor/plugins/blacklight/app/helpers/catalog_helper.rb'
+require 'lib/cul/fedora_object.rb'
 module CatalogHelper
   include Blacklight::SolrHelper
   include ModsHelper
@@ -27,7 +28,8 @@ module CatalogHelper
       results << {:dimensions => "Original", :mime_type => "image/jp2", :show_path => fedora_content_path("show", base_id, "SOURCE", base_id + "_source.jp2"), :download_path => fedora_content_path("download", base_id , "SOURCE", base_id + "_source.jp2")}  
     when "image"
       if obj_display
-        images = doc_json_method(document, "/ldpd:sdef.Aggregator/listMembers?max=&format=json&start=&callback=?")["results"]
+        images = Cul::Fedora::Objects::ImageObject.new(document).getmembers["results"]
+        # images = doc_json_method(document, "/ldpd:sdef.Aggregator/listMembers?max=&format=json&start=&callback=?")["results"]
         images.each do |image|
           res = {}
           res[:dimensions] = image["imageWidth"] + " x " + image["imageHeight"]
@@ -53,7 +55,11 @@ module CatalogHelper
   end
 
   def base_id_for(doc)
-    doc["id"].gsub(/(\#.+|\@.+)/, "")
+    if doc.nil?
+      doc
+    else
+      doc["id"].gsub(/(\#.+|\@.+)/, "")
+    end
   end
 
   def doc_object_method(doc, method)
@@ -172,28 +178,46 @@ module CatalogHelper
     end
     rows
   end
+  def decorate_metadata_response(type, pid)
+    res = {}
+    res[:title] = type
+    res[:id] = pid
+    block = res[:title] == "DC" ? "DC" : "CONTENT"
+    filename = res[:id].gsub(/\:/,"")
+    filename += "_" + res[:title].downcase
+    filename += ".xml"
+       res[:show_url] = fedora_content_path(:show_pretty, res[:id], block, filename) + '?print_binary_octet=true'
+    res[:download_url] = fedora_content_path(:download, res[:id], block, filename)
+    res[:direct_link] = FEDORA_CONFIG[:riurl] + "/get/" + res[:id] + "/" + block
+    res[:type] = block == "DC"  ? "DublinCore" : "MODS"
+    res
+  end
 
-  def get_metadata_list(doc)
-
-    json = doc_json_method(doc, "/ldpd:sdef.Core/describedBy?format=json")["results"]
+  def get_metadata_list(doc, default=false)
+    results = []
+    if doc.nil?
+      return results
+    end
+    if default
+      idparts = doc[:id].split(/@/)
+      md = idparts.last
+      if md.match(/^.*#DC$/)
+        pass
+      else
+        results << decorate_metadata_response("MODS" , md)
+      end
+      results << decorate_metadata_response("DC" , base_id_for(doc))
+      return results
+    else
+      json =  Cul::Fedora::Objects::BaseObject.new(doc).getmetadatalist
+    end
     json << {"DC" => base_id_for(doc)}
     hc = HTTPClient.new()
     hc.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
-    results = []
     json.each do  |meta_hash|
       meta_hash.each do |desc, uri|
-        res = {}
-        res[:title] = desc
-        res[:id] = trim_fedora_uri_to_pid(uri) 
-        block = desc == "DC" ? "DC" : "CONTENT"
-        filename = res[:id].gsub(/\:/,"")
-        filename += "_" + res[:title].downcase
-        filename += ".xml"
-           res[:show_url] = fedora_content_path(:show_pretty, res[:id], block, filename) + '?print_binary_octet=true'
-        res[:download_url] = fedora_content_path(:download, res[:id], block, filename)
-        res[:direct_link] = FEDORA_CONFIG[:riurl] + "/get/" + res[:id] + "/" + block
-        res[:type] = block == "DC"  ? "DublinCore" : "unknown"
+        res = decorate_metadata_response(desc, trim_fedora_uri_to_pid(uri))
         begin
           res[:xml] = Nokogiri::XML(hc.get_content(res[:direct_link]))
           root = res[:xml].root

@@ -23,7 +23,8 @@
 %h3 Metadata
 
 .metadata-list
-  = render :partial => "catalog/_show_partials/metadata", :collection => metadata_list, :locals => {:document => document, :display => true}
+  - metadata_list.each do |metadata|
+    = render :partial => "catalog/_show_partials/metadata", :locals => {:document => document, :metadata => metadata, :display => true}
 
 - if groups
   = render :partial => "catalog/_show_partials/groups", :locals => {:document => document}
