@@ -201,9 +201,7 @@ module CatalogHelper
     if default
       idparts = doc[:id].split(/@/)
       md = idparts.last
-      if md.match(/^.*#DC$/)
-        pass
-      else
+      if not md.match(/^.*#DC$/)
         results << decorate_metadata_response("MODS" , md)
       end
       results << decorate_metadata_response("DC" , base_id_for(doc))
