@@ -7,6 +7,7 @@ development:
 test:
     riurl: https://repository2.cul.columbia.edu:8443/fedora
     riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
+    collections: "ldpd:91652;ldpd:91654;ldpd:91651;ldpd:91655"
 taft_pass:
     riurl: https://repository2.cul.columbia.edu:8443/fedora
     riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
@@ -14,7 +15,7 @@ taft_pass:
 pass_test:
     riurl: https://repository2.cul.columbia.edu:8443/fedora
     riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
-    collections: "ldpd:91652;ldpd:91654"
+    collections: "ldpd:91652;ldpd:91654;ldpd:91651;ldpd:91655"
 ludwig_prod:
     riurl: https://repository2.cul.columbia.edu:8443/fedora
     riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"

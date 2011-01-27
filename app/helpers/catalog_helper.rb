@@ -14,6 +14,46 @@ module CatalogHelper
     end
   end
 
+  def parse_image_resources!(document)
+    if document[:parsed_resources]
+      images = document[:parsed_resources]
+    else
+      if document[:resource_json]
+        document[:parsed_resources] = document[:resource_json].collect {|rj| JSON.parse(rj)}
+      else
+        document[:parsed_resources] = Cul::Fedora::Objects::ImageObject.new(document).getmembers["results"]
+      end
+      images = document[:parsed_resources]
+    end
+    images
+  end
+
+  def image_thumbnail(document)
+    images = parse_image_resources!(document)
+    base_id = nil
+    base_type = nil
+    max_dim = 251
+    images.each do |image|
+      res = {}
+      _w = image["imageWidth"].to_i
+      _h = image["imageHeight"].to_i
+      if _w < _h
+        _max = _h
+      else
+        _max = _w
+      end
+      if _max < max_dim
+        base_id = trim_fedora_uri_to_pid(image["member"])
+        base_type = image["type"]
+        max_dim = _max
+      end
+    end
+    if base_id.nil?
+      "http://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/ImageNA.svg/200px-ImageNA.svg.png"
+    else
+      doc_object_method({"id"=>base_id}, "/CONTENT")
+    end
+  end
 
   def build_resource_list(document)
     obj_display = (document["object_display"] || []).first
@@ -28,8 +68,7 @@ module CatalogHelper
       results << {:dimensions => "Original", :mime_type => "image/jp2", :show_path => fedora_content_path("show", base_id, "SOURCE", base_id + "_source.jp2"), :download_path => fedora_content_path("download", base_id , "SOURCE", base_id + "_source.jp2")}  
     when "image"
       if obj_display
-        images = Cul::Fedora::Objects::ImageObject.new(document).getmembers["results"]
-        # images = doc_json_method(document, "/ldpd:sdef.Aggregator/listMembers?max=&format=json&start=&callback=?")["results"]
+        images = parse_image_resources!(document)
         images.each do |image|
           res = {}
           res[:dimensions] = image["imageWidth"] + " x " + image["imageHeight"]
@@ -73,9 +112,10 @@ module CatalogHelper
   end
 
   def get_aggregator_count(doc)
-    json = doc_json_method(doc, "/ldpd:sdef.Aggregator/getSize?format=json")
+    # json = doc_json_method(doc, "/ldpd:sdef.Aggregator/getSize?format=json")
+    json =  Cul::Fedora::Objects::ContentAggregator.new(doc).getsize
     if json
-      return json["results"][0]["count"]
+      json
     else
       return 0
     end

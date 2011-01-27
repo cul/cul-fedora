@@ -144,7 +144,8 @@ Blacklight.configure(:shared) do |config|
       "language_facet",
       "published_display",
       "object_display",
-      "lc_callnum_display"
+      "lc_callnum_display",
+      "resource_json"
     ],
     :labels => {
       "title_display"           => "Title:",
@@ -188,7 +189,8 @@ Blacklight.configure(:shared) do |config|
       "published_vern_display",
       "lc_callnum_display",
       "object_display",
-      "isbn_t"
+      "isbn_t",
+      "resource_json"
     ],
     :labels => {
       "title_display"           => "Title:",

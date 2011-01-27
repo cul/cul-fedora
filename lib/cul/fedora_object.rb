@@ -60,6 +60,19 @@ hd
         @riurl = FEDORA_CONFIG[:riurl] + '/risearch'
         gen_member_query(document)
       end
+      def getsize
+        if @size.nil?
+          hc = HTTPClient.new
+          query = {:query=>@memberquery}
+          query[:format] = 'count'
+          query[:type] = 'tuples'
+          query[:lang] = 'itql'
+          query[:limit] = ''
+          res = hc.get_content(@riurl,query)
+          @size = res.to_i
+        end
+        @size
+      end
       def getmembers
         if @members.nil?
           hc = HTTPClient.new
@@ -80,6 +93,19 @@ hd
       def initialize(document)
         @riurl = FEDORA_CONFIG[:riurl] + '/risearch'
         gen_member_query(document)
+      end
+      def getsize
+        if @size.nil?
+          hc = HTTPClient.new
+          query = {:query=>@memberquery}
+          query[:format] = 'count'
+          query[:type] = 'tuples'
+          query[:lang] = 'itql'
+          query[:limit] = ''
+          res = hc.get_content(@riurl,query)
+          @size = res.to_i
+        end
+        @size
       end
       def getmembers
         if @members.nil?

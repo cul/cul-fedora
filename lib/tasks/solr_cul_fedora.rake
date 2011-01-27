@@ -185,6 +185,22 @@ namespace :solr do
        when ENV['PID']
          pid = ENV['PID']
          fedora_uri = URI.parse(ENV['RI_URL'])
+         # < adding collections
+         solr_url = ENV['SOLR'] || Blacklight.solr_config[:url]
+         collection = SolrCollection.new(ENV['PID'],solr_url)
+         facet_vals = collection.paths.find_all { |val|
+           ALLOWED.allowed?val
+         }
+         facet_vals = collection.paths.find_all { |val|
+           ALLOWED.allowed?val
+         }
+         facet_vals = facet_vals.reject{|val|
+           facet_vals.any?{|compare|
+             (val != compare && val.index(compare) == 0)
+           }
+         }
+         collection.paths=facet_vals
+         # adding collections >
          url_array = [ fedora_uri.merge('/fedora/get/' + pid + '/ldpd:sdef.Core/getIndex?profile=scv').to_s]
        when ENV['SAMPLE_DATA']
          File.read(File.join(RAILS_ROOT,"test","sample_data","cul_fedora_index.json"))
