@@ -1,10 +1,10 @@
 production:
-    url: http://testcat.cul.columbia.edu:8983/solr-1.4/blacklight
+    url: http://macana.cul.columbia.edu:8080/solr-1.5/scv_prod
 development:
     url: http://testcat.cul.columbia.edu:8983/solr-1.5/scv_dev
 test:
-    url: http://testcat.cul.columbia.edu:8983/solr-1.5/scv_test
+    url: http://katana.cul.columbia.edu:8080/solr-1.5/scv_test
 pass_test:
-    url: http://testcat.cul.columbia.edu:8983/solr-1.5/scv_test
+    url: http://katana.cul.columbia.edu:8080/solr-1.5/scv_test
 ludwig_prod:
-    url: http://testcat.cul.columbia.edu:8983/solr-1.5/scv_prod
+    url: http://macana.cul.columbia.edu:8080/solr-1.5/scv_prod

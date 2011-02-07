@@ -256,31 +256,31 @@ Blacklight.configure(:shared) do |config|
       :pf => "$title_pf"
     }
   }
-  # config[:search_fields] << {
-  #   :key =>'name',     
-  #   :solr_parameters => {
-  #     :"spellcheck.dictionary" => "author" 
-  #   },
-  #   :solr_local_parameters => {
-  #     :qf => "$name_qf",
-  #     :pf => "$name_pf"
-  #   }
-  #  }
+  config[:search_fields] << {
+    :key =>'name',     
+    :solr_parameters => {
+      :"spellcheck.dictionary" => "name" 
+    },
+    :solr_local_parameters => {
+      :qf => "$name_qf",
+      :pf => "$name_pf"
+    }
+   }
 
   # Specifying a :qt only to show it's possible, and so our internal automated
   # tests can test it. In this case it's the same as 
   # config[:default_solr_parameters][:qt], so isn't actually neccesary. 
-  # config[:search_fields] << {
-  #   :key => 'subject', 
-  #   :qt=> 'search',
-  #   :solr_parameters => {
-  #     :"spellcheck.dictionary" => "subject"
-  #   },
-  #   :solr_local_parameters => {
-  #     :qf => "$subject_qf",
-  #     :pf => "$subject_pf"
-  #   }
-  # }
+  config[:search_fields] << {
+    :key => 'subject', 
+    :qt=> 'search',
+    :solr_parameters => {
+      :"spellcheck.dictionary" => "subject"
+    },
+    :solr_local_parameters => {
+      :qf => "$subject_qf",
+      :pf => "$subject_pf"
+    }
+  }
   
   config[:search_fields] << {
     :key => 'clio', 
