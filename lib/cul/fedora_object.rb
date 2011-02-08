@@ -15,7 +15,13 @@ hd
      if @memberquery
        @memberquery
      else
-       @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t].first)
+       if document[:pid_t]
+         @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t].first)
+       else
+         _pid = document[:id].first
+         _pid = _pid.split('@')[0]
+         @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,_pid)
+       end
        @memberquery
      end
    end
