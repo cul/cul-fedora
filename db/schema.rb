@@ -78,16 +78,28 @@ ActiveRecord::Schema.define(:version => 20100701170542) do
   end
 
   create_table "users", :force => true do |t|
-    t.string   "login",             :null => false
+    t.string   "first_name"
+    t.string   "last_name"
+    t.boolean  "admin"
+    t.string   "login",                            :null => false
+    t.string   "wind_login"
     t.string   "email"
     t.string   "crypted_password"
+    t.string   "persistence_token"
+    t.integer  "login_count",       :default => 0, :null => false
     t.text     "last_search_url"
     t.datetime "last_login_at"
+    t.datetime "last_request_at"
+    t.datetime "current_login_at"
+    t.string   "last_login_ip"
+    t.string   "current_login_ip"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "password_salt"
-    t.string   "persistence_token"
-    t.datetime "current_login_at"
   end
+
+  add_index "users", ["last_request_at"], :name => "index_users_on_last_request_at"
+  add_index "users", ["login"], :name => "index_users_on_login"
+  add_index "users", ["persistence_token"], :name => "index_users_on_persistence_token"
+  add_index "users", ["wind_login"], :name => "index_users_on_wind_login"
 
 end
