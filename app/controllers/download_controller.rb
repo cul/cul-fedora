@@ -1,4 +1,5 @@
 class DownloadController < ApplicationController
+  before_filter :require_staff
   after_filter :remove_session, :only => :cache
   def cache
     url = FEDORA_CONFIG[:riurl] + "/get/" + params[:uri]+ "/" + params[:block]

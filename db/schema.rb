@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100701170542) do
+ActiveRecord::Schema.define(:version => 20110210192203) do
 
   create_table "bookmarks", :force => true do |t|
     t.integer  "user_id",     :null => false
@@ -81,12 +81,12 @@ ActiveRecord::Schema.define(:version => 20100701170542) do
     t.string   "first_name"
     t.string   "last_name"
     t.boolean  "admin"
-    t.string   "login",                            :null => false
+    t.string   "login",                                :null => false
     t.string   "wind_login"
     t.string   "email"
     t.string   "crypted_password"
     t.string   "persistence_token"
-    t.integer  "login_count",       :default => 0, :null => false
+    t.integer  "login_count",       :default => 0,     :null => false
     t.text     "last_search_url"
     t.datetime "last_login_at"
     t.datetime "last_request_at"
@@ -95,6 +95,7 @@ ActiveRecord::Schema.define(:version => 20100701170542) do
     t.string   "current_login_ip"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "cul_staff",         :default => false
   end
 
   add_index "users", ["last_request_at"], :name => "index_users_on_last_request_at"

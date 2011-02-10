@@ -1,5 +1,7 @@
 class FolderController < ApplicationController
 
+  before_filter :require_staff
+
   include Blacklight::SolrHelper
 
   # fetch the documents that match the ids in the folder
