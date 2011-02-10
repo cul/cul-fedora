@@ -31,4 +31,14 @@ class User < ActiveRecord::Base
 
     return self
   end
+
+  def self.set_staff!(unis = [])
+    unis.each do |uni|
+      if (u = User.find_by_login(uni))
+        u.update_attributes(:email => uni + "@columbia.edu", :cul_staff => true)
+      else
+        User.create!(:login => uni, :wind_login => uni, :email => uni + "@columbia.edu", :cul_staff => true, :password => ActiveSupport::SecureRandom.base64(8)) 
+      end
+    end
+  end
 end
