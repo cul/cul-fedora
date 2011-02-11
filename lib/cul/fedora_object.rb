@@ -32,7 +32,11 @@ hd
      if @memberquery
        @memberquery
      else
-       @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t])
+       if document[:pid_t].to_s == document[:pid_t]
+         @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t])
+       else
+         @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t].first)
+       end
        @memberquery
      end
    end
@@ -42,7 +46,11 @@ hd
     class BaseObject
       def initialize(document)
         @riurl = FEDORA_CONFIG[:riurl] + '/risearch'
-        @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t])
+        if document[:pid_t].to_s == document[:pid_t]
+          @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t])
+        else
+          @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t].first)
+        end
       end
       def getmetadatalist
         if @metadatas.nil?
