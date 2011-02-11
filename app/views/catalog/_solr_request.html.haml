@@ -1,0 +1,5 @@
+- unless RAILS_ENV=='production'
+  - @footer = capture_haml do
+    %div.solrQuery= URI.decode(@response.header.inspect)
+    %div.solrQuery
+      = session[:search].to_json
