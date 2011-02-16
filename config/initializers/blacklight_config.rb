@@ -243,6 +243,7 @@ Blacklight.configure(:shared) do |config|
   # of Solr search fields. 
   config[:search_fields] << {
     :key => 'title',     
+    :qt => 'title_search',     
     # solr_parameters hash are sent to Solr as ordinary url query params. 
     :solr_parameters => {
       :"spellcheck.dictionary" => "title"
@@ -252,46 +253,47 @@ Blacklight.configure(:shared) do |config|
     # Solr parameter de-referencing like $title_qf.
     # See: http://wiki.apache.org/solr/LocalParams
     :solr_local_parameters => {
-      :qf => "$title_qf",
-      :pf => "$title_pf"
+    #  :qf => "$title_qf",
+    #  :pf => "$title_pf"
     }
   }
   config[:search_fields] << {
     :key =>'name',     
+    :qt => 'name_search',     
     :solr_parameters => {
       :"spellcheck.dictionary" => "name" 
     },
     :solr_local_parameters => {
-      :qf => "$name_qf",
-      :pf => "$name_pf"
+    #  :qf => "$name_qf",
+    #  :pf => "$name_pf"
     }
    }
 
   # Specifying a :qt only to show it's possible, and so our internal automated
   # tests can test it. In this case it's the same as 
   # config[:default_solr_parameters][:qt], so isn't actually neccesary. 
-  config[:search_fields] << {
-    :key => 'subject', 
-    :qt=> 'search',
-    :solr_parameters => {
-      :"spellcheck.dictionary" => "subject"
-    },
-    :solr_local_parameters => {
-      :qf => "$subject_qf",
-      :pf => "$subject_pf"
-    }
-  }
+  # config[:search_fields] << {
+  #   :key => 'subject', 
+  #   :qt=> 'subject_search',
+  #   :solr_parameters => {
+  #     :"spellcheck.dictionary" => "subject"
+  #   },
+  #   :solr_local_parameters => {
+  #     :qf => "$subject_qf",
+  #     :pf => "$subject_pf"
+  #   }
+  #  }
   
   config[:search_fields] << {
     :key => 'clio', 
     :display_label => 'CLIO ID',
-    :qt=> 'search',
+    :qt=> 'clio_search',
     :solr_parameters => {
-      :"spellcheck.dictionary" => "default"
+      :"spellcheck.dictionary" => "clio"
     },
     :solr_local_parameters => {
-      :qf=>"clio_s",
-      :pf=>""
+    #  :qf=>"clio_s",
+    #  :pf=>""
     }
   }
   
@@ -303,7 +305,7 @@ Blacklight.configure(:shared) do |config|
   config[:sort_fields] ||= []
   config[:sort_fields] << ['relevance', 'score desc, date_created_dt desc, title_sort asc']
   config[:sort_fields] << ['year', 'date_created_dt desc, title_sort asc']
-  config[:sort_fields] << ['name', 'name_facet asc, title_t asc']
+  config[:sort_fields] << ['name', 'lib_name_facet asc, title_t asc']
   config[:sort_fields] << ['title', 'title_sort asc, date_created_dt desc']
   
   # If there are more than this many search results, no spelling ("did you 
