@@ -146,6 +146,13 @@ namespace :solr do
        ALLOWED = Gatekeeper.new(yaml['collections'].split(';'))
      end
 
+     desc "add unis to SCV by setting cul_staff to TRUE"
+     task :add_user => :configure do
+       if ENV['UNIS']
+         unis = ENV['UNIS'].split(/\s/)
+         User.set_staff!(unis)
+       end
+     end
      desc "index objects from a CUL fedora repository"
      task :index => :configure do
        urls_to_scan = case
