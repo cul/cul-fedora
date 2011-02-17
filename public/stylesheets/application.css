@@ -42,7 +42,8 @@ h1.site_banner {
  background: transparent url('../images/logo.gif') no-repeat top left;
  margin: 2em 0px 0px 1em;
  height: 35px;
- width: 480px;
+ /* width: 480px; */
+ width: 100%;
  position: relative;
 }
 .first h1 {margin: 0px; padding: 0px;}

@@ -15,10 +15,10 @@
         %em="List"
     %div.right
       - if display_members == "grid"
-        %em="Grid"
+        %em="Images Only"
       - else
         - display_params.merge!(:display_members=>:grid)
-        = link_to_with_data("Grid",catalog_path(document[:id]),html_opts.merge(:data=>display_params))
+        = link_to_with_data("Images Only",catalog_path(document[:id]),html_opts.merge(:data=>display_params))
   = render :partial => "catalog/_show_partials/members_#{display_members}", :locals => {:members => members_list}
 - else
   = render :partial => "catalog/_show_partials/member",:locals => {:document=>members_list.first}

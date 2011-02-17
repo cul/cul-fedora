@@ -1,19 +1,20 @@
 class DownloadController < ApplicationController
   before_filter :require_staff
-  caches_action :cache, :cache_path=>'/var/tmp'
-  after_filter :remove_session, :only => :cache
-  def cache
-    fedora_content
-  end
-  def remove_session
-    cookies.each do |cookie|
-      puts cookie
-    end
-    # cookies.delete :"_blacklight-app_session"
-    response.headers.each do |header|
-      puts header
-    end
-    response.headers["Set-Cookie"] = nil;
+  caches_action :cachecontent, :expires_in => 7.days,
+    :cache_path => proc { |c|
+      c.params
+    }
+  def cachecontent
+    url = FEDORA_CONFIG[:riurl] + "/get/" + params[:uri]+ "/" + params[:block]
+
+    cl = HTTPClient.new
+    h_cd = "filename=""#{CGI.escapeHTML(params[:filename].to_s)}"""
+    h_ct = cl.head(url).header["Content-Type"].to_s
+    headers.delete "Cache-Control"
+    headers["Content-Disposition"] = h_cd
+    headers["Content-Type"] = h_ct
+    
+    render :status => 200, :text => cl.get_content(url)
   end
   def fedora_content
       

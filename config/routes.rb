@@ -12,8 +12,8 @@ ActionController::Routing::Routes.draw do |map|
     :controller => 'download', :action => 'fedora_content',
     :block => /(DC|CONTENT|SOURCE)/,
     :uri => /.+/, :filename => /.+/, :download_method => /(download|show|show_pretty)/
-  map.cache '/download/cache/:download_method/:uri/:block/:filename', 
-    :controller => 'download', :action => 'cache',
+  map.cachecontent '/download/cache/:download_method/:uri/:block/:filename', 
+    :controller => 'download', :action => 'cachecontent',
     :block => /(DC|CONTENT|SOURCE)/,
     :uri => /.+/, :filename => /.+/, :download_method => /(download|show|show_pretty)/
   map.wind_logout '/wind_logout', :controller => 'welcome', :action => 'logout'
