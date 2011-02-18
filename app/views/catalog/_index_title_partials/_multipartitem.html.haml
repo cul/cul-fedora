@@ -4,7 +4,7 @@
     = _counter
   = "."
   = link_to_document document, :label=>document_show_link_field, :counter => _counter
-  - if !(document[document_show_link_field][0][-1] == '.')
+  - if !(document[document_show_link_field].match(/\.$/))
     = "."
   - groups = get_groups(document)
   - if groups.length > 0

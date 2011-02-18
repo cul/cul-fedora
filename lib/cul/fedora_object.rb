@@ -15,8 +15,8 @@ hd
      if @memberquery
        @memberquery
      else
-       if document[:pid_t]
-         @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t])
+       if document[:pid_s]
+         @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s])
        else
          _pid = document[:id]
          _pid = _pid.split('@')[0]
@@ -32,10 +32,10 @@ hd
      if @memberquery
        @memberquery
      else
-       if document[:pid_t].kind_of? String
-         @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t])
+       if document[:pid_s].kind_of? String
+         @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s])
        else
-         @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t].first)
+         @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s].first)
        end
        @memberquery
      end
@@ -46,10 +46,10 @@ hd
     class BaseObject
       def initialize(document)
         @riurl = FEDORA_CONFIG[:riurl] + '/risearch'
-        if document[:pid_t].kind_of? String
-          @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t])
+        if document[:pid_s].kind_of? String
+          @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s])
         else
-          @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_t].first)
+          @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s].first)
         end
       end
       def getmetadatalist

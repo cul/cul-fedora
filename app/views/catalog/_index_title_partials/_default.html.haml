@@ -3,7 +3,7 @@
     = (counter + 1 + @response.params[:start].to_i).to_s
   = "."
   = link_to_document document, :label=>document_show_link_field, :counter => (counter + 1 + @response.params[:start].to_i)
-  - if !(document[document_show_link_field][0] and  document[document_show_link_field][0][-1] == '.')
+  - if !(document[document_show_link_field].match(/\.$/))
     = "."
   - groups = get_groups(document)
   - if groups.length > 0

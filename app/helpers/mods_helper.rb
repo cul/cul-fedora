@@ -73,7 +73,7 @@ module ModsHelper
     details << ["Note:", notes.join(" -- ")] unless notes.empty?
     # URL (external)
     xml.xpath("/mods:mods/mods:location/mods:url",ns).each do |node|
-      details << ["URL:", link_to(node.content.to_s, node.content, :target => "blank")]
+      details << ["Item in Context:", link_to(node.content.to_s, node.content, :target => "blank")]
     end
     # physicalLocation
     nodes = xml.xpath("/mods:mods/mods:location/mods:physicalLocation",ns) - xml.xpath("/mods:mods/mods:location/mods:physicalLocation[@authority='marcorg']",ns)
@@ -102,7 +102,7 @@ module ModsHelper
         when "local"
           details << ["Record ID:" ,node.text] unless node == ""
         when "CLIO"
-          details << ["In CLIO:" , link_to_clio({'clio_s'=>[node.text]},node.text)] unless node == ""
+          details << ["CLIO ID:" , link_to_clio({'clio_s'=>[node.text]},node.text)] unless node == ""
         else
           details << ["Identifier:", node.text]
       end
@@ -151,7 +151,7 @@ module ModsHelper
       name += ", " + desc.content
     end
 
-    return name
+    return name.gsub(/,+/,',')
   end
 
   def add_mods_details(title, nodes)

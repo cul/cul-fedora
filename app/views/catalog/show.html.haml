@@ -8,7 +8,7 @@
     %div.pageEntriesInfo
       - if (session[:search][:counter].to_i == 0)
         This item was not found in your active search
-        = link_to "Clear&nbsp;active&nbsp;search&thinsp;", catalog_index_path, :class=>"startOverButton uiButton"
+        = link_to "Clear&nbsp;search&thinsp;", catalog_index_path, :class=>"startOverButton uiButton"
       - else
         = item_page_entry_info
         - # link_to "Start&nbsp;over&thinsp;", catalog_index_path, :class=>"startOverButton uiButton"
