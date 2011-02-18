@@ -46,10 +46,15 @@ hd
     class BaseObject
       def initialize(document)
         @riurl = FEDORA_CONFIG[:riurl] + '/risearch'
-        if document[:pid_s].kind_of? String
-          @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s])
+        if document[:pid_s].nil?
+            _pid = document[:id].split('@')[0]
+            @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,_pid)
         else
-          @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s].first)
+          if document[:pid_s].kind_of? String
+            @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s])
+          else
+            @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s].first)
+          end
         end
       end
       def getmetadatalist

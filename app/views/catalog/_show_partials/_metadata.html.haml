@@ -7,8 +7,8 @@
         = metadata[:title]
         =" (#{metadata[:type]})"
     .links.yui-u
-      = link_to "Show full #{metadata[:type]}", metadata[:show_url] 
+      = link_to "Show formatted #{metadata[:type]}", metadata[:show_url] 
       = "--"
-      = link_to "Download XML", metadata[:download_url] 
+      = link_to "Raw XML", metadata[:download_url] 
   - if display
     = render :partial => "catalog/_show_partials/metadata_#{metadata[:type].underscore}", :locals => {:metadata => metadata, :document=>document}
