@@ -271,11 +271,6 @@ h3.index_title {clear: both; margin: 0px; padding: 0px; width: 100%;}
 img.thumbnail {width: 90%;}
 img.gallery {width: 80%;}
 
-dl {margin: 0px; padding: 0px;}
-dl.defList {overflow: auto; padding: 0.5em 0;width: 100%;}
-dl.defList dt {float:left; text-align: right; width: 20%; clear: both; color: #888; margin: 0px; padding: 1% 2% 1% 0px;}
-dl.defList dd {float: left; text-align: left; margin: 0px; padding: 1% 0px; width: 78%;}
-
 /* Individual Result Listing */
 #document h1 {margin: 0px; padding: 0px 0px 1em 0px;}
 #document .deleteFolder, #document .addFolder {float:right;}

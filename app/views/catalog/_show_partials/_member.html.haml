@@ -3,8 +3,8 @@
     %div.yui-u.first
       = render_document_partial(document, :thumbnail) unless document.nil?
     %div.yui-u
-      %div.index_title
-        = link_to_clio(document) unless document.nil?
+      - if !document.nil?
+        %p.index_title=link_to_clio(document)
       = render :partial => "catalog/_show_partials/metadata_brief", :locals => {:document => document} unless document.nil?
       - get_metadata_list(document,true).each do |metadata|
         = render :partial => "catalog/_show_partials/metadata", :locals => {:document => document, :metadata => metadata, :display => false, :brief => true} unless document.nil?

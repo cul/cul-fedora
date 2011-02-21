@@ -1,12 +1,16 @@
-.index_title { font-weight: bold; }
-div.title_row {
-  padding-top:1.0em;
+#tools {
+ background-color: #eee;
+ color: #333;
+ margin-top: 1.5em;
+ margin-bottom: 1.5em; 
+ width: 100%;
 }
-div.title_data {
-font-weight: bold;
+
+.index_title {
+ font-weight: bold;
 }
-div.metadata {
-  margin-bottom:1em;
+.title_data {
+  font-weight: bold;
 }
 div.item_type {margin-bottom:0.5em}
 span.item_type {color:#300; background-color:#ffc;font-size:0.8em;border:solid gray thin;}
@@ -31,9 +35,11 @@ div.row {
 }
 div.cell {
 }
-div.member-item > div {
+div.member-item {
   padding:1em;
   border: thin solid gray;
+}
+div.member-item div {
 }
 div.member-item > hr {
   width: 75%;
@@ -61,3 +67,20 @@ a.startOverButton{
   margin-top:-1em;
 }
 
+dl {margin: 0px; padding: 0px;}
+dl.defList {overflow: auto; padding: 0.5em 0;width: 100%;}
+dl.defList dt {float:left; text-align: right; width: 20%; clear: both; color: #888; margin: 0px; padding: 1% 2% 1% 0px;}
+dl.defList dd {float: left; text-align: left; margin: 0px; padding: 1% 0px; width: 78%;}
+div.md-items div.yui-gf {
+  width: 100%;
+}
+div.member-items div.yui-gf {
+  width: 100%;
+}
+div.metadata {
+  width: 100%;
+  margin-bottom:8px;
+}
+div.metadata div.yui-gc {
+  width: 100%;
+}

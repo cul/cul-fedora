@@ -1,0 +1,19 @@
+%h2="Editing Bookmark for #{ link_to @bookmark.title, catalog_path(@bookmark.document_id)}"
+
+- sidebar_items << capture do 
+  = link_to '<< back to my bookmarks', bookmarks_path
+
+- form_for @bookmark, :url => bookmark_path do |f|
+  %fieldset
+    %div.row
+      = f.label :title
+      = f.text_field :title
+    %div.row
+      = f.label :tags
+      = f.text_field :tag_list
+  	 %div.row
+      = f.label :notes
+      = f.text_area :notes, :style => 'width:400px; height:200px;'
+     %div.row
+      = f.label '', link_to('Cancel', collection_path)
+      = submit_tag

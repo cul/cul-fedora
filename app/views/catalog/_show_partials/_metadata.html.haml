@@ -1,14 +1,11 @@
 - display ||= false
 - metadata ||= {}
-.metadata
-  .title_row.yui-gc
-    .title.yui-u.first
-      .title_data
-        = metadata[:title]
-        =" (#{metadata[:type]})"
-    .links.yui-u
-      = link_to "Show formatted #{metadata[:type]}", metadata[:show_url] 
-      = "--"
-      = link_to "Raw XML", metadata[:download_url] 
-  - if display
-    = render :partial => "catalog/_show_partials/metadata_#{metadata[:type].underscore}", :locals => {:metadata => metadata, :document=>document}
+.metadata.yui-gc
+  .yui-u.first
+    %span.title_data="#{metadata[:title]} (#{metadata[:type]})"
+  .yui-u{:style=>"margin-left:0px;"}
+    = link_to "Show formatted #{metadata[:type]}", metadata[:show_url] 
+    = "--"
+    = link_to "Raw XML", metadata[:download_url] 
+- if display
+  = render :partial => "catalog/_show_partials/metadata_#{metadata[:type].underscore}", :locals => {:metadata => metadata, :document=>document}
