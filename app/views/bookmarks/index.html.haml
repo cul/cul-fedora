@@ -12,14 +12,14 @@
 
   - sidebar_items << capture do
     %h3="Search your Bookmarks"
-      - form_tag bookmarks_path, :method=>:get do
-        = text_field_tag 'q', params[:q]
-        = submit_tag 'find', :name=>:a
+    - form_tag bookmarks_path, :method=>:get do
+      = text_field_tag 'q', params[:q]
+      = submit_tag 'find', :name=>:a
 	
     %h3="Bookmark Tags"
-      - @tags=current_user.bookmarks.tag_counts
-      - tag_cloud @tags, %w(tagCloud1 tagCloud2 tagCloud3 tagCloud4) do |tag, css_class|
-        = link_to h(tag.name), "#{collection_path}?tag=#{h(tag.name)}", :class=>css_class
+    - @tags=current_user.bookmarks.tag_counts
+    - tag_cloud @tags, %w(tagCloud1 tagCloud2 tagCloud3 tagCloud4) do |tag, css_class|
+      = link_to h(tag.name), "#{collection_path}?tag=#{h(tag.name)}", :class=>css_class
     - # END OF SIDEBAR CAPTURE
  
   - if params[:tag]
