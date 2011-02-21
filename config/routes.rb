@@ -1,7 +1,7 @@
 ActionController::Routing::Routes.draw do |map|
   map.resources :reports
+  map.resources :folder
 
-  map.resources :reports
 
 
 
