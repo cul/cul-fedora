@@ -11,6 +11,7 @@ $(document).ready(function() {
 
 //function for adding items to your folder with Ajax
 $(document).ready(function() {
+        var delFolder = /folder\/destroy$/;
 	// each form for adding things into the folder.
 	$("form.addFolder, form.deleteFolder").each(function() {
 		var form = $(this);
@@ -22,15 +23,15 @@ $(document).ready(function() {
 				$.post(form.attr("action") + '?id=' + form.children("input[name=id]").attr("value"), function(data) {
 					var title = form.attr("title");
 					var folder_num, notice_text, new_form_action, new_button_text
-					if(form.attr("action") == "/folder/destroy") {
+					if(delFolder.test(form.attr("action")) {
 						folder_num = parseInt($("#folder_number").text()) - 1;
 						notice_text = title + " removed from your folder."
-						new_form_action = "/folder";
+						new_form_action = "folder";
 						new_button_text = "Add to folder"
 					}else{
 						folder_num = parseInt($("#folder_number").text()) + 1
 						notice_text = title + " added to your folder.";
-						new_form_action = "/folder/destroy";
+						new_form_action = "folder/destroy";
 						new_button_text = "Remove from folder";
 					}
 				  $("#folder_number").text(folder_num);
