@@ -63,13 +63,10 @@ Blacklight.configure(:shared) do |config|
       "lib_format_facet",
       "lib_collection_facet",
       "lib_repo_facet",
-      "format_h",
-      "collection_h",
       "date_created_h",
       "pub_date",
       "subject_topic_facet",
       "language_facet",
-      "descriptor",
       "lc_1letter_facet",
       "subject_geo_facet",
       "subject_era_facet"
@@ -81,11 +78,8 @@ Blacklight.configure(:shared) do |config|
       "lib_format_facet"              => "Format",
       "lib_collection_facet"              => "Collection",
       "lib_repo_facet"            => "Repository",
-      "format_h"              => "Routed as",
-      "collection_h"              => "In Hierarchy",
       "date_created_h"              => "Date (Experimental)",
       "subject_topic_facet" => "Topic",
-      "descriptor"          => "Metadata Type",
       "language_facet"      => "Language",
       "lc_1letter_facet"    => "Call Number",
       "subject_era_facet"   => "Era",
@@ -117,6 +111,15 @@ Blacklight.configure(:shared) do |config|
       "collection_h" => true
     }
   }
+  if !RAILS_ENV.eql?"ludwig_prod"
+    config[:facet][:field_names].merge!(["collection_h","format_h","descriptor"])
+    config[:facet][:labels]["collection_h"] = "In Hierarchy"
+    config[:facet][:labels]["format_h"] = "Routed As"
+    config[:facet][:labels]["descriptor"] = "Metadata Type"
+    config[:facet][:limits]["collection_h"] = 10
+    config[:facet][:limits]["format_h"] = 10
+    config[:facet][:limits]["descriptor"] = 10
+  end
 
   # Have BL send all facet field names to Solr, which has been the default
   # previously. Simply remove these lines if you'd rather use Solr request
