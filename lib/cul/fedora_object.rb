@@ -16,7 +16,11 @@ hd
        @memberquery
      else
        if document[:pid_s]
-         @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s])
+         if document[:pid_s].kind_of? String
+           @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s])
+         else
+           @memberquery = MEMBER_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s].first)
+         end
        else
          _pid = document[:id]
          _pid = _pid.split('@')[0]

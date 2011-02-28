@@ -308,7 +308,6 @@ Blacklight.configure(:shared) do |config|
   config[:sort_fields] ||= []
   config[:sort_fields] << ['relevance', 'score desc, date_created_dt desc, title_sort asc']
   config[:sort_fields] << ['year', 'date_created_dt desc, title_sort asc']
-  config[:sort_fields] << ['name', 'lib_name_facet asc, title_t asc']
   config[:sort_fields] << ['title', 'title_sort asc, date_created_dt desc']
   
   # If there are more than this many search results, no spelling ("did you 
