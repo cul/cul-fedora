@@ -12,8 +12,8 @@
       - _links = groups.collect {|g| link_to_document(g,:label=>document_show_link_field)}
       %span.from_groups="From: #{_links.join(',')}."
   %span.index_metadata
-    - if document["lib_name_facet"]
-      = document["lib_name_facet"][0] + '.'
+    - if document["lib_name_display"]
+      = document["lib_name_display"][0] + '.'
     - if document["extent_t"]
       = document["extent_t"][0] + '.'
     = document["lib_repo_facet"]
