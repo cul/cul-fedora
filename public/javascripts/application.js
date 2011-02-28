@@ -22,8 +22,8 @@ $(document).ready(function() {
 			form.submit(function(){
 				$.post(form.attr("action") + '?id=' + form.children("input[name=id]").attr("value"), function(data) {
 					var title = form.attr("title");
-					var folder_num, notice_text, new_form_action, new_button_text
-					if(delFolder.test(form.attr("action")) {
+					var folder_num, notice_text, new_form_action, new_button_text;
+					if(delFolder.test(form.attr("action"))) {
 						folder_num = parseInt($("#folder_number").text()) - 1;
 						notice_text = title + " removed from your folder."
 						new_form_action = "folder";

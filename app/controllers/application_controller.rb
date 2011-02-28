@@ -81,7 +81,7 @@ class ApplicationController < ActionController::Base
     stylesheet_links << ['zooming_image', 'accordion', {:media=>'all'}]
     stylesheet_links << ['application']
     stylesheet_links << ['scv']
-    javascript_includes << ['jquery-1.4.2.min.js', 'jquery-ui-1.8.1.custom.min.js', 'blacklight', 'application', { :plugin=>:blacklight } ]
+    javascript_includes << ['jquery-1.4.2.min.js', 'jquery-ui-1.8.1.custom.min.js', 'blacklight', { :plugin=>:blacklight } ]
     javascript_includes << ['accordion', 'zooming_image']
     extra_head_content << [stylesheet_tag(openlayers_css, :media=>'all'), javascript_tag(openlayers_js)]
   end
