@@ -20,11 +20,16 @@
   %div
     %img(src="#{image_thumbnail(document)}")
 
-%h3 Metadata
-
 .metadata-list
-  - metadata_list.each do |metadata|
-    = render :partial => "catalog/_show_partials/metadata", :locals => {:document => document, :metadata => metadata, :display => true}
+  .metadata.yui-gc
+    - metadata_list.each do |metadata|
+      = render :partial => "catalog/_show_partials/metadata_#{metadata[:type].underscore}", :locals => {:metadata => metadata, :document=>document}
+    %div.detail
+      %div.items.yui-gf
+        %div.yui-u.first
+          %span.title_data="Download Metadata:"
+        .yui-u{:style=>"margin-left:0px;"}
+          = metadata_list.collect {|x| link_to "#{x[:type]}", x[:show_url]}.join(", ")
 
 - if groups
   = render :partial => "catalog/_show_partials/groups", :locals => {:document => document}

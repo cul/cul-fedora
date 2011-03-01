@@ -1,7 +1,8 @@
+- link ||= false
 %div.md-items
   .yui-gf
     .label.yui-u.first="Title:"
-    .value.yui-u=link_to_document document
+    .value.yui-u= (link)? (link_to_document document) : document[:title_display]
   .yui-gf
     - document[:identifier_s].each do |value|
       .label.yui-u.first= "ID:"
@@ -11,6 +12,3 @@
       - document[:access_condition_s].each do |value|
         .label.yui-u.first= "Access:"
         .value.yui-u= value
-  .yui-gf
-    .label.yui-u.first="Fedora URL:"
-    .value.yui-u=link_to document[:pid_s], document[:object_display]

@@ -1,8 +1,10 @@
 - groups = get_groups(document)
 - if groups.length > 0
-  %dl.defList
+  %dl.defList#groups
     %dt="From:"
-    %dd= groups.collect {|x| link_to_document(x)}.join(", ")
+    %dd
+      = groups.collect {|x| link_to_document(x)}.join(", ") 
+      %span="(Click  for More Information)"
 - else
   .hide
     %p No groups found
