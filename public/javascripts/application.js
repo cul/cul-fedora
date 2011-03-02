@@ -24,17 +24,17 @@ $(document).ready(function() {
 					var title = form.attr("title");
 					var folder_num, notice_text, new_form_action, new_button_text;
 					if(delFolder.test(form.attr("action"))) {
-						folder_num = parseInt($("#folder_number").text()) - 1;
+						folder_num = parseInt($("#folder_number").text().match(/\d+/)) - 1;
 						notice_text = title + " removed from your folder."
 						new_form_action = "folder";
 						new_button_text = "Add to folder"
 					}else{
-						folder_num = parseInt($("#folder_number").text()) + 1
+						folder_num = parseInt($("#folder_number").text().match(/\d+/)) + 1
 						notice_text = title + " added to your folder.";
 						new_form_action = "folder/destroy";
 						new_button_text = "Remove from folder";
 					}
-				  $("#folder_number").text(folder_num);
+				  $("#folder_number").text("(" + folder_num + ")");
 					form.attr("action",new_form_action);
 					form.children("input[type=submit]").attr("value",new_button_text);
 				});
