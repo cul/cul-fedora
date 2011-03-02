@@ -25,7 +25,7 @@
               - # link_to application_name, root_path
               - if (params[:controller] == "catalog" and !params[:id])
                 %span#results_text="Search Results"
-          %div.yui-u
+          %div.yui-u#user_util_links
             = render :partial=>'/user_util_links'
   
       %div#bd

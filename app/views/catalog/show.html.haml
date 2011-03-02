@@ -20,6 +20,8 @@
 - # this should be in a partial
 %div#document
   %div(:id="doc_#{@document[:id]}")
+    %div#show_bookmark_control
+      = render :partial=>'bookmark_control', :locals=>{:document=>@document}
     %div#show_folder_control
       = render :partial=>'folder_control', :locals=>{:document=>@document}
     = render_document_heading

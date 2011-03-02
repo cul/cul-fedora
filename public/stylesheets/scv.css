@@ -109,3 +109,13 @@ table.imageMembers td, table.imageMembers th {
   padding:1px;
   margin:0px;
 }
+#document .deleteBookmark, #document .addBookmark {
+  float:right;
+  clear:left;
+}
+#hd #user_util_links div {
+  text-align:left;
+}
+#hd #user_util_links div.first {
+  text-align:right;
+}
