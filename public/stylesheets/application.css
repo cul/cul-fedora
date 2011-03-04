@@ -272,7 +272,7 @@ img.thumbnail {width: 90%;}
 img.gallery {width: 80%;}
 
 /* Individual Result Listing */
-#document h1 {margin: 0px; padding: 0px 0px 1em 0px;}
+#document h1 {margin: 0px; padding: 0px 0px 0px 0px;}
 #document .deleteFolder, #document .addFolder {float:right;}
 #marc_view {padding:5px; text-align:left;}
 #marc_view .ind1, #marc_view .ind2 {padding:0 5px; display:inline;}

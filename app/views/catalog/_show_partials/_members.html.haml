@@ -1,7 +1,7 @@
 - members_list = get_members(document)
 - counter ||= session[:search][:counter]
 - display_members = session[:search][:display_members]
-- display_members ||= "list"
+- display_members = "list" unless not (display_members.nil? || "".eql?(display_members))
 - display_params = {:label=>Blacklight.config[:index][:show_link].to_sym, :counter => counter, :results_view => nil}
 - html_opts = {:method=>:put,:class=>"uiButton"}
 - if members_list.length > 1

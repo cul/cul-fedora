@@ -1,7 +1,9 @@
 %h3 Find any errors?
 %div
-  If you have any problems or concerns with this resource, please
+  Send questions or problem reports to
+  = link_to "scv@libraries.cul.columbia.edu", "mailto:scv@libraries.cul.columbia.edu"
+  ="."
   - reporter = current_user ? current_user.wind_login : "conduit_api"
   - description = "Browser User-Agent: #{request.headers['User-Agent']}\r\nPage: #{request.url}\r\n"
-  = link_to "create an issue", "https://issues.cul.columbia.edu/secure/CreateIssueDetails!init.jspa?pid=10171&issuetype=9&summary=#{CGI::escape("Issue with " + document['title_display'].first.to_s)}&reporter=#{reporter}&description=#{CGI::escape(description)}&priority=2"
+  = "<!-- " + link_to("create an issue", "https://issues.cul.columbia.edu/secure/CreateIssueDetails!init.jspa?pid=10171&issuetype=9&summary=#{CGI::escape("Issue with " + document['title_display'].first.to_s)}&reporter=#{reporter}&description=#{CGI::escape(description)}&priority=2") + " -->"
 

@@ -105,6 +105,13 @@ Blacklight.configure(:shared) do |config|
       "subject_era_facet"    => 10,
       "subject_geo_facet"    => 10
     },
+    :sorts => {
+      "lib_collection_facet" => "index",
+      "lib_date_facet"       => "index",
+      "lib_name_facet"       => "index",
+      "lib_project_facet"    => "index",
+      "lib_repo_facet"       => "index"
+    },
     :hierarchy => {
       "format_h" => true,
       "date_created_h" => true,
