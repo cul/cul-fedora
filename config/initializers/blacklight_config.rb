@@ -105,6 +105,7 @@ Blacklight.configure(:shared) do |config|
       "subject_era_facet"    => 10,
       "subject_geo_facet"    => 10
     },
+    # sorts should be true/false prior to Solr 1.4, "count"/"index" after
     :sorts => {
       "lib_collection_facet" => "index",
       "lib_date_facet"       => "index",
