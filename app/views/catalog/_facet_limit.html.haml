@@ -7,8 +7,11 @@
   - if display_heading
     %h3= facet_field_labels[solr_field]
   %ul
-    - paginator = Blacklight::Solr::FacetPaginator.new(display_facet.items, :limit => facet_limit_for(solr_field), :sort => facet_sort_for(solr_field))
-    - # puts "paginator field #{solr_field} sorted by #{paginator.sort}"
+    - items = display_facet.items
+    - sort = facet_sort_for(solr_field)
+    - if sort.eql? "index"
+      - items = items.sort {|a,b| a.value <=> b.value }
+    - paginator = Blacklight::Solr::FacetPaginator.new(items, :limit => facet_limit_for(solr_field), :sort => sort)
     - paginator.items.each do |item|
       %li
         - if facet_in_params?( solr_field, item.value )
