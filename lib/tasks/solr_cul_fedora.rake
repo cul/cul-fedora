@@ -302,9 +302,9 @@ namespace :solr do
        
        update_uri = URI.parse(solr_url.gsub(/\/$/, "") + "/update")
        p "delete_array.length: #{delete_array.length}"
-       if (delete_array.length == 0)
-         exit
-       end
+       #if (delete_array.length == 0)
+       #  exit
+       #end
        delete_array.each do |id|
          _doc = "<delete><id>#{id}</id></delete>"
          puts _doc
