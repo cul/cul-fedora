@@ -113,22 +113,18 @@ module Blacklight::SolrHelper
     return "count" unless sorts_hash
      
     sort = sorts_hash[facet_field]
-    puts "Found sort \"#{sort}\" for field \"#{facet_field}\" in hash"
     if ( sort == true && @response && 
          @response["responseHeader"] && 
          @response["responseHeader"]["params"])
       _sort =
        @response["responseHeader"]["params"]["f.#{facet_field}.facet.sort"] || 
        @response["responseHeader"]["params"]["facet.sort"]
-      puts "Found sort #{_sort} for field #{facet_field} in response"
       sort = _sort if _sort
     elsif sort == true # but was disregarded by solr
-      puts "Found ignored sort #{sort} for field #{facet_field} in hash"
       sort = "count"
     elsif not sort
       sort = "count"
     end
-    puts "Returning sort #{sort} for field #{facet_field}"
 
     return sort
   end
