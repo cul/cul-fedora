@@ -108,7 +108,6 @@ Blacklight.configure(:shared) do |config|
     # sorts should be true/false prior to Solr 1.4, "count"/"index" after
     :sorts => {
       "lib_collection_facet" => "index",
-      "lib_date_facet"       => "index",
       "lib_name_facet"       => "index",
       "lib_project_facet"    => "index",
       "lib_repo_facet"       => "index"
@@ -134,6 +133,9 @@ Blacklight.configure(:shared) do |config|
   # handler defaults, or have no facets.
   config[:default_solr_params] ||= {}
   config[:default_solr_params][:"facet.field"] = facet_fields
+  facet_fields.each { |ff|
+    config[:default_solr_params][:"f.#{ff}.facet.sort"] = config[:facet][:sorts][ff] || "count"
+  }
 
 
   # solr fields to be displayed in the index (search results) view

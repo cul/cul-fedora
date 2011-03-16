@@ -56,6 +56,8 @@ module Blacklight::SolrHelper
       end
     solr_params['facet.offset'] = input[  Blacklight::Solr::FacetPaginator.request_keys[:offset]  ].to_i # will default to 0 if nil
     solr_params['facet.sort'] = input[  Blacklight::Solr::FacetPaginator.request_keys[:sort] ]     
+    solr_params[:"f.#{facet_field}.facet.sort"] = solr_params["facet.sort"]
+        
     solr_params[:rows] = 0
 
     return solr_params
