@@ -34,9 +34,8 @@ module Blacklight::SolrHelper
   # Default limit for facet list can be specified by defining a controller
   # method facet_list_limit, otherwise 20. 
   def solr_facet_params(facet_field, extra_controller_params={})
-    input = {Blacklight::FacetPaginator.request_keys[:sort]=>facet_sort_for(facet_field)}
-    input.deep_merge!(params)
-    input.deep_merge!(extra_controller_params)
+    input = params.deep_merge(extra_controller_params)
+    input[Blacklight::Solr::FacetPaginator.request_keys[:sort]] = facet_sort_for(facet_field) unless input[Blacklight::Solr::FacetPaginator.request_keys[:sort]]
 
     # First start with a standard solr search params calculations,
     # for any search context in our request params. 

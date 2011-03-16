@@ -59,7 +59,7 @@ module Blacklight::Solr
     # if there is no has_next?
     def params_for_next_url(params)
       return nil unless has_next?
-      
+      puts params.merge(request_keys[:offset] => offset + limit ).to_s
       return params.merge(request_keys[:offset] => offset + limit )
     end
 
