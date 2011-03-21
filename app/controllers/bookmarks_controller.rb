@@ -29,7 +29,7 @@ class BookmarksController < ApplicationController
     success = true
     @bookmarks = params[:bookmarks]
     if @bookmarks.nil?
-      sucess = current_user.bookmarks.create(params[:bookmark])
+      success = current_user.bookmarks.create(params[:bookmark])
     else
       @bookmarks.each do |key, bookmark|
         success = false unless current_user.bookmarks.create(bookmark)

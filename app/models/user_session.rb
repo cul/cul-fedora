@@ -5,4 +5,5 @@ class UserSession < Authlogic::Session::Base
   wind_service "culscv"
   auto_register true
   login_only_with_wind true
+
 end
