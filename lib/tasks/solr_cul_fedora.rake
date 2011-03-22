@@ -219,6 +219,25 @@ namespace :solr do
          User.set_staff!(unis)
        end
      end
+
+     desc "remove unis from SCV by setting cul_staff to FALSE"
+     task :remove_user => :configure do
+       if ENV['UNIS']
+         unis = ENV['UNIS'].split(/\s/)
+         User.unset_staff!(unis)
+       end
+     end
+
+     desc "remove unis from SCV by deleting the user record"
+     task :delete_user => :configure do
+       if ENV['UNIS']
+         unis = ENV['UNIS'].split(/\s/)
+         unis.each { |uni|
+           User.delete(:login=>uni)
+         }
+       end
+     end
+
      desc "index objects from a CUL fedora repository"
      task :index => :configure do
        delete_array = []
