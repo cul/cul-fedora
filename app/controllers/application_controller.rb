@@ -1,10 +1,22 @@
 require_dependency 'vendor/plugins/blacklight/app/controllers/application_controller.rb' 
+require "ruby-prof"
 # Filters added to this controller apply to all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
 class ApplicationController < ActionController::Base
   unloadable
   helper :all # include all helpers, all the time
+  around_filter :profile
+
+  def profile
+    return yield if params[:profile].nil?
+    result = RubyProf.profile { yield }
+    printer = RubyProf::GraphPrinter.new(result)
+    out = StringIO.new
+    printer.print(out, 0)
+    response.body.replace out.string
+    response.content_type = "text/plain"
+  end
 
   protected
 
