@@ -63,7 +63,9 @@ module ScvHelper
     when "image/zooming"
       base_id = base_id_for(document)
       url = FEDORA_CONFIG[:riurl] + "/get/" + base_id + "/SOURCE"
-      head_req = HTTPClient.new.head(url)
+      http_client = HTTPClient.new
+      head_req = http_client.head(url)
+      http_client.close
       # raise head_req.inspect
       file_size = head_req.header["Content-Length"].first.to_i
       results << {:dimensions => "Original", :mime_type => "image/jp2", :show_path => fedora_content_path("show", base_id, "SOURCE", base_id + "_source.jp2"), :download_path => fedora_content_path("download", base_id , "SOURCE", base_id + "_source.jp2")}  
@@ -110,7 +112,7 @@ module ScvHelper
   def doc_json_method(doc, method)
     hc = HTTPClient.new
     res = JSON.parse(hc.get_content(doc_object_method(doc,method)))
-
+    hc.close
   end
 
   def get_aggregator_count(doc)
@@ -269,6 +271,7 @@ module ScvHelper
         results << res
       end
     end
+    hc.close
     return results
   end
 
