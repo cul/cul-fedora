@@ -106,6 +106,7 @@ hd
           query[:limit] = ''
           res = hc.get_content(@riurl,query)
           @members = JSON.parse(res)
+          hc.close
         end
         @members
       end
@@ -127,6 +128,7 @@ hd
           query[:limit] = ''
           res = hc.get_content(@riurl,query)
           @size = res.to_i
+          hc.close
         end
         @size
       end
@@ -140,6 +142,7 @@ hd
           query[:limit] = ''
           res = hc.get_content(@riurl,query)
           @members = JSON.parse(res)
+          hc.close
         end
         @members
       end
