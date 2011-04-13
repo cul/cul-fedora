@@ -48,8 +48,9 @@ hd
   end
   module Objects
     class BaseObject
-      def initialize(document)
+      def initialize(document, client)
         @riurl = FEDORA_CONFIG[:riurl] + '/risearch'
+        @http_client = client
         if document[:pid_s].nil?
             _pid = document[:id].split('@')[0]
             @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,_pid)
@@ -63,82 +64,77 @@ hd
       end
       def getmetadatalist
         if @metadatas.nil?
-          hc = HTTPClient.new
           query = {:query=>@metadataquery}
           query[:format] = 'json'
           query[:type] = 'tuples'
           query[:lang] = 'itql'
           query[:limit] = ''
-          res = hc.get_content(@riurl,query)
+          res = @http_client.get_content(@riurl,query)
           @metadatas = JSON.parse(res)["results"]
         end
         @metadatas
       end
     end
-    class ContentObject
+    class ContentObject < BaseObject
       include Cul::Fedora::Aggregator::ContentAggregator
       include Cul::Fedora::Objects
       attr :members
-      def initialize(document)
-        @riurl = FEDORA_CONFIG[:riurl] + '/risearch'
+      def initialize(document, client=HTTPClient.new)
+        super
         gen_member_query(document)
       end
       def getsize
         if @size.nil?
-          hc = HTTPClient.new
           query = {:query=>@memberquery}
           query[:format] = 'count'
           query[:type] = 'tuples'
           query[:lang] = 'itql'
           query[:limit] = ''
-          res = hc.get_content(@riurl,query)
+          res = @http_client.get_content(@riurl,query)
           @size = res.to_i
         end
         @size
       end
       def getmembers
         if @members.nil?
-          hc = HTTPClient.new
           query = {:query=>@memberquery}
           query[:format] = 'json'
           query[:type] = 'tuples'
           query[:lang] = 'itql'
           query[:limit] = ''
-          res = hc.get_content(@riurl,query)
+          res = @http_client.get_content(@riurl,query)
           @members = JSON.parse(res)
         end
         @members
       end
     end
-    class ImageObject
+    class ImageObject < BaseObject
       include Cul::Fedora::Aggregator::ImageAggregator
       attr :members
-      def initialize(document)
-        @riurl = FEDORA_CONFIG[:riurl] + '/risearch'
+      def initialize(document, client=HTTPClient.new)
+        super
         gen_member_query(document)
       end
       def getsize
         if @size.nil?
-          hc = HTTPClient.new
           query = {:query=>@memberquery}
           query[:format] = 'count'
           query[:type] = 'tuples'
           query[:lang] = 'itql'
           query[:limit] = ''
-          res = hc.get_content(@riurl,query)
+          res = @http_client.get_content(@riurl,query)
           @size = res.to_i
         end
         @size
       end
       def getmembers
         if @members.nil?
-          hc = HTTPClient.new
           query = {:query=>@memberquery}
           query[:format] = 'json'
           query[:type] = 'tuples'
           query[:lang] = 'itql'
           query[:limit] = ''
-          res = hc.get_content(@riurl,query)
+          res = @http_client.get_content(@riurl,query)
           @members = JSON.parse(res)
         end
         @members

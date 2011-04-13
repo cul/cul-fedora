@@ -4,6 +4,10 @@ module ScvHelper
   include CatalogHelper
   include ModsHelper
 
+  def http_client
+    @http_client ||= HTTPClient.new
+  end
+
   def render_document_partial_with_locals(doc, action_name, locals={})
     format = document_partial_name(doc)
     locals = locals.merge({:document=>doc})
@@ -21,7 +25,7 @@ module ScvHelper
       if document[:resource_json]
         document[:parsed_resources] = document[:resource_json].collect {|rj| JSON.parse(rj)}
       else
-        document[:parsed_resources] = Cul::Fedora::Objects::ImageObject.new(document).getmembers["results"]
+        document[:parsed_resources] = Cul::Fedora::Objects::ImageObject.new(document,http_client).getmembers["results"]
       end
       images = document[:parsed_resources]
     end
@@ -63,8 +67,7 @@ module ScvHelper
     when "image/zooming"
       base_id = base_id_for(document)
       url = FEDORA_CONFIG[:riurl] + "/get/" + base_id + "/SOURCE"
-      hc = HTTPClient.new
-      head_req = hc.head(url)
+      head_req = http_client.head(url)
       # raise head_req.inspect
       file_size = head_req.header["Content-Length"].first.to_i
       results << {:dimensions => "Original", :mime_type => "image/jp2", :show_path => fedora_content_path("show", base_id, "SOURCE", base_id + "_source.jp2"), :download_path => fedora_content_path("download", base_id , "SOURCE", base_id + "_source.jp2")}  
@@ -109,13 +112,12 @@ module ScvHelper
   end
 
   def doc_json_method(doc, method)
-    hc = HTTPClient.new
-    res = JSON.parse(hc.get_content(doc_object_method(doc,method)))
+    res = JSON.parse(http_client.get_content(doc_object_method(doc,method)))
   end
 
   def get_aggregator_count(doc)
     # json = doc_json_method(doc, "/ldpd:sdef.Aggregator/getSize?format=json")
-    json =  Cul::Fedora::Objects::ContentAggregator.new(doc).getsize
+    json =  Cul::Fedora::Objects::ContentObject.new(doc,http_client).getsize
     if json
       json
     else
@@ -250,10 +252,9 @@ module ScvHelper
       return results
     end
 
-    json =  Cul::Fedora::Objects::BaseObject.new(doc).getmetadatalist
+    json =  Cul::Fedora::Objects::BaseObject.new(doc,http_client).getmetadatalist
     json << {"DC" => base_id_for(doc)}
-    hc = HTTPClient.new()
-    hc.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    http_client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
     json.each do  |meta_hash|
       meta_hash.each do |desc, uri|
