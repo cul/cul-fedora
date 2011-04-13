@@ -35,7 +35,6 @@ module Blacklight::SolrHelper
   # method facet_list_limit, otherwise 20. 
   def solr_facet_params(facet_field, extra_controller_params={})
     input = params.deep_merge(extra_controller_params)
-    input[Blacklight::Solr::FacetPaginator.request_keys[:sort]] = facet_sort_for(facet_field) unless input[Blacklight::Solr::FacetPaginator.request_keys[:sort]]
 
     # First start with a standard solr search params calculations,
     # for any search context in our request params. 
@@ -55,9 +54,15 @@ module Blacklight::SolrHelper
         20 + 1
       end
     solr_params['facet.offset'] = input[  Blacklight::Solr::FacetPaginator.request_keys[:offset]  ].to_i # will default to 0 if nil
-    solr_params['facet.sort'] = input[  Blacklight::Solr::FacetPaginator.request_keys[:sort] ]     
-    solr_params[:"f.#{facet_field}.facet.sort"] = solr_params["facet.sort"]
-        
+    
+    if input[  Blacklight::Solr::FacetPaginator.request_keys[:sort] ]     
+      solr_params['facet.sort'] = input[  Blacklight::Solr::FacetPaginator.request_keys[:sort] ]     
+      solr_params[:"f.#{facet_field}.facet.sort"] = solr_params["facet.sort"]
+    else
+      input[  Blacklight::Solr::FacetPaginator.request_keys[:sort] ] = facet_sort_for(facet_field)
+      solr_params['facet.sort'] = input[  Blacklight::Solr::FacetPaginator.request_keys[:sort] ]     
+      solr_params[:"f.#{facet_field}.facet.sort"] = solr_params["facet.sort"]
+    end  
     solr_params[:rows] = 0
 
     return solr_params
@@ -104,12 +109,12 @@ module Blacklight::SolrHelper
     Blacklight.solr.find(solr_params).docs.first
   end
     
-  # Look up facet limit for given facet_field. Will look at config, and
+  # Look up facet sort for given facet_field. Will look at config, and
   # if config is 'true' will look up from Solr @response if available. If
-  # no limit is avaialble, returns nil. Used from #solr_search_params
-  # to supply f.fieldname.facet.limit values in solr request (no @response
+  # no limit is available, returns nil. Used from #solr_search_params
+  # to supply f.fieldname.facet.sort values in solr request (no @response
   # available), and used in display (with @response available) to create
-  # a facet paginator with the right limit. 
+  # a facet paginator with the right sort. 
   def facet_sort_for(facet_field)
     sorts_hash = facet_sort_hash
     return "count" unless sorts_hash
@@ -122,10 +127,8 @@ module Blacklight::SolrHelper
        @response["responseHeader"]["params"]["f.#{facet_field}.facet.sort"] || 
        @response["responseHeader"]["params"]["facet.sort"]
       sort = _sort if _sort
-    elsif sort == true # but was disregarded by solr
-      sort = "count"
-    elsif not sort
-      sort = "count"
+    else
+      sort = "count" unless sort
     end
 
     return sort
