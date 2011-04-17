@@ -1,5 +1,7 @@
 class DownloadController < ApplicationController
   before_filter :require_staff
+  filter_access_to :fedora_content, :attribute_check => true,
+                   :model => nil, :load_method => :download_from_params
   caches_action :cachecontent, :expires_in => 7.days,
     :cache_path => proc { |c|
       c.params
@@ -7,7 +9,7 @@ class DownloadController < ApplicationController
   def cachecontent
     url = FEDORA_CONFIG[:riurl] + "/get/" + params[:uri]+ "/" + params[:block]
 
-    cl = HTTPClient.new
+    cl = http_client
     h_cd = "filename=""#{CGI.escapeHTML(params[:filename].to_s)}"""
     h_ct = cl.head(url).header["Content-Type"].to_s
     headers.delete "Cache-Control"
@@ -16,11 +18,29 @@ class DownloadController < ApplicationController
     
     render :status => 200, :text => cl.get_content(url)
   end
+  def download_from_params
+    unless defined?(@download)
+      pid = params[:uri]
+      ds = params[:block]
+      r_obj = Cul::Fedora::Objects::BaseObject.new({:pid_s => pid},http_client)
+      triples = r_obj.triples
+      @download = DownloadObject.new
+      triples.each { |triple|
+        predicate = triple["predicate"]
+        if predicate.eql? "http://purl.org/dc/elements/1.1/format"
+          @download.mime_type=triple["object"]
+        elsif predicate.eql? "info:fedora/fedora-system:def/model#hasModel"
+          @download.content_models.push(triple["object"])
+        end
+      }
+    end
+    params[:object] = @download
+  end
   def fedora_content
       
     url = FEDORA_CONFIG[:riurl] + "/get/" + params[:uri]+ "/" + params[:block]
 
-    cl = HTTPClient.new
+    cl = http_client
     h_cd = "filename=""#{CGI.escapeHTML(params[:filename].to_s)}"""
     h_ct = cl.head(url).header["Content-Type"].to_s
     text_result = nil
@@ -55,7 +75,18 @@ class DownloadController < ApplicationController
       }
     end
   end
-
+  def http_client
+    @http_client = HTTPClient.new unless @http_client
+    @http_client
+  end
+  class DownloadObject
+    attr_reader :content_models, :mime_type
+    attr_writer :mime_type
+    def initialize ()
+      @content_models = []
+      @mime_type = nil
+    end
+  end
 end
 
 

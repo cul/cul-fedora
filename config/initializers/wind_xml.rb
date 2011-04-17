@@ -46,6 +46,23 @@ AuthlogicWind::Session::Methods.module_eval do
             errors.add_to_base("Could not find UNI #{uni} in our database")
           end
         end
+        role_names = wind_data[:affils].collect {|a| a }
+        role_names.push("#{uni}:users.scv.cul.columbia.edu")
+        if wind_user.cul_staff
+          role_names.push("staff:scv.cul.columbia.edu")
+        end
+        role_names.uniq!
+        roles = []
+        role_names.each { |rs|
+          puts "role: #{rs}"
+          role = Role.find_by_role_sym(rs)
+          if !role
+            role = Role.create(:role_sym=>rs)
+          end
+          roles.push(role)
+        }
+        wind_user.roles=roles 
+        wind_user.save!
       else
         errors.add_to_base("WIND Ticket did not verify properly.")
       end  

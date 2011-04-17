@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110210192203) do
+ActiveRecord::Schema.define(:version => 20110416231010) do
 
   create_table "bookmarks", :force => true do |t|
     t.integer  "user_id",     :null => false
@@ -43,6 +43,22 @@ ActiveRecord::Schema.define(:version => 20110210192203) do
   end
 
   add_index "reports", ["category"], :name => "index_reports_on_category"
+
+  create_table "roles", :force => true do |t|
+    t.string   "role_sym",   :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "roles", ["role_sym"], :name => "index_roles_on_role_sym", :unique => true
+
+  create_table "roles_users", :id => false, :force => true do |t|
+    t.integer "user_id", :null => false
+    t.integer "role_id", :null => false
+  end
+
+  add_index "roles_users", ["role_id"], :name => "index_roles_users_on_role_id"
+  add_index "roles_users", ["user_id"], :name => "index_roles_users_on_user_id"
 
   create_table "searches", :force => true do |t|
     t.text     "query_params"

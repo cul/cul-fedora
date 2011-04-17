@@ -252,7 +252,7 @@ module ScvHelper
       return results
     end
 
-    json =  Cul::Fedora::Objects::BaseObject.new(doc,http_client).getmetadatalist
+    json =  Cul::Fedora::Objects::BaseObject.new(doc,http_client).metadata_list
     json << {"DC" => base_id_for(doc)}
     http_client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
 

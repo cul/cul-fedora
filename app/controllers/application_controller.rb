@@ -6,7 +6,23 @@ require "ruby-prof"
 class ApplicationController < ActionController::Base
   unloadable
   helper :all # include all helpers, all the time
+  before_filter :set_current_user
   around_filter :profile
+
+  def set_current_user
+    Authorization.current_user = current_user
+  end
+
+  def current_user
+    return @current_user if defined?(@current_user)
+    
+    if current_user_session
+      @current_user = current_user_session.user
+    else
+      @current_user = false
+    end
+    @current_user
+  end
 
   def profile
     return yield if params[:profile].nil?

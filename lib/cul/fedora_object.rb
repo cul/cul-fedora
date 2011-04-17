@@ -1,5 +1,9 @@
 module Cul
 module Fedora
+  TRIPLES_QUERY_TEMPLATE = <<-hd.gsub(/\s+/, " ").strip
+select $predicate $object from <#ri>
+where <info:fedora/$PID> $predicate $object
+hd
   module Aggregator
     DESCRIPTION_QUERY_TEMPLATE = "select $description from <#ri> where $description <http://purl.oclc.org/NET/CUL/metadataFor> <info:fedora/$PID> order by $description".gsub(/\s+/, " ").strip
     module ImageAggregator
@@ -48,38 +52,40 @@ hd
   end
   module Objects
     class BaseObject
-      def initialize(document, client)
+      def initialize(document, client=HTTPClient.new)
         @riurl = FEDORA_CONFIG[:riurl] + '/risearch'
         @http_client = client
         if document[:pid_s].nil?
             _pid = document[:id].split('@')[0]
-            @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,_pid)
         else
-          if document[:pid_s].kind_of? String
-            @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s])
-          else
-            @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,document[:pid_s].first)
-          end
+          _pid = (document[:pid_s].kind_of? String) ? document[:pid_s] : document[:pid_s].first
         end
+        @metadataquery = Cul::Fedora::Aggregator::DESCRIPTION_QUERY_TEMPLATE.gsub(/\$PID/,_pid)
+        @triplesquery = Cul::Fedora::TRIPLES_QUERY_TEMPLATE.gsub(/\$PID/,_pid)
       end
-      def getmetadatalist
-        if @metadatas.nil?
-          query = {:query=>@metadataquery}
-          query[:format] = 'json'
-          query[:type] = 'tuples'
-          query[:lang] = 'itql'
-          query[:limit] = ''
-          res = @http_client.get_content(@riurl,query)
-          @metadatas = JSON.parse(res)["results"]
-        end
+      def riquery(query)
+        query = {:query=>query}
+        query[:format] = 'json'
+        query[:type] = 'tuples'
+        query[:lang] = 'itql'
+        query[:limit] = ''
+        res = @http_client.get_content(@riurl,query)
+        JSON.parse(res)["results"]
+      end
+      def metadata_list
+        @metadatas = riquery(@metadataquery) unless @metadatas
         @metadatas
+      end
+      def triples
+        @triples = riquery(@triplesquery) unless @triples
+        @triples
       end
     end
     class ContentObject < BaseObject
       include Cul::Fedora::Aggregator::ContentAggregator
       include Cul::Fedora::Objects
       attr :members
-      def initialize(document, client=HTTPClient.new)
+      def initialize(document, client)
         super
         gen_member_query(document)
       end
@@ -111,7 +117,7 @@ hd
     class ImageObject < BaseObject
       include Cul::Fedora::Aggregator::ImageAggregator
       attr :members
-      def initialize(document, client=HTTPClient.new)
+      def initialize(document, client)
         super
         gen_member_query(document)
       end

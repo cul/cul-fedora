@@ -1,6 +1,7 @@
 require_dependency 'vendor/plugins/blacklight/app/models/user.rb'
 
 class User < ActiveRecord::Base
+  has_and_belongs_to_many :roles
   before_validation_on_create :set_personal_info_via_ldap
 
   named_scope :admins, :conditions => {:admin => true}
@@ -49,5 +50,8 @@ class User < ActiveRecord::Base
         User.create!(:login => uni, :wind_login => uni, :email => uni + "@columbia.edu", :cul_staff => false, :password => ActiveSupport::SecureRandom.base64(8)) 
       end
     end
+  end
+  def role_symbols
+    self.roles.collect {|r| r.role_sym.to_sym}
   end
 end

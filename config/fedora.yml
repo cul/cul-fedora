@@ -1,7 +1,10 @@
 development:
-    riurl: https://repository2.cul.columbia.edu:8443/fedora
+    riurl: https://repository.cul.columbia.edu:8443/fedora
     riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
-    collections: "ldpd:91652;ldpd:91654;ldpd:91651;ldpd:91655"
+    collections: "ldpd:91652;ldpd:91654;ldpd:91651;ldpd:91656"
+#    riurl: https://repository2.cul.columbia.edu:8443/fedora
+#    riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
+#    collections: "ldpd:91652;ldpd:91654;ldpd:91651;ldpd:91655"
 test:
     riurl: https://repository2.cul.columbia.edu:8443/fedora
     riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
