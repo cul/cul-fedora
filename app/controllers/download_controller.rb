@@ -67,7 +67,6 @@ class DownloadController < ApplicationController
       headers["Content-Disposition"] = h_cd
       headers["Content-Type"] = h_ct
 
-      
       render :status => 200, :text => Proc.new { |response, output|
         cl.get_content(url) do |chunk|
           output.write chunk

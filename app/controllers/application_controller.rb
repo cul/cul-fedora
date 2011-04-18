@@ -1,4 +1,5 @@
 require_dependency 'vendor/plugins/blacklight/app/controllers/application_controller.rb' 
+require "base64"
 require "ruby-prof"
 # Filters added to this controller apply to all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
@@ -112,5 +113,16 @@ class ApplicationController < ActionController::Base
     javascript_includes << ['jquery-1.4.2.min.js', 'jquery-ui-1.8.1.custom.min.js', 'blacklight', { :plugin=>:blacklight } ]
     javascript_includes << ['accordion', 'zooming_image']
     extra_head_content << [stylesheet_tag(openlayers_css, :media=>'all'), javascript_tag(openlayers_js)]
+  end
+  def fedora_creds
+    unless @fedora_creds
+      uname = FEDORA_CREDENTIALS_CONFIG[:username]
+      pwd = FEDORA_CREDENTIALS_CONFIG[:password]
+      fc = uname + ":" + pwd
+      puts "fc -- #{fc}"
+      @fedora_creds = Base64.encode64(fc)
+      puts "fc -- #{@fedora_creds}"
+    end
+    @fedora_creds
   end
 end

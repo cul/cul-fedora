@@ -5,7 +5,13 @@ module ScvHelper
   include ModsHelper
 
   def http_client
-    @http_client ||= HTTPClient.new
+    unless @http_client
+      @http_client ||= HTTPClient.new
+      uname = FEDORA_CRENDENTIALS_CONFIG[:username]
+      pwd = FEDORA_CRENDENTIALS_CONFIG[:username]
+      @http_client.set_auth(nil, uname, pwd)
+    end
+    @http_client
   end
 
   def render_document_partial_with_locals(doc, action_name, locals={})
