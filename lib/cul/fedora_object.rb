@@ -4,6 +4,13 @@ module Fedora
 select $predicate $object from <#ri>
 where <info:fedora/$PID> $predicate $object
 hd
+  class MimeDummy
+    attr_reader :mime_type, :models
+    def initialize(mime_type, models=[])
+      @mime_type=mime_type
+      @models=models
+    end
+  end
   module Aggregator
     DESCRIPTION_QUERY_TEMPLATE = "select $description from <#ri> where $description <http://purl.oclc.org/NET/CUL/metadataFor> <info:fedora/$PID> order by $description".gsub(/\s+/, " ").strip
     module ImageAggregator

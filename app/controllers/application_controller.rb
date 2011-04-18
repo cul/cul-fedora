@@ -113,9 +113,4 @@ class ApplicationController < ActionController::Base
     javascript_includes << ['accordion', 'zooming_image']
     extra_head_content << [stylesheet_tag(openlayers_css, :media=>'all'), javascript_tag(openlayers_js)]
   end
-  def mime_proxy(mime_type)
-    proxy = Object.new
-    proxy.set_attribute(:mime_type, mime_type)
-    proxy
-  end
 end

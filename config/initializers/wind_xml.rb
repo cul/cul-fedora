@@ -61,6 +61,9 @@ AuthlogicWind::Session::Methods.module_eval do
           end
           roles.push(role)
         }
+        # delete the existing role associations
+        wind_user.roles.clear
+        # add the new role associations
         wind_user.roles=roles 
         wind_user.save!
       else

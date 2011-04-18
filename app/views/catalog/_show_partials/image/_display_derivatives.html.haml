@@ -11,11 +11,16 @@
         %td=resource[:mime_type]
         %td=resource[:dimensions]
         %td=resource[:size] 
-        %td
-          - if resource[:mime_type].match(/tiff$/)
-            = link_to "Download", resource[:download_path] if resource[:download_path]
-          - else
-            = link_to "Show", resource[:show_path] if resource[:show_path]
-          = link_to "DC", resource[:dc_path] if resource[:dc_path]
-
+        - if permitted_to? :fedora_content, Cul::Fedora::MimeDummy.new(resource[:mime_type]), {:context => :download}
+          %td
+            - if resource[:mime_type].match(/tiff$/)
+              = link_to "Download", resource[:download_path] if resource[:download_path]
+            - else
+              = link_to "Show", resource[:show_path] if resource[:show_path]
+            = link_to "DC", resource[:dc_path] if resource[:dc_path]
+        - else
+          %td
+            ="To request high resolution copies, see "
+            %em
+              %a{:href=>"http://library.columbia.edu/services/preservation/reproductions.html"}="Reprographic Services and Fees"
 
