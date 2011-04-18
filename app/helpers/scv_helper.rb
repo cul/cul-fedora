@@ -7,8 +7,8 @@ module ScvHelper
   def http_client
     unless @http_client
       @http_client ||= HTTPClient.new
-      uname = FEDORA_CRENDENTIALS_CONFIG[:username]
-      pwd = FEDORA_CRENDENTIALS_CONFIG[:username]
+      uname = FEDORA_CREDENTIALS_CONFIG[:username]
+      pwd = FEDORA_CREDENTIALS_CONFIG[:username]
       @http_client.set_auth(nil, uname, pwd)
     end
     @http_client
