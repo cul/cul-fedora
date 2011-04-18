@@ -13,10 +13,27 @@ authorization do
       # if_attribute :content_models => contains {"info:fedora/ldpd:RestrictedResource"}
     end
   end
-  role :"spd23:users.scv.cul.columbia.edu" do
+  # role extensions
+  role :"ldpd.cunix.local:columbia.edu" do
     includes :download_tiff
   end
-  #role :"ldpd.cunix.local:columbia.edu" do
-  #  includes :download_tiff
-  #end
+  # user permissions
+  role :"dortiz0:users.scv.cul.columbia.edu" do
+    includes :download_tiff
+  end
+  role :"ds2057:users.scv.cul.columbia.edu" do
+    includes :download_tiff
+  end
+  role :"eh2124:users.scv.cul.columbia.edu" do
+    includes :download_tiff
+  end
+  role :"ejs2121:users.scv.cul.columbia.edu" do
+    includes :download_tiff
+  end
+  role :"jeg2:users.scv.cul.columbia.edu" do
+    includes :download_tiff
+  end
+  role :"la2272:users.scv.cul.columbia.edu" do
+    includes :download_tiff
+  end
 end
