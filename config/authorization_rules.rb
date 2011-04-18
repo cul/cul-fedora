@@ -13,7 +13,7 @@ authorization do
       # if_attribute :content_models => contains {"info:fedora/ldpd:RestrictedResource"}
     end
   end
-  role :"ba2213:users.scv.cul.columbia.edu" do
+  role :"spd23:users.scv.cul.columbia.edu" do
     includes :download_tiff
   end
   #role :"ldpd.cunix.local:columbia.edu" do
