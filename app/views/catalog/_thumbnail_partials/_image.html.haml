@@ -10,4 +10,4 @@
   %div.item_type
     %span.item_type="PART"
 %a{:href=>href,:onclick=>onclick}
-  %img{:src=>"#{image_thumbnail(document)}",:class=>"thumbnail"} 
+  %img{:src=>"#{thumbnail_path(document[:id])}",:class=>"thumbnail"} 

@@ -17,7 +17,7 @@ ActionController::Routing::Routes.draw do |map|
     :uri => /.+/, :filename => /.+/, :download_method => /(download|show|show_pretty)/
   map.wind_logout '/wind_logout', :controller => 'welcome', :action => 'logout'
   map.access_denied '/access_denied', :controller => 'welcome', :action => 'access_denied'
-
+  map.thumbnail '/thumbnail/:id', :controller => 'thumbnail', :action => 'get'
 
   map.resource :folder
   map.connect '/folder/destroy', :controller => 'folder', :action => 'destroy', 

@@ -42,7 +42,7 @@ hd
    end
     end
     module ContentAggregator
-      MEMBER_QUERY_TEMPLATE = "select $member $type subquery( select $dctype $title from <#ri> where $member <dc:type> $dctype and $member <dc:title> $title) where $member <http://purl.oclc.org/NET/CUL/memberOf> <info:fedora/$PID> and $member <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> $type".gsub(/\s+/, " ").strip
+      MEMBER_QUERY_TEMPLATE = "select $member $type subquery( select $dctype $title from <#ri> where $member <dc:type> $dctype and $member <dc:title> $title) from <#ri> where $member <http://purl.oclc.org/NET/CUL/memberOf> <info:fedora/$PID> and $member <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> $type".gsub(/\s+/, " ").strip
    def gen_member_query(document)
      if @memberquery
        @memberquery
