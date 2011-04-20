@@ -3,7 +3,7 @@ class UserSession < Authlogic::Session::Base
   wind_host "wind.columbia.edu"
   wind_service "culscv"
   auto_register true
-  auto_provision ["cul.cunix.local:columbia.edu"]
+  auto_provision ["cul.cunix.local:columbia.edu","cul2.cunix.local:columbia.edu"]
   login_only_with_wind true
 
 end
