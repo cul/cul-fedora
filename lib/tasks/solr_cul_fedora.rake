@@ -239,6 +239,15 @@ namespace :solr do
      end
 
      desc "index objects from a CUL fedora repository"
+     task :optimize => :configure do
+       puts "optimizing #{SOLR_CONFIG[:url]}"
+       Blacklight.solr.optimize
+       puts "optimized..."
+       Blacklight.solr.commit
+       puts "committed..."
+     end
+
+     desc "index objects from a CUL fedora repository"
      task :index => :configure do
        delete_array = []
        urls_to_scan = case
