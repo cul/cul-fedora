@@ -36,6 +36,7 @@ AuthlogicWind::Session::Methods.module_eval do
           else
             User.unset_staff!([uni])
           end
+          wind_user = User.find_by_login(uni)
         end
         self.attempted_record = search_for_record(find_by_wind_method, uni) 
         if !attempted_record
