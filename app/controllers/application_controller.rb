@@ -118,11 +118,26 @@ class ApplicationController < ActionController::Base
     unless @fedora_creds
       uname = FEDORA_CREDENTIALS_CONFIG[:username]
       pwd = FEDORA_CREDENTIALS_CONFIG[:password]
-      fc = uname + ":" + pwd
-      puts "fc -- #{fc}"
-      @fedora_creds = Base64.encode64(fc)
-      puts "fc -- #{@fedora_creds}"
+      fc = "#{uname}:#{pwd}"
+      @fedora_creds = [fc].pack('m').delete("\r\n")
     end
     @fedora_creds
   end
+
+  def http_client
+    unless @http_client
+      @http_client ||= HTTPClient.new
+    end
+    @http_client
+  end
+
+  def set_fedora_credentials(hc,target)
+    uname = FEDORA_CREDENTIALS_CONFIG[:username]
+    pwd = FEDORA_CREDENTIALS_CONFIG[:password]
+    domain = File.dirname(target) + '/'
+    puts "credential set for user: #{uname} domain: #{domain}"
+    hc.set_auth(domain, uname, pwd)
+    hc
+  end
+
 end

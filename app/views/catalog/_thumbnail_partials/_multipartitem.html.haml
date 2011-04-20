@@ -1,12 +1,8 @@
-- fdata = get_first_member(document,true)
-- label = (fdata[1]==0)?"EMPTY":(fdata[1]==1)?"SINGLE PART":"MULTIPART"
+- label = get_index_type_label(document)
 - counter ||= nil
 - if !(counter.nil?)
   - counter = (counter.to_i + 1 + @response.params[:start].to_i)
 %div.item_type
   %span.item_type="#{label} ITEM"
-- if fdata[1] > 0
-  %a{:href=>url_to_document(document), :onclick=>onclick_to_document(document,{:counter=>counter})}
-    %img{:src=>thumbnail_path(document[:id]),:style=>"width:100px"}
-- else
-  %span="empty - no thumbnail"
+%a{:href=>url_to_document(document), :onclick=>onclick_to_document(document,{:counter=>counter})}
+  %img{:src=>thumbnail_path(document[:id]),:style=>"width:100px"}

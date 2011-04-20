@@ -1,3 +1,4 @@
+require 'net/http'
 class DownloadController < ApplicationController
   before_filter :require_staff
   filter_access_to :fedora_content, :attribute_check => true,
@@ -67,17 +68,27 @@ class DownloadController < ApplicationController
       headers["Content-Disposition"] = h_cd
       headers["Content-Type"] = h_ct
 
-      render :status => 200, :text => Proc.new { |response, output|
-        cl.get_content(url) do |chunk|
-          output.write chunk
-        end
+      # Chunking would be preferred, but not working with basic auth
+      # Neither setting header nor included .set_auth method works
+      # rhdrs = {'Authorization' => fedora_creds}
+      # render :status => 200, :text => Proc.new { |response, output|
+        #cl.get_content(url,:query =>nil,:header =>rhdrs) do |chunk|
+        #  output.write chunk
+        #end
+      # }
+      uri = URI.parse(url)
+      cl = Net::HTTP.new(uri.host,uri.port)
+      cl.use_ssl = (uri.scheme == 'https')
+      cl.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      cl.start { |http|
+        req = Net::HTTP::Get.new(uri.path)
+        req.basic_auth FEDORA_CREDENTIALS_CONFIG[:username], FEDORA_CREDENTIALS_CONFIG[:password]
+        response = http.request(req)
+        render :status=>response.code, :text=>response.body
       }
     end
   end
-  def http_client
-    @http_client = HTTPClient.new unless @http_client
-    @http_client
-  end
+
   class DownloadObject
     attr_reader :content_models, :mime_type
     attr_writer :mime_type

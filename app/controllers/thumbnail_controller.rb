@@ -122,8 +122,4 @@ class ThumbnailController < ApplicationController
   def pid_from_uri(uri)
     return uri.sub(/info:fedora\//,'')
   end
-  def http_client
-    @http_client = HTTPClient.new unless @http_client
-    @http_client
-  end
 end

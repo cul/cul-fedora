@@ -1,4 +1,5 @@
 require 'lib/cul/fedora_object.rb'
+require 'rsolr'
 module ScvHelper
   include Blacklight::SolrHelper
   include CatalogHelper
@@ -136,6 +137,30 @@ module ScvHelper
     return {"id"=>pid,Blacklight.config[:show][:display_type]=>type}
   end
 
+  def get_index_type_label(document)
+    unless document["index_type_label_s"]
+      docs = get_members(document)
+      if docs.length == 0
+        label = "EMPTY"
+      elsif docs.length == 1
+        label = "SINGLE PART"
+      else
+        label = "MULTIPART"
+      end
+      update_doc(document[:id],{:index_type_label_s => label})
+      document[:index_type_label_s] = label
+    end
+    document[:index_type_label_s]
+  end
+  def update_doc(id, fields={})
+      _solr = RSolr.connect :url => SOLR_CONFIG[:url]
+      _doc = _solr.find({:qt => :document, :id => id})
+      _doc = _doc.docs.first
+      _doc.merge!(fields)
+      add_attrs = {:allowDups=>false, :commitWithin=>10.0}
+      _solr.add(_doc)
+      _solr.commit
+  end
   def get_first_member(document, imageOnly=True)
     docs = get_members(document)
     for doc in docs:

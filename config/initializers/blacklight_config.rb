@@ -158,6 +158,7 @@ Blacklight.configure(:shared) do |config|
       "published_display",
       "object_display",
       "lc_callnum_display",
+      "index_type_label_s",
       "resource_json"
     ],
     :labels => {
