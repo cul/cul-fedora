@@ -8,6 +8,7 @@ module ScvHelper
   def http_client
     unless @http_client
       @http_client ||= HTTPClient.new
+      @http_client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
       uname = FEDORA_CREDENTIALS_CONFIG[:username]
       pwd = FEDORA_CREDENTIALS_CONFIG[:username]
       @http_client.set_auth(nil, uname, pwd)
@@ -285,13 +286,12 @@ module ScvHelper
 
     json =  Cul::Fedora::Objects::BaseObject.new(doc,http_client).metadata_list
     json << {"DC" => base_id_for(doc)}
-    http_client.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
     json.each do  |meta_hash|
       meta_hash.each do |desc, uri|
         res = decorate_metadata_response(desc, trim_fedora_uri_to_pid(uri))
         begin
-          res[:xml] = Nokogiri::XML(hc.get_content(res[:direct_link]))
+          res[:xml] = Nokogiri::XML(http_client.get_content(res[:direct_link]))
           root = res[:xml].root
           res[:type] = "MODS" if root.name == "mods" && root.attributes["schemaLocation"].value.include?("/mods/")
         rescue
