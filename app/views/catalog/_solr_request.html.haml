@@ -1,4 +1,4 @@
-- unless RAILS_ENV=='production'
+- unless RAILS_ENV=='ludwig_prod'
   - @footer = capture_haml do
     %div.solrQuery= URI.decode(@response.header.inspect)
     %div.solrQuery

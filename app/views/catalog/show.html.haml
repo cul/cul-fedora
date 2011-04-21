@@ -22,8 +22,8 @@
     = render_document_heading
     %div.document
       = render_document_partial @document, :show
-
-= render :partial=>'solr_request'
+- unless RAILS_ENV == 'ludwig_prod'
+  = render :partial=>'solr_request'
 
 
 - if @document.respond_to?(:export_as_openurl_ctx_kev)
