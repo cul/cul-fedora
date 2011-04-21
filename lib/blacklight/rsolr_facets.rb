@@ -25,7 +25,6 @@ module RSolr::Ext::Response::Facets
     # parsing is hinky because of the flat list of returned values
     items = []
     if (! subfacet_values )
-      warn "nil/false for subfacet_values"
       return items
     end
     i = 0
