@@ -1,7 +1,7 @@
 module ScvAppHelper
   include ApplicationHelper
   def application_name
-    "Columbia University Libraries <i>Staff Collection Viewer</i> Prototype"
+    "Columbia University Libraries Staff Collection Viewer Prototype"
   end
   # RSolr presumes one suggested word, this is a temporary fix
   def get_suggestions(spellcheck)

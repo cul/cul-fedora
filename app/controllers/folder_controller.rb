@@ -13,12 +13,14 @@ class FolderController < ApplicationController
   # add a document_id to the folder
   def create
     session[:folder_document_ids] = session[:folder_document_ids] || []
+    puts "adding #{params[:id]} to folder"
     session[:folder_document_ids] << params[:id] 
     redirect_to :back
   end
  
   # remove a document_id from the folder
   def destroy
+    puts "removing #{params[:id]} to folder"
     session[:folder_document_ids].delete(params[:id])
     redirect_to :back
   end
