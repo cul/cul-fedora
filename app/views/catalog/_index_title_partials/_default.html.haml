@@ -18,6 +18,8 @@
           = " - " + groups[0]["lib_collection_facet"].join(',')
   - else
     %span.index_metadata
+      - if document["lib_date_facet"]
+        = document["lib_date_facet"][0] + '.'
       - if document["lib_name_display"]
         = document["lib_name_display"][0] + '.'
       = document["lib_repo_facet"]

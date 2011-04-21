@@ -68,14 +68,6 @@ class DownloadController < ApplicationController
       headers["Content-Disposition"] = h_cd
       headers["Content-Type"] = h_ct
 
-      # Chunking would be preferred, but not working with basic auth
-      # Neither setting header nor included .set_auth method works
-      # rhdrs = {'Authorization' => fedora_creds}
-      # render :status => 200, :text => Proc.new { |response, output|
-        #cl.get_content(url,:query =>nil,:header =>rhdrs) do |chunk|
-        #  output.write chunk
-        #end
-      # }
       uri = URI.parse(url)
       cl = Net::HTTP.new(uri.host,uri.port)
       cl.use_ssl = (uri.scheme == 'https')
@@ -83,8 +75,14 @@ class DownloadController < ApplicationController
       cl.start { |http|
         req = Net::HTTP::Get.new(uri.path)
         req.basic_auth FEDORA_CREDENTIALS_CONFIG[:username], FEDORA_CREDENTIALS_CONFIG[:password]
-        response = http.request(req)
-        render :status=>response.code, :text=>response.body
+        render :status=>200, :text=> Proc.new { |response, output|
+          http.request(req) { |res|
+            res.read_body do |seg|
+              output.write seg
+            end
+          }
+        }
+       
       }
     end
   end
