@@ -12,9 +12,12 @@ class FolderController < ApplicationController
 
   # add a document_id to the folder
   def create
-    session[:folder_document_ids] = session[:folder_document_ids] || []
+    unless session.has_key? :folder_document_ids
+      puts "adding folder to session"
+      session[:folder_document_ids] = []
+    end
     puts "adding #{params[:id]} to folder"
-    session[:folder_document_ids] << params[:id] 
+    session[:folder_document_ids].push params[:id] 
     redirect_to :back
   end
  
@@ -32,4 +35,3 @@ class FolderController < ApplicationController
   end
  
 end
-
