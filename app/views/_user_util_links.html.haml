@@ -18,7 +18,6 @@
       - if current_user and current_user.last_search_url
         = link_to('View your last search', catalog_index_path(current_user.last_search_url))
   .yui-g
-    .yui-u.first= link_to('Bookmarks', bookmarks_path)
+    .yui-u.first= link_to('Saved Items', bookmarks_path)
     .yui-u
-      = link_to "Folder", folder_index_path
-      %span#folder_number= "(#{session[:folder_document_ids] ? session[:folder_document_ids].length : 0})"
+      %span#folder_number= ""

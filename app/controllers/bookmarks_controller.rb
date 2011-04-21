@@ -37,36 +37,36 @@ class BookmarksController < ApplicationController
     end
     if success
       if @bookmarks.nil? || @bookmarks.size == 1
-        flash[:notice] = "Successfully added bookmark."
+        flash[:notice] = "Successfully saved item."
       else
-        flash[:notice] = "Successfully added bookmarks."
+        flash[:notice] = "Successfully saved items."
       end
     else
-      flash[:error] = "There was a problem adding that bookmark."      
+      flash[:error] = "There was a problem saving that item."      
     end
     redirect_to :back
   end
   
   def destroy
     if current_user.bookmarks.delete(Bookmark.find(params[:id]))
-      flash[:notice] = "Successfully removed that bookmark."
+      flash[:notice] = "Successfully removed item from saved items."
     else
-      flash[:error] = "Couldn't remove that bookmark."
+      flash[:error] = "Couldn't remove that item from saved items."
     end
     redirect_to :back
   end
   
   def clear    
     if current_user.bookmarks.clear
-      flash[:notice] = "Cleared your bookmarks."
+      flash[:notice] = "Cleared your saved items."
     else
-      flash[:error] = "There was a problem clearing your bookmarks."
+      flash[:error] = "There was a problem clearing your saved items."
     end
     redirect_to :action => "index"
   end
   
   protected
   def verify_user
-    flash[:error] = "Please log in to manage and view your bookmarks." and redirect_to :back unless current_user
+    flash[:error] = "Please log in to manage and view your saved items." and redirect_to :back unless current_user
   end
 end

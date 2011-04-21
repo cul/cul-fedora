@@ -1,22 +1,22 @@
-%h1="Bookmarks"
+%h1="Saved Items"
 
 - if current_user.blank?
   
-  %h2="Please log in to see your bookmarks."
+  %h2="Please log in to see your saved items."
   
 - elsif @bookmarks.blank?
   
-  %h2="You have no bookmarks."
+  %h2="You have no saved items."
   
 - else
 
   - sidebar_items << capture do
-    %h3="Search your Bookmarks"
+    %h3="Search your Saved Items"
     - form_tag bookmarks_path, :method=>:get do
       = text_field_tag 'q', params[:q]
       = submit_tag 'find', :name=>:a
 	
-    %h3="Bookmark Tags"
+    %h3="Your Item Tags"
     - @tags=current_user.bookmarks.tag_counts
     - tag_cloud @tags, %w(tagCloud1 tagCloud2 tagCloud3 tagCloud4) do |tag, css_class|
       = link_to h(tag.name), "#{collection_path}?tag=#{h(tag.name)}", :class=>css_class
@@ -29,13 +29,13 @@
   = will_paginate(@bookmarks)
 
   %div#userBookmarks
-    %p=link_to "Clear Bookmarks", clear_bookmarks_path, :method => :delete, :confirm => "Clear your bookmarks?"
+    %p=link_to "Clear Saved Items", clear_bookmarks_path, :method => :delete, :confirm => "Clear your saved items?"
   
-    %h2="Your Bookmarks"
+    %h2="Your Saved Items"
   
     %table.zebra
       - @bookmarks.each do |bm|
         %tr
           %td= link_to h(bm.title), catalog_path(bm.document_id)
           %td= link_to 'edit', edit_bookmark_path(bm)
-          %td= link_to 'remove', bookmark_path(bm), :method => :delete, :confirm => 'Remove this bookmark?'
+          %td= link_to 'remove', bookmark_path(bm), :method => :delete, :confirm => 'Remove this item?'

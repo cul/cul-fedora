@@ -8,5 +8,4 @@
           = render_document_partial_with_locals document, :index_title, {:counter=>counter}
         .yui-u.documentFunctions
           = render :partial=>'bookmark_control', :locals=>{:document=>document}
-          = render :partial=>'folder_control', :locals =>{:document=> document, :display =>'button'}
       = render_document_partial_with_locals document, :index, {:counter=>counter}

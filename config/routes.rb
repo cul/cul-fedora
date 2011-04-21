@@ -19,9 +19,9 @@ ActionController::Routing::Routes.draw do |map|
   map.access_denied '/access_denied', :controller => 'welcome', :action => 'access_denied'
   map.thumbnail '/thumbnail/:id', :controller => 'thumbnail', :action => 'get'
 
-  map.resource :folder
-  map.connect '/folder/destroy', :controller => 'folder', :action => 'destroy', 
-    :category => /(by_collection)/
+#  map.resource :folder
+#  map.connect '/folder/destroy', :controller => 'folder', :action => 'destroy', 
+#    :category => /(by_collection)/
   
   map.resource :report
   

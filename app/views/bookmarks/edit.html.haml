@@ -1,7 +1,7 @@
-%h2="Editing Bookmark for #{ link_to @bookmark.title, catalog_path(@bookmark.document_id)}"
+%h2="Editing Saved Item \"#{ link_to @bookmark.title, catalog_path(@bookmark.document_id)}\""
 
 - sidebar_items << capture do 
-  = link_to '<< back to my bookmarks', bookmarks_path
+  = link_to '<< back to my saved items', bookmarks_path
 
 - form_for @bookmark, :url => bookmark_path do |f|
   %fieldset
