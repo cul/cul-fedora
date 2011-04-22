@@ -9,8 +9,6 @@
   %ul
     - items = display_facet.items
     - sort = facet_sort_for(solr_field)
-    - if sort.eql? "index"
-      - items = items.sort {|a,b| a.value <=> b.value }
     - paginator = Blacklight::Solr::FacetPaginator.new(items, :limit => facet_limit_for(solr_field), :sort => sort)
     - paginator.items.each do |item|
       %li

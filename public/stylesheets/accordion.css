@@ -1,3 +1,15 @@
 #facets li ul {
   margin-left:1em;
 }
+H3.expanded {
+  padding-left: 9px;
+  background-image:url('../images/toggle-down.png');
+  background-position: 0px 2px;
+  background-repeat: no-repeat;
+}
+H3.collapsed {
+  padding-left: 9px;
+  background-image:url('../images/toggle-up.png');
+  background-position: 0px 2px;
+  background-repeat: no-repeat;
+}
