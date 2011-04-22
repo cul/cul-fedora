@@ -54,20 +54,25 @@ module Cul
       end
 
       def listMembers()
-        result = Nokogiri::XML(request(:sdef => "ldpd:sdef.Aggregator", :request => "listMembers", :format => "", :max => "", :start => ""))
+        begin
+          result = Nokogiri::XML(request(:method => "/objects", :sdef => "methods/ldpd:sdef.Aggregator", :request => "listMembers", :format => "", :max => "", :start => ""))
 
-        result.css("sparql>results>result>member").collect do |result_node|
-          @server.item(result_node.attributes["uri"].value)
+          result.css("sparql>results>result>member").collect do |result_node|
+            @server.item(result_node.attributes["uri"].value)
+          end
+        rescue
+          []
         end
       end
 
       def describedBy
         begin
-          result = request(:request => "describedBy", :sdef => "ldpd:sdef.Core")
+          params = {:method => '/objects', :request => "describedBy", :sdef => "methods/ldpd:sdef.Core"}
+          result = request(params)
           Nokogiri::XML(result).css("sparql>results>result>description").collect do |metadata|
             @server.item(metadata.attributes["uri"].value)
           end
-        rescue
+        rescue Exception => e
           []
         end
       end

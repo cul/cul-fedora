@@ -15,8 +15,8 @@ begin
     gem.add_dependency "nokogiri"
     gem.add_dependency "httpclient"
     gem.add_dependency "activesupport"
-    gem.add_dependency "rsolr"
-    gem.add_dependency "rsolr-ext"
+    gem.add_dependency "rsolr", '>=0.12.1'
+    gem.add_dependency "rsolr-ext", '>=0.12.1'
 
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
