@@ -313,7 +313,7 @@ module ScvHelper
   end
   def link_to_clio(document,link_text="More information in CLIO")
     if document["clio_s"] and document["clio_s"].length > 0
-      "<a href=\"http://clio.cul.columbia.edu:7018/vwebv/holdingsInfo?bibId=#{document["clio_s"][0]}\">#{link_text}</a>"
+      "<a href=\"http://clio.cul.columbia.edu:7018/vwebv/holdingsInfo?bibId=#{document["clio_s"][0]}\" target=\"_blank\">#{link_text}</a>"
     else
       ""
     end

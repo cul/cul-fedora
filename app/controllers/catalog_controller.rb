@@ -21,6 +21,7 @@ class CatalogController < ApplicationController
 
   def solr_search_params(extra_controller_params={})
     _params = super(extra_controller_params)
+    _params[:defType] = 'edismax'
     if _params[:per_page].nil?
       _params.merge :per_page=>"10"
     else

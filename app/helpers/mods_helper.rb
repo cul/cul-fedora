@@ -71,9 +71,11 @@ module ModsHelper
       end
     end
     details << ["Note:", notes.join(" -- ")] unless notes.empty?
+    # external link icon
+    ext_link = image_tag("wikimedia/Icon_External_Link.png")
     # URL (external)
     xml.xpath("/mods:mods/mods:location/mods:url",ns).each do |node|
-      details << ["Item in Context:", link_to(node.content.to_s, node.content, :target => "blank")]
+      details << ["Item in Context:", link_to("#{abbreviate_url(node.content.to_s)}  #{ext_link}", node.content, :target => "blank")]
     end
     # physicalLocation
     nodes = xml.xpath("/mods:mods/mods:location/mods:physicalLocation",ns) - xml.xpath("/mods:mods/mods:location/mods:physicalLocation[@authority='marcorg']",ns)
@@ -86,7 +88,7 @@ module ModsHelper
         label += ":"
         value = parse_mods_title(node)
         if node.xpath("../mods:location/mods:url",ns).first
-          value = link_to(value,node.xpath("../mods:location/mods:url",ns).first.text, :target=>"blank")
+          value = link_to("#{value} #{ext_link}",node.xpath("../mods:location/mods:url",ns).first.text, :target=>"blank")
         end
         details << [label, value]
       end
@@ -102,7 +104,7 @@ module ModsHelper
         when "local"
           details << ["Record ID:" ,node.text] unless node == ""
         when "CLIO"
-          details << ["CLIO ID:" , link_to_clio({'clio_s'=>[node.text]},node.text)] unless node == ""
+          details << ["CLIO ID:" , link_to_clio({'clio_s'=>[node.text]},"#{node.text} #{ext_link}")] unless node == ""
         else
           details << ["Identifier:", node.text]
       end
@@ -174,5 +176,19 @@ module ModsHelper
     rescue
       date.to_s
     end
+  end
+
+  def abbreviate_url(url)
+    if url.length > 50
+      server = url.match(/^http\:\/\/[\w.]+(\:\d+)?/)
+      path = url[server.length .. url.length]
+      path = path.split(/\//)
+      new_path = '/' + path.pop
+      while (path.length > 0 && new_path.length + server.length < 46)
+        new_path = '/' + path.pop + new_path
+      end
+      url = "#{server}/...#{new_path}"
+    end
+    url
   end
 end

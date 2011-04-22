@@ -72,18 +72,18 @@ Blacklight.configure(:shared) do |config|
       "subject_era_facet"
     ]),
     :labels => {
-      "lib_project_facet"              => "Project",
+      "lib_project_facet"              => "Projects",
       "lib_name_facet"            => "Names",
-      "lib_date_facet"            => "Date",
-      "lib_format_facet"              => "Format",
-      "lib_collection_facet"              => "Collection",
-      "lib_repo_facet"            => "Repository",
+      "lib_date_facet"            => "Dates",
+      "lib_format_facet"              => "Formats",
+      "lib_collection_facet"              => "Collections",
+      "lib_repo_facet"            => "Repositories",
       "date_created_h"              => "Date (Experimental)",
-      "subject_topic_facet" => "Topic",
-      "language_facet"      => "Language",
-      "lc_1letter_facet"    => "Call Number",
-      "subject_era_facet"   => "Era",
-      "subject_geo_facet"   => "Region"
+      "subject_topic_facet" => "Topics",
+      "language_facet"      => "Languages",
+      "lc_1letter_facet"    => "Call Numbers",
+      "subject_era_facet"   => "Eras",
+      "subject_geo_facet"   => "Regions"
     },
     # Setting a limit will trigger Blacklight's 'more' facet values link.
     # If left unset, then all facet values returned by solr will be displayed.
