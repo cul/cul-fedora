@@ -125,6 +125,11 @@ module Cul
 
 
             title = normalize_space.call(mods.css("titleInfo>nonSort,title").collect(&:content).join(" "))
+            record_creation_date = mods.at_css("recordInfo>recordCreationDate").text.gsub("UTC", "").strip
+            if(!record_creation_date.nil? || !record_creation_date.empty?)
+              record_creation_date = DateTime.parse(record_creation_date)
+              add_field.call("record_creation_date", record_creation_date.strftime("%Y-%m-%dT%H:%M:%SZ"))
+            end
             add_field.call("title_display", title)
             add_field.call("title_search", title)
 
