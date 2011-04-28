@@ -15,6 +15,11 @@ module Cul
         @rsolr ||= RSolr.connect(:url => @url)
       end
 
+      def delete_index
+        rsolr.delete_by_query("*:*")
+        rsolr.commit
+      end
+      
       def ingest(options = {})
         format = options.delete(:format) || raise(ArgumentError, "needs format")
 
@@ -22,13 +27,14 @@ module Cul
         items = [items] unless items.kind_of?(Array)
         collections = options.delete(:collections) || []
         collections = [collections] unless collections.kind_of?(Array)
+        ignore = options.delete(:ignore) || []
+        ignore = [ignore] unless ignore.kind_of?(Array)
 
         overwrite = options.delete(:overwrite) || false
         process = options.delete(:process) || nil
         skip = options.delete(:skip) || nil
 
-
-
+        
         collections.each do |collection|
           items |= collection.listMembers
         end
@@ -40,6 +46,12 @@ module Cul
         errors = {}
       
         items.each do |i|
+          
+          if(ignore.index(i.pid).nil? == false)
+            puts "Ignoring " + i.pid + "..."
+            next
+          end
+          
           if process && skip && skip > 0
             skip -= 1
             next
@@ -55,7 +67,7 @@ module Cul
           end    
           
 
-
+         puts "Indexing " + i.pid + "..."
 
           result_hash = i.send("index_for_#{format}", options)
 

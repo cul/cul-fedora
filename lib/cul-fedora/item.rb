@@ -105,7 +105,9 @@ module Cul
 
         roles = ["Author","author","Creator","Thesis Advisor","Collector","Owner","Speaker","Seminar Chairman","Secretary","Rapporteur","Committee Member","Degree Grantor","Moderator","Editor","Interviewee","Interviewer","Organizer of Meeting","Originator","Teacher"]
 
-
+        organizations = []
+        departments = []
+          
         begin
           collections = self.belongsTo
           meta = describedBy.first
@@ -124,14 +126,18 @@ module Cul
 
 
 
-            title = normalize_space.call(mods.css("titleInfo>nonSort,title").collect(&:content).join(" "))
-            record_creation_date = mods.at_css("recordInfo>recordCreationDate").text.gsub("UTC", "").strip
+            title = mods.css("titleInfo>title").first.text
+            title_search = normalize_space.call(mods.css("titleInfo>nonSort,title").collect(&:content).join(" "))
+            record_creation_date = mods.at_css("recordInfo>recordCreationDate")
+            if(record_creation_date.nil?)
+              record_creation_date = mods.at_css("recordInfo>recordChangeDate")
+            end
             if(!record_creation_date.nil? || !record_creation_date.empty?)
-              record_creation_date = DateTime.parse(record_creation_date)
+              record_creation_date = DateTime.parse(record_creation_date.text.gsub("UTC", "").strip)
               add_field.call("record_creation_date", record_creation_date.strftime("%Y-%m-%dT%H:%M:%SZ"))
             end
             add_field.call("title_display", title)
-            add_field.call("title_search", title)
+            add_field.call("title_search", title_search)
 
             all_names = []
             mods.css("name[@type='personal']").each do |name_node|
@@ -140,18 +146,37 @@ module Cul
                 fullname = get_fullname.call(name_node)
 
                 all_names << fullname
-                add_field.call("author_id_uni", name_node.at_css("authorID[@type='institution']"))
-                add_field.call("author_id_repository", name_node.at_css("authorID[@type='repository']"))
-                add_field.call("author_id_naf", name_node.at_css("authorID[@type='naf']"))
+                if(!name_node["ID"].nil?)
+                  add_field.call("author_id_uni", name_node["ID"])
+                end
                 add_field.call("author_search", fullname.downcase)
                 add_field.call("author_facet", fullname)
+                
+                name_node.css("affiliation").each do |affiliation_node|
+                  affiliation_text = affiliation_node.text
+                  if(affiliation_text.include?(". "))
+                    affiliation_split = affiliation_text.split(". ")
+                    organizations.push(affiliation_split[0].strip)
+                    departments.push(affiliation_split[1].strip)
+                  end
+                end
 
               end
-
+            end
+            
+            mods.css("name[@type='corporate']").each do |corp_name_node|
+              if(!corp_name_node["ID"].nil? && corp_name_node["ID"].include?("originator"))
+                name_part = corp_name_node.at_css("namePart")
+                if(name_part.include?(". "))
+                  name_part_split = name_part.split(". ")
+                  organizations.push(name_part_split[0].strip)
+                  departments.push(name_part_split[1].strip)
+                end
+              end
             end
 
             add_field.call("authors_display",all_names.join("; "))
-            add_field.call("date", mods.at_css("*[@keyDate='yes']"))
+            add_field.call("pub_date", mods.at_css("*[@keyDate='yes']"))
 
             mods.css("genre").each do |genre_node|
               add_field.call("genre_facet", genre_node)
@@ -163,14 +188,14 @@ module Cul
             add_field.call("abstract", mods.at_css("abstract"))
             add_field.call("handle", mods.at_css("identifier[@type='hdl']"))
 
-            mods.css("subject:not([@authority='local'])>topic").each do |topic_node|
-              add_field.call("keyword_search", topic_node.content.downcase)
-              add_field.call("keyword_facet", topic_node)
-            end
-
-            mods.css("subject[@authority='local']>topic").each do |topic_node|
-              add_field.call("subject", topic_node)
-              add_field.call("subject_search", topic_node)
+            mods.css("subject").each do |subject_node|
+              if(subject_node.attributes.count == 0)
+                subject_node.css("topic").each do |topic_node|
+                  add_field.call("keyword_search", topic_node.content.downcase)
+                  add_field.call("subject", topic_node)
+                  add_field.call("subject_search", topic_node)
+                end
+              end
             end
 
 
@@ -208,7 +233,22 @@ module Cul
               add_field.call("geographic_area_search", geo)
             end
 
-            add_field.call("export_as_mla_citation_txt","test")
+            add_field.call("export_as_mla_citation_txt","")
+            
+            if(organizations.count > 0)
+              organizations = organizations.uniq
+              organizations.each do |organization|
+                add_field.call("affiliation_organization", organization)
+              end
+            end
+            
+            if(departments.count > 0)
+              departments = departments.uniq
+              departments.each do |department|
+                add_field.call("affiliation_department", department)
+              end
+            end
+            
           end
 
 
