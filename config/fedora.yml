@@ -1,23 +1,14 @@
-development:
-#    riurl: https://repository.cul.columbia.edu:8443/fedora
-#    riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
-#    collections: "ldpd:91652;ldpd:91654;ldpd:91651;ldpd:91656"
+passenger_prod: &PROD
+    riurl: https://repository.cul.columbia.edu:8443/fedora
+    riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
+    collections: "ldpd:91652;ldpd:91654;ldpd:91651;ldpd:91656"
+passenger_test: &TEST
     riurl: https://repository2.cul.columbia.edu:8443/fedora
     riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
     collections: "ldpd:91652;ldpd:91654;ldpd:91651;ldpd:91655"
+passenger_dev:
+    <<: *TEST
 test:
-    riurl: https://repository2.cul.columbia.edu:8443/fedora
-    riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
-    collections: "ldpd:91652;ldpd:91654;ldpd:91651;ldpd:91655"
-pass_test:
-    riurl: https://repository2.cul.columbia.edu:8443/fedora
-    riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
-    collections: "ldpd:91652;ldpd:91654;ldpd:91651;ldpd:91655"
-production:
-    riurl: https://repository.cul.columbia.edu:8443/fedora
-    riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
-    collections: "ldpd:91652;ldpd:91654;ldpd:91651;ldpd:91656"
-ludwig_prod:
-    riurl: https://repository.cul.columbia.edu:8443/fedora
-    riquery: "select $member from <#ri> where walk ($obj <cul:memberOf> <fedora:%s> and $member <cul:memberOf> $obj) and $member <rdf:type> <cul:Aggregator>"
-    collections: "ldpd:91652;ldpd:91654;ldpd:91651;ldpd:91656"
+    <<: *TEST
+development:
+    <<: *TEST
