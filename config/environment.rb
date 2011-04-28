@@ -17,7 +17,7 @@ Rails::Initializer.run do |config|
   config.gem 'authlogic_wind', :version => '>= 0.4.0'
   config.gem 'declarative_authorization'
   config.gem 'haml'
-  config.gem 'httpclient'
+  config.gem 'httpclient', :version => '2.1.6.1'
   config.gem 'nokogiri'
   config.gem 'net-ldap', :version => '>=0.1.1'
   config.gem 'rsolr', :version => '0.12.1'
