@@ -22,6 +22,7 @@ Rails::Initializer.run do |config|
   config.gem 'net-ldap', :version => '>=0.1.1'
   config.gem 'rsolr', :version => '0.12.1'
   config.gem 'rsolr-ext', :version => '0.12.1'
+  config.gem 'ruby-prof'
   # Settings in config/environments/* take precedence over those specified here.
   #
   # Application configuration should go into files in config/initializers

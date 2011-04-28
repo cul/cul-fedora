@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
   unloadable
   helper :all # include all helpers, all the time
   before_filter :set_current_user
+  before_filter :require_admin, :only => :profile
   around_filter :profile
 
   def set_current_user
