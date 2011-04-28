@@ -46,6 +46,11 @@ class ThumbnailController < ApplicationController
       # else get thumb_url for first parent
     elsif triples[HAS_MODEL].include?("info:fedora/ldpd:ContentAggregator")
       url = content_thumbnail(pid)
+    elsif triples[HAS_MODEL].include?("info:fedora/ldpd:JP2ImageAggregator")
+      url = image_thumbnail(pid)
+      if url[:url].eql?(NO_THUMB)
+        url = jp2_thumbnail(pid)
+      end
     elsif triples[HAS_MODEL].include?("info:fedora/ldpd:StaticImageAggregator")
       url = image_thumbnail(pid)
     else
@@ -98,7 +103,6 @@ class ThumbnailController < ApplicationController
     base_type = nil
     max_dim = 251
     images.each do |image|
-      res = {}
       _w = image["imageWidth"].to_i
       _h = image["imageHeight"].to_i
       if _w < _h
@@ -106,6 +110,7 @@ class ThumbnailController < ApplicationController
       else
         _max = _w
       end
+      puts "width: #{_w} height: #{_h} limit: #{max_dim} rejected: #{(max_dim >= _max).to_s}"
       if _max < max_dim
         base_id = pid_from_uri(image["member"])
         base_type = image["type"]
@@ -113,10 +118,14 @@ class ThumbnailController < ApplicationController
       end
     end
     if base_id.nil?
-      {:url=>"http://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/ImageNA.svg/200px-ImageNA.svg.png", :mime=>'image/png'}
+      {:url=>NO_THUMB, :mime=>'image/png'}
     else
       {:url=>FEDORA_CONFIG[:riurl] + "/get/" + base_id + "/CONTENT",:mime=>base_type}
     end
+  end
+
+  def jp2_thumbnail(pid)
+    {:url => FEDORA_CONFIG[:riurl] + '/objects/' + pid + '/methods/ldpd:sdef.Image/getView?max=250', :mime => 'image/jpeg'}
   end
 
   def pid_from_uri(uri)
