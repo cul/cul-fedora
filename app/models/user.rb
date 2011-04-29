@@ -24,7 +24,10 @@ class User < ActiveRecord::Base
       entry = entry.first
 
       if entry
-        self.email = entry[:mail].to_s
+        _mail = entry[:mail].to_s
+        if _mail.length > 6 and _mail.match(/^[\w.]+[@][\w.]+$/)
+          self.email = _mail
+        end
         self.last_name = entry[:sn].to_s
         self.first_name = entry[:givenname].to_s
       end
