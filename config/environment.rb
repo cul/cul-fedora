@@ -18,6 +18,8 @@ Rails::Initializer.run do |config|
   config.gem 'declarative_authorization'
   config.gem 'haml'
   config.gem 'httpclient', :version => '2.1.6.1'
+  config.gem 'json', :version => '1.4.6'
+  config.gem 'json_pure', :version => '1.5.0'
   config.gem 'nokogiri'
   config.gem 'net-ldap', :version => '>=0.1.1'
   config.gem 'rsolr', :version => '0.12.1'
