@@ -118,7 +118,7 @@ Blacklight.configure(:shared) do |config|
       "collection_h" => true
     }
   }
-  if !RAILS_ENV.eql?"ludwig_prod"
+  if !RAILS_ENV.eql?"passenger_prod"
     config[:facet][:field_names].concat(["collection_h","format_h","descriptor"])
     config[:facet][:labels]["collection_h"] = "In Hierarchy"
     config[:facet][:labels]["format_h"] = "Routed As"
