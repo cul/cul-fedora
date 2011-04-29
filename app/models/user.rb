@@ -27,6 +27,8 @@ class User < ActiveRecord::Base
         _mail = entry[:mail].to_s
         if _mail.length > 6 and _mail.match(/^[\w.]+[@][\w.]+$/)
           self.email = _mail
+        else
+          self.email = wind_login + '@columbia.edu'
         end
         self.last_name = entry[:sn].to_s
         self.first_name = entry[:givenname].to_s
