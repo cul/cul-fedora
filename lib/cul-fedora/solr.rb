@@ -48,7 +48,7 @@ module Cul
         items.each do |i|
           
           if(ignore.index(i.pid).nil? == false)
-            puts "Ignoring " + i.pid + "..."
+            $stdout.puts "Ignoring " + i.pid + "..."
             next
           end
           
@@ -67,7 +67,7 @@ module Cul
           end    
           
 
-         puts "Indexing " + i.pid + "..."
+          $stdout.puts "Indexing " + i.pid + "..."
 
           result_hash = i.send("index_for_#{format}", options)
 

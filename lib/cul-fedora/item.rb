@@ -103,7 +103,8 @@ module Cul
 
         get_fullname = lambda { |node| node.nil? ? nil : (node.css("namePart[@type='family']").collect(&:content) | node.css("namePart[@type='given']").collect(&:content)).join(", ") }
 
-        roles = ["Author","author","Creator","Thesis Advisor","Collector","Owner","Speaker","Seminar Chairman","Secretary","Rapporteur","Committee Member","Degree Grantor","Moderator","Editor","Interviewee","Interviewer","Organizer of Meeting","Originator","Teacher"]
+        roles = ["Author","Creator","Thesis Advisor","Collector","Owner","Speaker","Seminar Chairman","Secretary","Rapporteur","Committee Member","Degree Grantor","Moderator","Editor","Interviewee","Interviewer","Organizer of Meeting","Originator","Teacher"]
+        roles = roles.map { |role| role.downcase }
 
         organizations = []
         departments = []
@@ -141,7 +142,7 @@ module Cul
 
             all_names = []
             mods.css("name[@type='personal']").each do |name_node|
-              if name_node.css("role>roleTerm[@type='text']").collect(&:content).any? { |role| roles.include?(role) }
+              if name_node.css("role>roleTerm").collect(&:content).any? { |role| roles.include?(role) }
 
                 fullname = get_fullname.call(name_node)
 
@@ -166,7 +167,7 @@ module Cul
             
             mods.css("name[@type='corporate']").each do |corp_name_node|
               if(!corp_name_node["ID"].nil? && corp_name_node["ID"].include?("originator"))
-                name_part = corp_name_node.at_css("namePart")
+                name_part = corp_name_node.at_css("namePart").text
                 if(name_part.include?(". "))
                   name_part_split = name_part.split(". ")
                   organizations.push(name_part_split[0].strip)
@@ -245,7 +246,7 @@ module Cul
             if(departments.count > 0)
               departments = departments.uniq
               departments.each do |department|
-                add_field.call("affiliation_department", department)
+                add_field.call("affiliation_department", department.to_s.sub(", Department of", "").strip)
               end
             end
             
