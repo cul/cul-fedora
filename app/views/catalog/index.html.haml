@@ -18,5 +18,5 @@
 
   %div.pageEntriesInfo
   = render 'results_pagination'
-  - unless RAILS_ENV == 'ludwig_prod'
+  - unless RAILS_ENV == 'passenger_prod'
     = render :partial=>'solr_request'
