@@ -20,8 +20,33 @@ module Cul
         rsolr.commit
       end
       
+      def delete_removed(fedora_server)
+        
+        start = 0
+        rows = 500
+        results = rsolr.select({:q => "", :fl => "id", :start => start, :rows => rows})
+        $stdout.puts "Deleting items removed from Fedora..."
+        while(!results["response"]["docs"].empty?)
+          
+          results["response"]["docs"].each do |doc|
+            if(!fedora_server.item(doc["id"]).exists?)
+              $stdout.puts "Deleting " + doc["id"] + "..."
+              rsolr.delete_by_query("id:" + doc["id"].to_s.gsub(/:/,'\\:'))
+            end
+          end
+          
+          start = start + rows
+          results = rsolr.select({:q => "", :fl => "id", :start => start, :rows => rows})
+        end
+        
+        rsolr.commit
+        
+      end
+      
       def ingest(options = {})
+        
         format = options.delete(:format) || raise(ArgumentError, "needs format")
+        fedora_server = options.delete(:fedora_server) || raise(ArgumentError, "needs fedora server")
 
         items = options.delete(:items) || []
         items = [items] unless items.kind_of?(Array)
@@ -30,10 +55,14 @@ module Cul
         ignore = options.delete(:ignore) || []
         ignore = [ignore] unless ignore.kind_of?(Array)
 
+        delete = options.delete(:delete_removed) || false
         overwrite = options.delete(:overwrite) || false
         process = options.delete(:process) || nil
         skip = options.delete(:skip) || nil
 
+        if delete
+          delete_removed(fedora_server)
+        end
         
         collections.each do |collection|
           items |= collection.listMembers
@@ -85,9 +114,19 @@ module Cul
             break if process <= 0
           end
 
+          if to_add.length >= 500
+            $stdout.puts "Adding Batch..."
+            rsolr.add(to_add)
+            to_add.clear
+          end
+
         end
-          
-        rsolr.add(to_add)
+        
+        if to_add.length > 0
+          $stdout.puts "Adding Batch..."
+          rsolr.add(to_add)
+          to_add.clear
+        end
         rsolr.commit
 
         return {:results => results, :errors => errors}

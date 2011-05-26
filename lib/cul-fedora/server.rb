@@ -23,9 +23,8 @@ module Cul
       def request_path(options = {})
         sdef = options.delete(:sdef).to_s
         pid = options.delete(:pid).to_s
-        request = options.delete(:request).to_s
+        request = (options.delete(:request) || "").to_s
         method = (options.delete(:method) || "/get").to_s
-        raise(ArgumentError, "request necessary") if request.empty?
 
         sdef = "/" + sdef unless sdef.empty?
         pid = "/" + pid unless pid.empty?

@@ -29,6 +29,15 @@ module Cul
         self.pid == other.pid
       end
 
+      def exists?
+        begin
+          request
+          return true
+        rescue Exception => e # we should really do some better checking of error type etc here
+          return false
+        end
+      end
+
       def request(options = {})
         @server.request(options.merge(:pid => @pid))
       end
