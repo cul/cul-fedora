@@ -60,7 +60,7 @@ module Cul
         process = options.delete(:process) || nil
         skip = options.delete(:skip) || nil
 
-        if delete
+        if delete == true
           delete_removed(fedora_server)
         end
         
@@ -88,8 +88,7 @@ module Cul
 
            
           if item_exists?(i)
-            
-            unless overwrite
+            unless overwrite == true
               results[:skipped] << i.pid
               next
             end
