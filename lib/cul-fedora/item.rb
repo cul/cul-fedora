@@ -3,11 +3,11 @@ require "open3"
 module Cul
   module Fedora
     class Item
+      
       attr_reader :server, :pid
       include Open3 
 
       URI_TO_PID = 'info:fedora/'
-
 
       def <=>(other)
         pid <=> other.pid
@@ -20,8 +20,13 @@ module Cul
       def initialize(*args)
         options = args.extract_options!
         @server = options[:server] || Server.new(options[:server_config])
+        @logger = options[:logger]
         @pid = options[:pid] || options[:uri] || raise(ArgumentError, "requires uri or pid")
         @pid = @pid.to_s.sub(URI_TO_PID, "")
+      end
+
+      def logger
+        @logger ||= Logger.new
       end
 
       def ==(other)

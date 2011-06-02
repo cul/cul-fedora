@@ -1,20 +1,24 @@
 module Cul
   module Fedora
     class Server
+      
       attr_reader :riurl, :riquery
 
       def initialize(*args)
         options = args.extract_options!
         @riurl = options[:riurl] || raise(ArgumentError, "Must provide riurl argument")
         @riquery = options[:riquery] || raise(ArgumentError, "Must provide riquery argument")
-        @hc = options[:http_client] 
+        @hc = options[:http_client]
+        @logger = options[:logger] 
+      end
+
+      def logger
+        @logger ||= Logger.new(STDOUT)
       end
 
       def item(uri)
-        Item.new(:server => self, :uri => uri)
+        Item.new(:server => self, :uri => uri, :logger => logger)
       end
-
-
 
       def request(options= {})
         http_client.get_content(*request_path(options))
@@ -37,16 +41,13 @@ module Cul
         return [uri, query]
       end
 
-      def inspect
-        '#<Cul::Fedora::Server:' + self.object_id.to_s + ' @riurl="' + @riurl + '">'  
-      end
-
       private
 
       def http_client
         @hc ||= HTTPClient.new()
         @hc
       end
+      
     end
   end
 end

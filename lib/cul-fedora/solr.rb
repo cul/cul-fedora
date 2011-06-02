@@ -1,10 +1,16 @@
 module Cul
   module Fedora
     class Solr
+      
       attr_reader :url
+      
       def initialize(config = {})
         @url = config[:url] || raise(ArgumentError, "must provide url")
+        @logger = config[:logger]
+      end
 
+      def logger
+        @logger ||= Logger.new(STDOUT)
       end
 
       def item_exists?(item)
@@ -25,12 +31,12 @@ module Cul
         start = 0
         rows = 500
         results = rsolr.select({:q => "", :fl => "id", :start => start, :rows => rows})
-        $stdout.puts "Deleting items removed from Fedora..."
+        logger.info "Deleting items removed from Fedora..."
         while(!results["response"]["docs"].empty?)
           
           results["response"]["docs"].each do |doc|
             if(!fedora_server.item(doc["id"]).exists?)
-              $stdout.puts "Deleting " + doc["id"] + "..."
+              logger.info "Deleting " + doc["id"] + "..."
               rsolr.delete_by_query("id:" + doc["id"].to_s.gsub(/:/,'\\:'))
             end
           end
@@ -77,7 +83,7 @@ module Cul
         items.each do |i|
           
           if(ignore.index(i.pid).nil? == false)
-            $stdout.puts "Ignoring " + i.pid + "..."
+            logger.info "Ignoring " + i.pid + "..."
             next
           end
           
@@ -95,7 +101,7 @@ module Cul
           end    
           
 
-          $stdout.puts "Indexing " + i.pid + "..."
+          logger.info "Indexing " + i.pid + "..."
 
           result_hash = i.send("index_for_#{format}", options)
 
@@ -114,7 +120,7 @@ module Cul
           end
 
           if to_add.length >= 500
-            $stdout.puts "Adding Batch..."
+            logger.info "Adding batch to commit queue..."
             rsolr.add(to_add)
             to_add.clear
           end
@@ -122,10 +128,12 @@ module Cul
         end
         
         if to_add.length > 0
-          $stdout.puts "Adding Batch..."
+          logger.info "Adding batch to commit queue..."
           rsolr.add(to_add)
           to_add.clear
         end
+        
+        logger.info "Committing changes to Solr..."
         rsolr.commit
 
         return {:results => results, :errors => errors}
@@ -133,7 +141,5 @@ module Cul
       end
 
     end
-
-
   end
 end
