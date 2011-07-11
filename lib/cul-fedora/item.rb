@@ -117,8 +117,9 @@ module Cul
 
         get_fullname = lambda { |node| node.nil? ? nil : (node.css("namePart[@type='family']").collect(&:content) | node.css("namePart[@type='given']").collect(&:content)).join(", ") }
 
-        roles = ["Author","Creator","Thesis Advisor","Collector","Owner","Speaker","Seminar Chairman","Secretary","Rapporteur","Committee Member","Degree Grantor","Moderator","Editor","Interviewee","Interviewer","Organizer of Meeting","Originator","Teacher"]
-        roles = roles.map { |role| role.downcase }
+        author_roles = ["author","creator","editor","speaker","moderator","interviewee","interviewer","contributor"]
+        other_name_roles = ["thesis advisor"]
+        corporate_author_roles = ["author"]
 
         organizations = []
         departments = []
@@ -154,19 +155,31 @@ module Cul
             add_field.call("title_display", title)
             add_field.call("title_search", title_search)
 
-            all_names = []
+            all_author_names = []
             mods.css("name[@type='personal']").each do |name_node|
-              if name_node.css("role>roleTerm").collect(&:content).any? { |role| roles.include?(role) }
+              
+              fullname = get_fullname.call(name_node)
+              note_org = false
+              
+              if name_node.css("role>roleTerm").collect(&:content).any? { |role| author_roles.include?(role) }
 
-                fullname = get_fullname.call(name_node)
-
-                all_names << fullname
+                note_org = true
+                all_author_names << fullname
                 if(!name_node["ID"].nil?)
                   add_field.call("author_id_uni", name_node["ID"])
                 end
                 add_field.call("author_search", fullname.downcase)
                 add_field.call("author_facet", fullname)
-                
+
+              elsif name_node.css("role>roleTerm").collect(&:content).any? { |role| other_name_roles.include?(role) }
+
+                note_org = true
+                first_role = name_node.at_css("role>roleTerm").text
+                add_field.call(first_role.gsub(/\s/, '_'), fullname)
+
+              end
+              
+              if (note_org == true)
                 name_node.css("affiliation").each do |affiliation_node|
                   affiliation_text = affiliation_node.text
                   if(affiliation_text.include?(". "))
@@ -175,8 +188,8 @@ module Cul
                     departments.push(affiliation_split[1].strip)
                   end
                 end
-
               end
+              
             end
             
             mods.css("name[@type='corporate']").each do |corp_name_node|
@@ -188,9 +201,20 @@ module Cul
                   departments.push(name_part_split[1].strip)
                 end
               end
+              if corp_name_node.css("role>roleTerm").collect(&:content).any? { |role| corporate_author_roles.include?(role) }
+                display_form = corp_name_node.at_css("displayForm") 
+                if(!display_form.nil?)
+                  fullname = display_form.text
+                else
+                  fullname = corp_name_node.at_css("namePart").text
+                end
+                all_author_names << fullname
+                add_field.call("author_search", fullname.downcase)
+                add_field.call("author_facet", fullname)
+              end
             end
 
-            add_field.call("authors_display",all_names.join("; "))
+            add_field.call("authors_display",all_author_names.join("; "))
             add_field.call("pub_date", mods.at_css("*[@keyDate='yes']"))
 
             mods.css("genre").each do |genre_node|
@@ -233,6 +257,10 @@ module Cul
               add_field.call("book_author", get_fullname.call(related_host.at_css("name"))) 
 
               add_field.call("issn", related_host.at_css("identifier[@type='issn']"))
+            end
+            
+            if(related_series = mods.at_css("relatedItem[@type='series']"))
+              add_field.call("series", related_series.at_css("titleInfo>title"))
             end
 
             add_field.call("publisher", mods.at_css("relatedItem>originInfo>publisher"))

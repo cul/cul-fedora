@@ -66,6 +66,8 @@ module Cul
         process = options.delete(:process) || nil
         skip = options.delete(:skip) || nil
 
+        processed_successfully = 0
+
         if delete == true
           delete_removed(fedora_server)
         end
@@ -110,6 +112,7 @@ module Cul
           case result_hash[:status]
           when :success
             to_add << result_hash[:results]
+            processed_successfully += 1
           when :error
             errors[i.pid] = result_hash[:error_message]
           end
@@ -136,7 +139,7 @@ module Cul
         logger.info "Committing changes to Solr..."
         rsolr.commit
 
-        return {:results => results, :errors => errors}
+        return {:results => results, :errors => errors, :processed_successfully => processed_successfully}
 
       end
 
