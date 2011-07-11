@@ -260,7 +260,9 @@ module Cul
             end
             
             if(related_series = mods.at_css("relatedItem[@type='series']"))
-              add_field.call("series", related_series.at_css("titleInfo>title"))
+              if(related_series.has_attribute?("ID"))
+                add_field.call("series", related_series.at_css("titleInfo>title"))
+              end
             end
 
             add_field.call("publisher", mods.at_css("relatedItem>originInfo>publisher"))
