@@ -8,6 +8,7 @@ module Cul
       include Open3 
 
       URI_TO_PID = 'info:fedora/'
+      MAX_LIST_MEMBERS_PER_REQUEST = 500
 
       def <=>(other)
         pid <=> other.pid
@@ -69,13 +70,28 @@ module Cul
 
       def listMembers()
         begin
-          result = Nokogiri::XML(request(:method => "/objects", :sdef => "methods/ldpd:sdef.Aggregator", :request => "listMembers", :format => "", :max => "", :start => ""))
+          i = 1
+          size = getSize
+          items = []
+          while (i <= size)
+            result = Nokogiri::XML(request(:method => "/objects", :sdef => "methods/ldpd:sdef.Aggregator", :request => "listMembers", :format => "sparql", :max => MAX_LIST_MEMBERS_PER_REQUEST, :start => (i - 1)))
 
-          result.css("sparql>results>result>member").collect do |result_node|
-            @server.item(result_node.attributes["uri"].value)
+            result.css("sparql>results>result>member").collect do |result_node|
+              items << @server.item(result_node.attributes["uri"].value)
+            end
+            i = i + MAX_LIST_MEMBERS_PER_REQUEST
           end
+          return items
         rescue
           []
+        end
+      end
+
+      def getSize()
+        begin
+          request(:method => "/objects", :sdef => "methods/ldpd:sdef.Aggregator", :request => "getSize").to_i
+        rescue
+          -1
         end
       end
 

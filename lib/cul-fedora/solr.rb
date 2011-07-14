@@ -72,6 +72,7 @@ module Cul
           delete_removed(fedora_server)
         end
         
+        logger.info "Preparing the items for indexing..."
         collections.each do |collection|
           items |= collection.listMembers
         end
@@ -81,6 +82,8 @@ module Cul
         to_add = []
         results = Hash.new { |h,k| h[k] = [] }
         errors = {}
+      
+        logger.info "Preparing to index " + items.length.to_s + " items..."
       
         items.each do |i|
           
