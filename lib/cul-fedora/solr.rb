@@ -26,27 +26,48 @@ module Cul
         rsolr.commit
       end
       
-      def delete_removed(fedora_server)
+      def delete_removed(fedora_server, fedora_item_pids = nil)
         
+        removed = identify_removed(fedora_server)
+        logger.info "Deleting items removed from Fedora..."
+        removed.each do |id|
+          logger.info "Deleting " + id + "..."
+          rsolr.delete_by_query("id:" + id.to_s.gsub(/:/,'\\:'))
+        end
+        
+        rsolr.commit
+        
+      end
+      
+      def identify_removed(fedora_server, fedora_item_pids = nil)
         start = 0
         rows = 500
+        removed = []
         results = rsolr.select({:q => "", :fl => "id", :start => start, :rows => rows})
-        logger.info "Deleting items removed from Fedora..."
+        logger.info "Identifying items removed from Fedora..."
         while(!results["response"]["docs"].empty?)
           
+          logger.info("Checking Solr index from " + start.to_s + " to " + (start + rows).to_s + "...")
           results["response"]["docs"].each do |doc|
-            if(!fedora_server.item(doc["id"]).exists?)
-              logger.info "Deleting " + doc["id"] + "..."
-              rsolr.delete_by_query("id:" + doc["id"].to_s.gsub(/:/,'\\:'))
+            
+            if(fedora_item_pids.nil?)
+              if(!fedora_server.item(doc["id"]).exists?)
+                logger.info "Noting removed item " + doc["id"] + "..."
+                removed << doc["id"].to_s
+              end
+            else
+              if(!fedora_item_pids.include?(doc["id"].to_s))
+                logger.info "Noting removed item " + doc["id"] + "..."
+                removed << doc["id"].to_s
+              end
             end
+            
           end
           
           start = start + rows
           results = rsolr.select({:q => "", :fl => "id", :start => start, :rows => rows})
         end
-        
-        rsolr.commit
-        
+        return removed
       end
       
       def ingest(options = {})
@@ -67,10 +88,6 @@ module Cul
         skip = options.delete(:skip) || nil
 
         processed_successfully = 0
-
-        if delete == true
-          delete_removed(fedora_server)
-        end
         
         logger.info "Preparing the items for indexing..."
         collections.each do |collection|
@@ -82,6 +99,14 @@ module Cul
         to_add = []
         results = Hash.new { |h,k| h[k] = [] }
         errors = {}
+      
+        item_pids = []
+        items.each do |item|
+          item_pids << item.pid
+        end
+        if delete == true
+          delete_removed(fedora_server, item_pids)
+        end
       
         logger.info "Preparing to index " + items.length.to_s + " items..."
       

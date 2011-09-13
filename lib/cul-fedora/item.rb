@@ -136,6 +136,7 @@ module Cul
         author_roles = ["author","creator","editor","speaker","moderator","interviewee","interviewer","contributor"]
         other_name_roles = ["thesis advisor"]
         corporate_author_roles = ["author"]
+        corporate_department_roles = ["originator"]
 
         organizations = []
         departments = []
@@ -209,7 +210,7 @@ module Cul
             end
             
             mods.css("name[@type='corporate']").each do |corp_name_node|
-              if(!corp_name_node["ID"].nil? && corp_name_node["ID"].include?("originator"))
+              if((!corp_name_node["ID"].nil? && corp_name_node["ID"].include?("originator")) || corp_name_node.css("role>roleTerm").collect(&:content).any? { |role| corporate_department_roles.include?(role) })
                 name_part = corp_name_node.at_css("namePart").text
                 if(name_part.include?(". "))
                   name_part_split = name_part.split(". ")
