@@ -1,4 +1,9 @@
 require "open3"
+begin
+  require "active_support/core_ext/array/extract_options"
+rescue
+  require "activesupport"
+end
 
 module Cul
   module Fedora
@@ -40,6 +45,7 @@ module Cul
           request
           return true
         rescue Exception => e # we should really do some better checking of error type etc here
+          logger.error e.message
           return false
         end
       end
@@ -82,7 +88,8 @@ module Cul
             i = i + MAX_LIST_MEMBERS_PER_REQUEST
           end
           return items
-        rescue
+        rescue Exception => e
+          logger.error e.message
           []
         end
       end
@@ -90,8 +97,9 @@ module Cul
       def getSize()
         begin
           request(:method => "/objects", :sdef => "methods/ldpd:sdef.Aggregator", :request => "getSize").to_i
-        rescue
-          -1
+        rescue Exception => e
+          logger.error e.message
+          return -1
         end
       end
 
@@ -103,6 +111,7 @@ module Cul
             @server.item(metadata.attributes["uri"].value)
           end
         rescue Exception => e
+          logger.error e.message
           []
         end
       end
@@ -113,7 +122,8 @@ module Cul
           result.xpath("/rdf:RDF/rdf:Description/*[local-name()='memberOf']").collect do |member|
             @server.item(member.attributes["resource"].value)
           end
-        rescue
+        rescue Exception => e
+          logger.error e.message
           []
         end
       end
@@ -183,7 +193,7 @@ module Cul
                 note_org = true
                 all_author_names << fullname
                 if(!name_node["ID"].nil?)
-                  add_field.call("author_id_uni", name_node["ID"])
+                  add_field.call("author_uni", name_node["ID"])
                 end
                 add_field.call("author_search", fullname.downcase)
                 add_field.call("author_facet", fullname)
@@ -231,13 +241,12 @@ module Cul
               end
             end
 
-            add_field.call("authors_display",all_author_names.join("; "))
-            add_field.call("pub_date", mods.at_css("*[@keyDate='yes']"))
+            add_field.call("author_display",all_author_names.join("; "))
+            add_field.call("pub_date_facet", mods.at_css("*[@keyDate='yes']"))
 
             mods.css("genre").each do |genre_node|
               add_field.call("genre_facet", genre_node)
               add_field.call("genre_search", genre_node)
-
             end
 
 
@@ -248,14 +257,14 @@ module Cul
               if(subject_node.attributes.count == 0)
                 subject_node.css("topic").each do |topic_node|
                   add_field.call("keyword_search", topic_node.content.downcase)
-                  add_field.call("subject", topic_node)
+                  add_field.call("subject_facet", topic_node)
                   add_field.call("subject_search", topic_node)
                 end
               end
             end
 
 
-            add_field.call("tableOfContents", mods.at_css("tableOfContents"))
+            add_field.call("table_of_contents", mods.at_css("tableOfContents"))
 
             mods.css("note").each { |note| add_field.call("notes", note) }
 
@@ -278,7 +287,7 @@ module Cul
             
             if(related_series = mods.at_css("relatedItem[@type='series']"))
               if(related_series.has_attribute?("ID"))
-                add_field.call("series", related_series.at_css("titleInfo>title"))
+                add_field.call("series_facet", related_series.at_css("titleInfo>title"))
               end
             end
 
@@ -291,23 +300,24 @@ module Cul
 
             mods.css("typeOfResource").each { |tr| add_field.call("type_of_resource_facet", tr)}
             mods.css("subject>geographic").each do |geo|
-              add_field.call("geographic_area", geo)
+              add_field.call("geographic_area_display", geo)
               add_field.call("geographic_area_search", geo)
             end
 
-            add_field.call("export_as_mla_citation_txt","")
+            # This is just a placeholder, reminding us that we need to implement citations in some way
+            # add_field.call("export_as_mla_citation_txt","")
             
             if(organizations.count > 0)
               organizations = organizations.uniq
               organizations.each do |organization|
-                add_field.call("affiliation_organization", organization)
+                add_field.call("organization_facet", organization)
               end
             end
             
             if(departments.count > 0)
               departments = departments.uniq
               departments.each do |department|
-                add_field.call("affiliation_department", department.to_s.sub(", Department of", "").strip)
+                add_field.call("department_facet", department.to_s.sub(", Department of", "").strip)
               end
             end
             

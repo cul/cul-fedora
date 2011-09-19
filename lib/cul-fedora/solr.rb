@@ -1,12 +1,18 @@
+begin
+  require "active_support/core_ext/array/extract_options"
+rescue
+  require "activesupport"
+end
+
 module Cul
   module Fedora
     class Solr
       
       attr_reader :url
       
-      def initialize(config = {})
-        @url = config[:url] || raise(ArgumentError, "must provide url")
-        @logger = config[:logger]
+      def initialize(options = {})
+        @url = options[:url] || options["url"] || raise(ArgumentError, "must provide url")
+        @logger = options[:logger] || options["logger"]
       end
 
       def logger
@@ -22,6 +28,7 @@ module Cul
       end
 
       def delete_index
+        logger.info "Deleting Solr index..."
         rsolr.delete_by_query("*:*")
         rsolr.commit
       end
@@ -84,10 +91,9 @@ module Cul
 
         delete = options.delete(:delete_removed) || false
         overwrite = options.delete(:overwrite) || false
-        process = options.delete(:process) || nil
-        skip = options.delete(:skip) || nil
+        skip = options.delete(:skip) || []
 
-        processed_successfully = 0
+        indexed_count = 0
         
         logger.info "Preparing the items for indexing..."
         collections.each do |collection|
@@ -96,9 +102,8 @@ module Cul
 
         items.sort!
 
-        to_add = []
         results = Hash.new { |h,k| h[k] = [] }
-        errors = {}
+        errors = []
       
         item_pids = []
         items.each do |item|
@@ -112,16 +117,11 @@ module Cul
       
         items.each do |i|
           
-          if(ignore.index(i.pid).nil? == false)
-            logger.info "Ignoring " + i.pid + "..."
+          if(ignore.index(i.pid).nil? == false || skip.index(i.pid).nil? == false)
+            logger.info "Ignoring/skipping " + i.pid + "..."
+            results[:skipped] << i.pid
             next
           end
-          
-          if process && skip && skip > 0
-            skip -= 1
-            next
-          end
-
            
           if item_exists?(i)
             unless overwrite == true
@@ -129,45 +129,33 @@ module Cul
               next
             end
           end    
-          
 
           logger.info "Indexing " + i.pid + "..."
 
           result_hash = i.send("index_for_#{format}", options)
 
-          results[result_hash[:status]]  << i.pid
+          results[result_hash[:status]] << i.pid
 
           case result_hash[:status]
           when :success
-            to_add << result_hash[:results]
-            processed_successfully += 1
+            begin
+              rsolr.add(result_hash[:results])
+              indexed_count += 1
+            rescue Exception => e
+              errors << i.pid
+              logger.error e.message
+            end
           when :error
-            errors[i.pid] = result_hash[:error_message]
+            errors << i.pid
+            logger.error result_hash[:error_message]
           end
 
-          if process
-            process -= 1
-            break if process <= 0
-          end
-
-          if to_add.length >= 500
-            logger.info "Adding batch to commit queue..."
-            rsolr.add(to_add)
-            to_add.clear
-          end
-
-        end
-        
-        if to_add.length > 0
-          logger.info "Adding batch to commit queue..."
-          rsolr.add(to_add)
-          to_add.clear
         end
         
         logger.info "Committing changes to Solr..."
         rsolr.commit
 
-        return {:results => results, :errors => errors, :processed_successfully => processed_successfully}
+        return {:results => results, :errors => errors, :indexed_count => indexed_count}
 
       end
 

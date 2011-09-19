@@ -1,3 +1,9 @@
+begin
+  require "active_support/core_ext/array/extract_options"
+rescue
+  require "activesupport"
+end
+
 module Cul
   module Fedora
     class Server
@@ -6,10 +12,10 @@ module Cul
 
       def initialize(*args)
         options = args.extract_options!
-        @riurl = options[:riurl] || raise(ArgumentError, "Must provide riurl argument")
-        @riquery = options[:riquery] || raise(ArgumentError, "Must provide riquery argument")
-        @hc = options[:http_client]
-        @logger = options[:logger] 
+        @riurl = options[:riurl] || options["riurl"] || raise(ArgumentError, "Must provide riurl argument")
+        @riquery = options[:riquery] || options["riquery"] || raise(ArgumentError, "Must provide riquery argument")
+        @hc = options[:http_client] || options["http_client"]
+        @logger = options[:logger] || options["logger"]
       end
 
       def logger
