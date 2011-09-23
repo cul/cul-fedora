@@ -72,7 +72,7 @@ module Cul
           end
           
           start = start + rows
-          results = rsolr.select({:q => "", :fl => "id", :start => start, :rows => rows})
+          results = rsolr.get 'select', :params => {:q => "", :fl => "id", :start => start, :rows => rows}
         end
         return removed
       end
