@@ -45,6 +45,7 @@ module Cul
           request
           return true
         rescue Exception => e # we should really do some better checking of error type etc here
+	  logger.error "no fedora object was found for pid #{pid}"
           logger.error e.message
           return false
         end
