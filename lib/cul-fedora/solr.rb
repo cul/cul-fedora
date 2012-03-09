@@ -59,7 +59,7 @@ module Cul
             
             if(fedora_item_pids.nil?)
               if(!fedora_server.item(doc["id"]).exists?)
-		logger.info "Noting removed item " + doc["id"].to_s + "..."
+		logger.info "Noting item removed from fedora:  " + doc["id"].to_s + "..."
                 removed << doc["id"].to_s
               end
             else
