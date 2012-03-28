@@ -289,6 +289,7 @@ module Cul
             if(related_series = mods.at_css("relatedItem[@type='series']"))
               if(related_series.has_attribute?("ID"))
                 add_field.call("series_facet", related_series.at_css("titleInfo>title"))
+		add_field.call("part_number", related_series.at_css("titleInfo>partNumber"))
               end
             end
 
