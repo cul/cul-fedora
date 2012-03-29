@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{cul-fedora}
-  s.version = "1.0.2"
+  s.version = "1.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = [%q{James Stuart}]
-  s.date = %q{2012-03-09}
+  s.authors = ["James Stuart"]
+  s.date = %q{2012-03-29}
   s.description = %q{Columbia-specific Fedora libraries}
   s.email = %q{tastyhat@jamesstuart.org}
   s.extra_rdoc_files = [
@@ -62,11 +62,12 @@ Gem::Specification.new do |s|
     "test_fedora_item.rb"
   ]
   s.homepage = %q{http://github.com/tastyhat/cul-fedora}
-  s.require_paths = [%q{lib}]
-  s.rubygems_version = %q{1.8.5}
+  s.require_paths = ["lib"]
+  s.rubygems_version = %q{1.3.7}
   s.summary = %q{Columbia University Fedora Hooks}
 
   if s.respond_to? :specification_version then
+    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
