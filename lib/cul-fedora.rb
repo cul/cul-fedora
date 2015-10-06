@@ -1,6 +1,10 @@
 require "httpclient"
 require "nokogiri"
-require "activesupport"
+begin
+	require "activesupport"
+rescue LoadError
+	require "active_support"
+end
 require "rsolr"
 require "rsolr-ext"
 require "open3"
